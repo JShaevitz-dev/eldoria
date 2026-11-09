@@ -231,6 +231,43 @@ namespace Eldoira.EditorTools
             return unit;
         }
 
+        /// <summary>
+        /// Spawns a unit from an existing template asset at any spot in the open scene (keeping prefab links).
+        /// AI units are recoloured red; units of more than one soldier get the floating leader marker.
+        /// Soldiers are placed on the ground below them.
+        /// </summary>
+        public static Unit SpawnUnit(UnitTemplate template, Side side, Vector3 position, Quaternion facing, string unitName)
+        {
+            var unit = UnitFactory.Spawn(template, side, position, facing, unitName: unitName,
+                instantiate: (prefab, parent) => (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent));
+
+            if (side == Side.AI)
+            {
+                var blue = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+                var red = GetOrCreateMaterial("Enemy_Armor", new Color(0.62f, 0.16f, 0.14f));
+                foreach (var r in unit.GetComponentsInChildren<Renderer>(true))
+                    if (r.sharedMaterial == blue) r.sharedMaterial = red;
+            }
+
+            foreach (var soldier in unit.Soldiers)
+            {
+                var p = soldier.transform.position;
+                if (Physics.Raycast(new Vector3(p.x, 50f, p.z), Vector3.down, out var hit, 100f,
+                        Eldoira.Terrain.TerrainLayers.StructureMask, QueryTriggerInteraction.Ignore))
+                    soldier.transform.position = new Vector3(p.x, hit.point.y, p.z);
+            }
+
+            if (unit.Soldiers.Count > 1)
+            {
+                var marker = unit.gameObject.AddComponent<LeaderMarker>();
+                var markerSo = new SerializedObject(marker);
+                markerSo.FindProperty("material").objectReferenceValue = GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f));
+                markerSo.ApplyModifiedPropertiesWithoutUndo();
+            }
+            EditorUtility.SetDirty(unit);
+            return unit;
+        }
+
         /// <summary>Spawns an enemy (AI side) infantry squad, in red, facing the player's squad.</summary>
         public static Unit SpawnEnemySquad()
         {
@@ -376,6 +413,11 @@ namespace Eldoira.EditorTools
                         effect = KeywordEffect.ArmorBonus, amount = 1
                     }
                 };
+            }, k =>
+            {
+                // Blessed soldiers glitter gold while the spell lasts.
+                k.sparkles = true;
+                k.sparkleColor = new Color(1f, 0.82f, 0.25f, 1f);
             });
             GetOrCreate<Keyword>($"{DataDir}/Keywords/LedFromTheFront.asset", k =>
             {

@@ -62,7 +62,7 @@ namespace Eldoira.EditorTools
         public static GameObject BuildGround(Transform parent, Material mat)
         {
             EnsureFolder(Root, "Meshes");
-            float w = Core.BattlefieldScale.BoardWidth, d = Core.BattlefieldScale.BoardDepth;
+            float w = Core.BattlefieldScale.DefaultWidth, d = Core.BattlefieldScale.DefaultDepth;
             int nx = Mathf.RoundToInt(w / GroundResolution) + 1;
             int nz = Mathf.RoundToInt(d / GroundResolution) + 1;
 

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using Eldoira.Gameplay;
 using Eldoira.Rules;
 using NUnit.Framework;
@@ -24,6 +25,9 @@ namespace Eldoira.Tests
         {
             var controller = Object.FindFirstObjectByType<MovementController>();
             Assert.That(controller, Is.Not.Null);
+            Assert.That(controller.ActiveUnit, Is.Null, "each turn starts with no unit selected");
+            Assert.That(controller.OrderLeaderMove(Vector3.zero), Is.False, "no orders until a unit is picked");
+            SelectInfantrySquad(controller);
             var a = controller.Activation;
             var sergeant = a.Leader;
             Vector3 start = sergeant.Position;
@@ -46,6 +50,8 @@ namespace Eldoira.Tests
 
             // Next turn: preview a sprint target to show the range rings.
             controller.NextTurn();
+            Assert.That(controller.ActiveUnit, Is.Null, "the next turn starts with no unit selected");
+            SelectInfantrySquad(controller);
             controller.PreviewAt(sergeant.Position + new Vector3(-6f, 0f, 13f));
             Snapshot(controller, "-snapshotLeader");
         }
@@ -53,7 +59,7 @@ namespace Eldoira.Tests
         [UnityTest]
         public IEnumerator KilledLeaderIsReplacedByClosestSoldier()
         {
-            var controller = Object.FindFirstObjectByType<MovementController>();
+            var controller = SelectInfantrySquad(Object.FindFirstObjectByType<MovementController>());
             var squad = controller.Activation.Unit;
             var sergeant = squad.Leader;
             Assert.That(sergeant.IsSergeant, Is.True);
@@ -78,6 +84,31 @@ namespace Eldoira.Tests
             yield return new WaitForSeconds(4f);
             Snapshot(controller, "-snapshotSuccession");
             Assert.That(controller.OrderEndMove(), Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator SelectedUnitListsItsSoldiersKeywords()
+        {
+            var controller = SelectInfantrySquad(Object.FindFirstObjectByType<MovementController>());
+            var summary = controller.ActiveUnit.KeywordSummary();
+            Assert.That(summary.Single(e => e.keyword.displayName == "Biological").soldiers.Count, Is.EqualTo(10));
+            Assert.That(summary.Single(e => e.keyword.displayName == "Led from the front").soldiers.Count, Is.EqualTo(10), "the Field Commander's aura");
+            Assert.That(summary.Any(e => e.keyword.displayName == "In half-cover"), Is.True, "troopers by the barricade");
+
+            var lines = MovementController.UnitKeywordLines(controller.ActiveUnit);
+            Debug.Log("[Eldoira] HUD unit keywords:\n" + string.Join("\n", lines));
+            Assert.That(lines, Does.Contain("Biological — all 10"));
+            Assert.That(lines.Any(l => l.StartsWith("In half-cover (status) — ") && l.Contains(" of 10: ")), Is.True);
+            yield return null;
+        }
+
+        /// <summary>Step 1: picks the player's Infantry Squad (no unit is selected when a turn starts).</summary>
+        internal static MovementController SelectInfantrySquad(MovementController controller)
+        {
+            var squad = controller.PlayerUnits.First(u => u.DisplayName == "Infantry Squad");
+            Assert.That(controller.SelectUnit(squad), Is.True);
+            Assert.That(controller.ActiveUnit, Is.EqualTo(squad));
+            return controller;
         }
 
         /// <summary>Optional: renders the main camera to the path given after <paramref name="argName"/>.</summary>

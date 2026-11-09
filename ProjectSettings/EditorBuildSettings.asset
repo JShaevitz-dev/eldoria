@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Project/Scenes/UrbanDemo.unity
+    guid: 3d64a43ac8f436245931e3569df39fd7
+  - enabled: 1
     path: Assets/_Project/Scenes/CubeRoom.unity
     guid: 323783b5828bf4b4da39d51158a33a7a
   m_configObjects:

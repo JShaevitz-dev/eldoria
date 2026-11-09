@@ -5,8 +5,10 @@ using UnityEngine;
 namespace Eldoira.EditorTools
 {
     /// <summary>
-    /// Renders the main camera of the CubeRoom scene to a PNG (handy for quick visual checks
-    /// from the command line): -executeMethod Eldoira.EditorTools.SceneSnapshot.Capture -snapshotOut path.png
+    /// Renders the main camera of a scene to a PNG (handy for quick visual checks from the command line):
+    /// -executeMethod Eldoira.EditorTools.SceneSnapshot.Capture -snapshotOut path.png
+    /// Options: -snapshotScene Assets/.../Scene.unity (default CubeRoom), -snapshotTop size (straight-down map view
+    /// showing size meters top to bottom), -snapshotLookAt x,y,z -snapshotDistance d (close-up).
     /// </summary>
     public static class SceneSnapshot
     {
@@ -17,8 +19,21 @@ namespace Eldoira.EditorTools
             for (int i = 0; i < args.Length - 1; i++)
                 if (args[i] == "-snapshotOut") outPath = args[i + 1];
 
-            EditorSceneManager.OpenScene("Assets/_Project/Scenes/CubeRoom.unity");
+            string scenePath = "Assets/_Project/Scenes/CubeRoom.unity";
+            float topSize = 0f;
+            for (int i = 0; i < args.Length - 1; i++)
+            {
+                if (args[i] == "-snapshotScene") scenePath = args[i + 1];
+                if (args[i] == "-snapshotTop") float.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out topSize);
+            }
+            EditorSceneManager.OpenScene(scenePath);
             var cam = Camera.main;
+            if (topSize > 0f)
+            {
+                cam.orthographic = true;
+                cam.orthographicSize = topSize / 2f;
+                cam.transform.SetPositionAndRotation(new Vector3(0f, 80f, 0f), Quaternion.Euler(90f, 0f, 0f));
+            }
             // Optional close-up: -snapshotLookAt x,y,z -snapshotDistance d
             string lookAt = null; float dist = 10f;
             for (int i = 0; i < args.Length - 1; i++)

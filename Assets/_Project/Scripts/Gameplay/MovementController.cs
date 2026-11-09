@@ -12,6 +12,7 @@ namespace Eldoira.Gameplay
 {
     /// <summary>
     /// Player control of one squad's movement (test harness for the movement rules).
+    ///   0. Each turn starts with no unit selected: click one of your units (or press Tab) to command it.
     ///   1. Click the ground to move the squad leader (gold marker): inside the blue ring = move (10 m),
     ///      inside the orange ring = sprint (20 m). H = hold position.
     ///   2. Click a soldier to select them, then click the ground to place them within
@@ -22,7 +23,9 @@ namespace Eldoira.Gameplay
     /// </summary>
     public class MovementController : MonoBehaviour
     {
-        [SerializeField] private Unit squad;
+        /// <summary>The unit being commanded; null until the player picks one (each turn starts with none selected).</summary>
+        private Unit squad;
+        [SerializeField] private Side playerSide = Side.Player;
         [SerializeField] private Camera cam;
         [SerializeField] private float walkSpeed = 4f;
         [SerializeField] private float sprintSpeed = 7f;
@@ -77,7 +80,7 @@ namespace Eldoira.Gameplay
         private readonly List<Unit> playerUnits = new List<Unit>();
         private readonly HashSet<Unit> actedThisTurn = new HashSet<Unit>();
 
-        /// <summary>The unit currently being commanded.</summary>
+        /// <summary>The unit currently being commanded (null when none is selected, e.g. at the start of a turn).</summary>
         public Unit ActiveUnit => squad;
         public IReadOnlyList<Unit> PlayerUnits => playerUnits;
         public bool HasActed(Unit unit) => actedThisTurn.Contains(unit);
@@ -85,13 +88,17 @@ namespace Eldoira.Gameplay
         private void Start()
         {
             if (cam == null) cam = Camera.main;
-            if (squad == null) squad = FindFirstObjectByType<Unit>();
-            if (squad == null || squad.Leader == null)
+            playerUnits.Clear();
+            foreach (var u in FindObjectsByType<Unit>(FindObjectsSortMode.None))
+                if (u.Side == playerSide) playerUnits.Add(u);
+            if (playerUnits.Count == 0)
             {
-                Debug.LogError("[Eldoira] MovementController needs a squad with a sergeant.");
+                Debug.LogError("[Eldoira] MovementController needs at least one player unit.");
                 enabled = false;
                 return;
             }
+            // A stable order for Tab: as listed in the scene hierarchy.
+            playerUnits.Sort((a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
 
             moveRing = RangeRing.Create("Ring_Move", transform, 0.12f);
             sprintRing = RangeRing.Create("Ring_Sprint", transform, 0.12f);
@@ -103,10 +110,6 @@ namespace Eldoira.Gameplay
 
             if (BattlefieldNavigation.Measurer != null) RangeRing.SurfaceHeight = TerrainMeasurer.SurfaceHeight;
 
-            playerUnits.Clear();
-            playerUnits.Add(squad);
-            foreach (var u in FindObjectsByType<Unit>(FindObjectsSortMode.None))
-                if (u != squad && u.Side == squad.Side) playerUnits.Add(u);
             foreach (var u in playerUnits) u.LeaderChanged += OnLeaderChanged;
 
             Turns.ResetCounter();
@@ -136,7 +139,7 @@ namespace Eldoira.Gameplay
                 Flash("Finish this unit's move first.");
                 return false;
             }
-            if (activation != null && activation.Phase == MovePhase.Complete) actedThisTurn.Add(squad);
+            if (squad != null && activation != null && activation.Phase == MovePhase.Complete) actedThisTurn.Add(squad);
 
             squad = unit;
             actionTaken = false;
@@ -150,10 +153,10 @@ namespace Eldoira.Gameplay
         /// <summary>Selects the next of the player's units that hasn't acted yet this turn.</summary>
         public bool SelectNextUnit()
         {
-            int start = Mathf.Max(0, playerUnits.IndexOf(squad));
+            int start = playerUnits.IndexOf(squad); // -1 when none is selected: start from the first unit
             for (int i = 1; i <= playerUnits.Count; i++)
             {
-                var u = playerUnits[(start + i) % playerUnits.Count];
+                var u = playerUnits[(start + i + playerUnits.Count) % playerUnits.Count];
                 if (u != squad && !actedThisTurn.Contains(u) && !u.IsDestroyed) return SelectUnit(u);
             }
             Flash("No other unit can act this turn.");
@@ -173,22 +176,43 @@ namespace Eldoira.Gameplay
             shootMode = false;
             abilityMode = null;
             actedThisTurn.Clear();
-            var first = playerUnits.FirstOrDefault(u => u != null && !u.IsDestroyed);
-            if (first != null) squad = first;
-            StartActivation();
-            if (activation != null) Flash($"Turn {Turns.Current}: move the squad leader ({activation.Leader.name}).");
+            Deselect();
+            Flash($"Turn {Turns.Current}: click one of your units (or press Tab) to command it.");
+        }
+
+        /// <summary>No unit is being commanded (the state at the start of every turn).</summary>
+        private void Deselect()
+        {
+            StopAllWalking();
+            squad = null;
+            activation = null;
+            selected = null;
+            HideMoveVisuals();
+        }
+
+        private void HideMoveVisuals()
+        {
+            foreach (var r in new[] { moveRing, sprintRing, followRing, selectRing, cursorRing, pathLine, abilityRing }.Concat(cohesionRings))
+                if (r != null) r.Hide();
+        }
+
+        /// <summary>True (and tells the player) if no unit is selected to give orders to.</summary>
+        private bool NoActiveUnit()
+        {
+            if (activation != null) return false;
+            Flash("Select one of your units first (click it or press Tab).");
+            return true;
         }
 
         /// <summary>Begins a fresh move for the squad, led by whoever holds command right now.</summary>
         private void StartActivation()
         {
             StopAllWalking();
-            if (squad.IsDestroyed || squad.Leader == null)
+            if (squad == null || squad.IsDestroyed || squad.Leader == null)
             {
-                activation = null;
-                foreach (var r in new[] { moveRing, sprintRing, followRing, selectRing, cursorRing, pathLine }.Concat(cohesionRings))
-                    r.Hide();
-                Flash("The squad has been wiped out.");
+                string name = squad != null ? squad.DisplayName : "The unit";
+                Deselect();
+                Flash($"{name} has been wiped out.");
                 return;
             }
             activation = new UnitMoveActivation(squad, FindObjectsByType<Soldier>(FindObjectsSortMode.None),
@@ -202,7 +226,8 @@ namespace Eldoira.Gameplay
         /// <summary>Debug: kills the current squad leader to test succession. Only before or after the squad moves.</summary>
         public bool DebugKillLeader()
         {
-            if (activation == null || activation.Phase == MovePhase.MoveFollowers)
+            if (NoActiveUnit()) return false;
+            if (activation.Phase == MovePhase.MoveFollowers)
             {
                 Flash("Finish or undo the move before killing the leader.");
                 return false;
@@ -222,6 +247,7 @@ namespace Eldoira.Gameplay
 
         public bool OrderLeaderMove(Vector3 destination)
         {
+            if (NoActiveUnit()) return false;
             if (!activation.TryMoveLeader(destination, out var check))
             {
                 Flash(check.Reason);
@@ -236,6 +262,7 @@ namespace Eldoira.Gameplay
 
         public bool OrderHold()
         {
+            if (NoActiveUnit()) return false;
             if (!activation.HoldLeader()) return false;
             selected = NextOutOfCohesion();
             Flash($"{activation.Leader.name} holds position.");
@@ -244,14 +271,14 @@ namespace Eldoira.Gameplay
 
         public bool Select(Soldier soldier)
         {
-            if (activation.Phase != MovePhase.MoveFollowers || !activation.IsFollower(soldier)) return false;
+            if (activation == null || activation.Phase != MovePhase.MoveFollowers || !activation.IsFollower(soldier)) return false;
             selected = soldier;
             return true;
         }
 
         public bool OrderSelectedMove(Vector3 destination)
         {
-            if (selected == null || selected == activation.Leader) return false;
+            if (activation == null || selected == null || selected == activation.Leader) return false;
             if (!activation.TryMoveFollower(selected, destination, out var check))
             {
                 Flash(check.Reason);
@@ -264,7 +291,7 @@ namespace Eldoira.Gameplay
 
         public void OrderGather()
         {
-            if (activation.Phase != MovePhase.MoveFollowers) return;
+            if (activation == null || activation.Phase != MovePhase.MoveFollowers) return;
             var moved = activation.GatherIntoCohesion();
             foreach (var m in moved) WalkTo(m, activation.PathOf(m), false);
             int left = activation.OutOfCohesion().Count;
@@ -274,6 +301,7 @@ namespace Eldoira.Gameplay
 
         public bool OrderEndMove()
         {
+            if (activation == null) return false;
             if (!activation.Complete())
             {
                 if (activation.Phase == MovePhase.MoveFollowers)
@@ -287,7 +315,7 @@ namespace Eldoira.Gameplay
 
         public void OrderReset()
         {
-            if (activation.Phase == MovePhase.Complete) return;
+            if (activation == null || activation.Phase == MovePhase.Complete) return;
             StopAllWalking();
             activation.Reset();
             foreach (var m in squad.LivingSoldiers)
@@ -311,11 +339,24 @@ namespace Eldoira.Gameplay
 
         private void Update()
         {
-            if (activation == null) return;
             var mouse = Mouse.current;
             var kb = Keyboard.current;
 
             UpdateHover(mouse);
+
+            if (activation == null)
+            {
+                // No unit selected (start of a turn): pick one with Tab or by clicking it.
+                if (Time.time > tracersUntil) foreach (var t in tracers) t.Hide();
+                if (kb != null && kb.tabKey.wasPressedThisFrame) SelectNextUnit();
+                if (kb != null && kb.nKey.wasPressedThisFrame) NextTurn();
+                if (mouse != null && mouse.leftButton.wasPressedThisFrame && !PointerOverHud(mouse))
+                {
+                    if (hoverSoldier != null && playerUnits.Contains(hoverSoldier.Unit)) SelectUnit(hoverSoldier.Unit);
+                    else Flash("Click one of your units (or press Tab) to command it.");
+                }
+                return;
+            }
 
             if (kb != null)
             {
@@ -545,20 +586,35 @@ namespace Eldoira.Gameplay
 
         private void OnGUI()
         {
-            if (squad == null) return;
+            if (!enabled) return;
 
+            // The panel grows to fit its contents (measured each repaint), up to the bottom of the screen.
+            float maxHeight = Screen.height - hudRect.y - 10f;
             GUI.Box(hudRect, GUIContent.none);
-            GUILayout.BeginArea(new Rect(hudRect.x + 10, hudRect.y + 8, hudRect.width - 20, hudRect.height - 16));
+            GUILayout.BeginArea(new Rect(hudRect.x + 10, hudRect.y + 8, hudRect.width - 20, maxHeight - 16));
+            GUILayout.BeginVertical();
+            DrawHud();
+            GUILayout.EndVertical();
+            if (Event.current.type == EventType.Repaint)
+                hudRect.height = Mathf.Min(GUILayoutUtility.GetLastRect().height + 16f, maxHeight);
+            GUILayout.EndArea();
+        }
+
+        private void DrawHud()
+        {
             var wrap = new GUIStyle(GUI.skin.label) { wordWrap = true };
             var title = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 14 };
 
-            GUILayout.Label($"{squad.DisplayName}  —  Turn {Turns.Current}", title);
-            if (playerUnits.Count > 1)
+            GUILayout.Label($"{(squad != null ? squad.DisplayName : "No unit selected")}  —  Turn {Turns.Current}", title);
+            if (playerUnits.Count > 1 || squad == null)
             {
                 var units = playerUnits.Where(u => u != null).Select(u =>
                     u == squad ? $"[{u.DisplayName}]" : actedThisTurn.Contains(u) || u.IsDestroyed ? $"{u.DisplayName} (done)" : u.DisplayName);
                 GUILayout.Label("Units: " + string.Join(", ", units) + "  — Tab or click to switch", wrap);
             }
+
+            // Every keyword on the selected unit's soldiers.
+            if (squad != null) DrawUnitKeywords(squad, wrap);
 
             // Keywords of the soldier under the cursor (or the selected one).
             var shown = hoverSoldier != null ? hoverSoldier : selected;
@@ -567,8 +623,9 @@ namespace Eldoira.Gameplay
 
             if (activation == null)
             {
-                GUILayout.Label(message, wrap);
-                GUILayout.EndArea();
+                GUILayout.Label("Click one of your units, or press Tab, to command it.", wrap);
+                if (GUILayout.Button("Next turn (N)")) NextTurn();
+                if (!string.IsNullOrEmpty(message) && Time.time < messageUntil) GUILayout.Label(message, wrap);
                 return;
             }
 
@@ -643,8 +700,35 @@ namespace Eldoira.Gameplay
                 foreach (var line in recentLog.Skip(Mathf.Max(0, recentLog.Count - 8)))
                     GUILayout.Label(line, small);
             }
+        }
 
-            GUILayout.EndArea();
+        /// <summary>
+        /// The unit's keywords: one line per keyword. Keywords every soldier has are listed once; others say how many
+        /// soldiers have them and who.
+        /// </summary>
+        public static List<string> UnitKeywordLines(Unit unit)
+        {
+            var lines = new List<string>();
+            int total = unit.LivingSoldiers.Count();
+            foreach (var (keyword, soldiers) in unit.KeywordSummary())
+            {
+                string tag = keyword.category == KeywordCategory.Status ? " (status)" : "";
+                string who = soldiers.Count == total
+                    ? (total > 1 ? $"all {total}" : "")
+                    : $"{soldiers.Count} of {total}: {string.Join(", ", soldiers.Select(s => s.name))}";
+                lines.Add($"{keyword.displayName}{tag}{(who.Length > 0 ? " — " + who : "")}");
+            }
+            return lines;
+        }
+
+        private static void DrawUnitKeywords(Unit unit, GUIStyle wrap)
+        {
+            var bold = new GUIStyle(wrap) { fontStyle = FontStyle.Bold };
+            var small = new GUIStyle(wrap) { fontSize = 11 };
+            GUILayout.Label("Unit keywords:", bold);
+            var lines = UnitKeywordLines(unit);
+            if (lines.Count == 0) GUILayout.Label("  (none)", small);
+            foreach (var line in lines) GUILayout.Label("  • " + line, small);
         }
 
         // ------------------------------------------------------------------ Shooting

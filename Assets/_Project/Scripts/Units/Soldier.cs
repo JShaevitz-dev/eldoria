@@ -26,7 +26,7 @@ namespace Eldoira.Units
 
         private Unit unit;
         private bool isAlive = true;
-        private int diedOnTurn;
+        private bool removedFromPlay;
         private readonly Dictionary<Ability, int> abilityUses = new Dictionary<Ability, int>();
         private bool initialized;
 
@@ -35,9 +35,10 @@ namespace Eldoira.Units
         public bool IsAlive => isAlive;
 
         /// <summary>
-        /// Can be picked as a target: alive, or killed during this turn (the dead can still be shot until the next turn).
+        /// Can be picked as a target: alive, or killed during the volley being resolved right now (the dead are removed
+        /// when that volley ends, so a later attacking unit can't target them).
         /// </summary>
-        public bool CanBeTargeted => isAlive || (diedOnTurn != 0 && diedOnTurn == Rules.Turns.Current);
+        public bool CanBeTargeted => isAlive || (!removedFromPlay && Rules.Casualties.IsPendingRemoval(this));
         public Unit Unit => unit != null ? unit : unit = GetComponentInParent<Unit>(true);
 
         /// <summary>True while this soldier holds the unit-leader role.</summary>
@@ -188,27 +189,32 @@ namespace Eldoira.Units
         }
 
         /// <summary>
-        /// The soldier dies. If they were the unit leader, command passes on at once. The body stays on the battlefield
-        /// (and can still be targeted) until the start of the next turn, when it is removed (<see cref="RemoveFromPlay"/>).
+        /// The soldier dies. If they were the unit leader, command passes on at once. If they die during a volley,
+        /// the body stays (and can still be shot by soldiers who already picked them) until that volley ends;
+        /// otherwise it is removed at once (see <see cref="Rules.Casualties"/>).
         /// </summary>
         public void Kill()
         {
             if (!isAlive) return;
             isAlive = false;
             health = 0;
-            diedOnTurn = Mathf.Max(1, Rules.Turns.Current);
             var myUnit = Unit;
             if (myUnit != null) myUnit.OnSoldierKilled(this);
             // Lie down where they fell.
             transform.rotation = Quaternion.Euler(-90f, transform.eulerAngles.y, 0f);
+            Rules.Casualties.OnKilled(this);
         }
 
-        /// <summary>Takes a dead soldier off the battlefield (at the start of the turn after they died).</summary>
+        /// <summary>Takes a dead soldier off the battlefield (when the volley that killed them ends).</summary>
         public void RemoveFromPlay()
         {
             if (isAlive) return;
+            removedFromPlay = true;
             gameObject.SetActive(false);
         }
+
+        /// <summary>Dead and taken off the battlefield: can't be targeted any more.</summary>
+        public bool IsRemovedFromPlay => removedFromPlay;
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()

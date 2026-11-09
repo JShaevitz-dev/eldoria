@@ -67,11 +67,15 @@ namespace Eldoira.Units
             displayName = string.IsNullOrEmpty(newName) ? (newTemplate != null ? newTemplate.displayName : "Unit") : newName;
         }
 
-        /// <summary>Re-reads the Soldier children. The leader defaults to the first sergeant.</summary>
+        /// <summary>
+        /// Re-reads the Soldier children. The leader defaults to the first sergeant.
+        /// Only this unit's own soldiers count: a soldier belongs to the nearest unit above it, so a unit placed
+        /// inside another never shares soldiers with it (and command can never pass between units).
+        /// </summary>
         public void RefreshSoldiers()
         {
             soldiers.Clear();
-            soldiers.AddRange(GetComponentsInChildren<Soldier>(true));
+            soldiers.AddRange(GetComponentsInChildren<Soldier>(true).Where(s => s.GetComponentInParent<Unit>(true) == this));
             if (leader == null || !soldiers.Contains(leader))
                 leader = soldiers.FirstOrDefault(m => m.IsSergeant) ?? soldiers.FirstOrDefault();
         }
@@ -96,6 +100,24 @@ namespace Eldoira.Units
         }
 
         public bool IsInFormation() => OutOfCohesion().Count == 0;
+
+        /// <summary>
+        /// Every keyword held by the unit's living soldiers (inherent, gained, and granted by nearby terrain or auras),
+        /// with the soldiers who have it. Ordered by how many soldiers have it, then by name.
+        /// </summary>
+        public List<(Keyword keyword, List<Soldier> soldiers)> KeywordSummary()
+        {
+            var byKeyword = new List<(Keyword keyword, List<Soldier> soldiers)>();
+            foreach (var s in LivingSoldiers)
+            foreach (var k in s.Keywords)
+            {
+                if (k == null) continue;
+                int i = byKeyword.FindIndex(e => e.keyword.SameAs(k));
+                if (i < 0) byKeyword.Add((k, new List<Soldier> { s }));
+                else if (!byKeyword[i].soldiers.Contains(s)) byKeyword[i].soldiers.Add(s);
+            }
+            return byKeyword.OrderByDescending(e => e.soldiers.Count).ThenBy(e => e.keyword.displayName).ToList();
+        }
 
 #if UNITY_EDITOR
         // Debug view: cohesion range around the leader, and red rings on soldiers outside it.

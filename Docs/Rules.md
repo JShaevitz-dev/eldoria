@@ -14,7 +14,7 @@ Living record of the rules decided so far. **Status** shows what the code does t
 
 ### Leader succession — *implemented*
 
-- If the squad leader is killed, the living squad member **physically closest** to where the leader fell becomes the new squad leader.
+- If the squad leader is killed, the living squad member **physically closest** to where the leader fell becomes the new squad leader. Only soldiers **of that same squad** can inherit command — never a soldier of another unit, however close.
 - If two or more soldiers are equally close (within 1 cm), a **random roll** picks one of them.
 - This repeats every time a leader falls, until the squad is wiped out.
 
@@ -197,6 +197,18 @@ Test room terrain:
 | Rock pillar (keyword: Full-cover) | Object | Yes | No | No |
 | Barricade (keyword: Half-cover) | Object | Yes | Yes | No |
 
+## Maps
+
+### Urban Demo — *built (Scenes/UrbanDemo, Eldoira > Build Urban Demo)*
+
+- **80 × 60 m**, with **180° rotational symmetry**: every feature in the south half has a twin at the opposite point, turned round, so both sides face the same choices.
+- **Deployment zones:** the player sets up in the southern **8 m** of the map, the AI in the northern 8 m.
+- **Armies:** each side fields **3 Infantry Squads**, a **Field Commander** and a **Battlefield Priest**.
+- **Centre:** an open plaza with a fountain (half-cover, blocks movement) and a statue (full cover), ringed by planters and low walls.
+- **Each half:** an apartment block (two rooms), a corner shop with a raised loading dock (reached by a slope), a garage and a ruined house, plus streets with cars, sandbags, crates and a shipping container.
+- **Buildings** are roofless, with doorways (2 m) and **windows**. A window can be **seen and shot through**, its sill gives **Half-cover**, and soldiers can **climb through** it (mantle: no extra movement cost).
+- *Proposed:* cars, sandbags, crates, planters, low walls, rubble and furniture have **Half-cover**. Cars block movement but can be climbed onto. The container and the statue have **Full-cover**.
+
 ## Shooting — *partly implemented*
 
 ### Penetration vs armor — *implemented*
@@ -284,7 +296,7 @@ Details:
 - **Keyword triggers** (on keyword assets): *when Targeted / when Damaged → Self / Attacker gains / loses keyword X* (optionally until the next turn). Coded abilities can hook the same moments.
 - **Shooting is the unit's action** and ends its turn. A unit may shoot without moving (its leader then counts as holding position).
 - **Primary weapon:** every soldier template designates one weapon as its **primary weapon**, used to shoot under normal conditions (the demo squad's is the Assault Rifle). Circumstances or abilities may make a soldier use an alternative weapon (hook in place, none defined yet).
-- **The dead:** a soldier killed this turn stays on the battlefield and **can still be targeted and shot this turn** (by any unit). At the **start of the next turn** they are removed and can't be targeted again.
+- **The dead:** a soldier killed during a round of shooting (one attacking unit's volley) stays on the battlefield **until that round of shooting ends** — so soldiers of that unit who already picked them still shoot at them (step 12). When the round ends, the dead are **removed from their unit and the battlefield**: a **second attacking unit can't target them**, even in the same turn. A soldier killed outside shooting is removed at once.
 - **"When targeted"** means *when targeted*: a soldier's "when targeted" triggers fire when they are picked in step 6, **even if no attack follows** (e.g. step 7 sends the shooter on to another target). They fire **only once per volley** — one attacking unit's sequence of shooting — however many soldiers from that unit pick them. A **different attacking unit's volley** in the same turn can trigger them again.
 
 ## Open questions

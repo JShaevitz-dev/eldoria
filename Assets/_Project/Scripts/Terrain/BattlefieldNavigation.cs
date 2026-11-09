@@ -16,13 +16,31 @@ namespace Eldoira.Terrain
         /// <summary>Measurer for the active battlefield, or null if there is none.</summary>
         public static IMoveMeasurer Measurer { get; private set; }
 
+        [Tooltip("Size of this map in meters (east-west, north-south), centred on the origin. Soldiers can't end a move outside it.")]
+        [SerializeField] private Vector2 boardSize = new Vector2(Core.BattlefieldScale.DefaultWidth, Core.BattlefieldScale.DefaultDepth);
+
+        public Vector2 BoardSize => boardSize;
+
+        public void SetBoardSize(Vector2 size) => boardSize = size;
+
         private void Awake()
         {
+            active = this;
+            Core.BattlefieldScale.SetBoard(boardSize.x, boardSize.y);
             Build();
             Measurer = new TerrainMeasurer();
         }
 
-        private void OnDestroy() => Measurer = null;
+        private void OnDestroy()
+        {
+            // Only if no newer battlefield has taken over (scene loads can overlap).
+            if (active != this) return;
+            active = null;
+            Measurer = null;
+            Core.BattlefieldScale.ResetBoard();
+        }
+
+        private static BattlefieldNavigation active;
 
         /// <summary>Rebuilds the NavMesh (call after terrain changes).</summary>
         public void Build()

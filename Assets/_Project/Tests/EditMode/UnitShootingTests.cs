@@ -298,24 +298,63 @@ namespace Eldoira.Tests
         }
 
         [Test]
-        public void SoldiersKilledThisTurnCanStillBeTargetedUntilTheNextTurn()
+        public void SoldiersKilledInAVolleyAreRemovedWhenItEnds()
+        {
+            targetT.health = 2; // one rifle hit kills
+            var us = MakeUnit("Us", Side.Player, shooterT, Vector3.zero);
+            var others = MakeUnit("Others", Side.Player, shooterT, new Vector3(2, 0, 0));
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(0, 0, 30));
+            var fallen = them.Soldiers[0];
+
+            var first = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(first.Kills, Is.EqualTo(1));
+            Assert.That(fallen.IsAlive, Is.False);
+            Assert.That(fallen.CanBeTargeted, Is.False, "removed as soon as the round of shooting ends");
+            Assert.That(fallen.gameObject.activeSelf, Is.False);
+
+            // A second unit shooting this same turn can't pick the dead soldier: it targets the next closest.
+            var second = UnitShooting.Resolve(others, them, false, new System.Random(1));
+            Assert.That(second.Shots[0].Target, Is.EqualTo(them.Soldiers[1]));
+        }
+
+        [Test]
+        public void VolleyFinishedIsRaisedOnceAfterTheCasualtiesAreRemoved()
+        {
+            targetT.health = 2;
+            var us = MakeUnit("Us", Side.Player, shooterT, Vector3.zero);
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10));
+            int raised = 0;
+            bool fallenGoneAtEvent = false;
+            System.Action<ShootingResult> handler = r =>
+            {
+                raised++;
+                fallenGoneAtEvent = !them.Soldiers[0].gameObject.activeSelf;
+                Assert.That(r.AnyShotsFired, Is.True);
+            };
+            UnitShooting.VolleyFinished += handler;
+            try
+            {
+                UnitShooting.Resolve(us, them, false, new System.Random(1));
+            }
+            finally
+            {
+                UnitShooting.VolleyFinished -= handler;
+            }
+            Assert.That(raised, Is.EqualTo(1));
+            Assert.That(fallenGoneAtEvent, Is.True);
+        }
+
+        [Test]
+        public void ASoldierKilledOutsideShootingIsRemovedAtOnce()
         {
             var us = MakeUnit("Us", Side.Player, shooterT, Vector3.zero);
             var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(0, 0, 30));
             var fallen = them.Soldiers[0];
             fallen.Kill();
-            Assert.That(fallen.CanBeTargeted, Is.True);
-            Assert.That(fallen.gameObject.activeSelf, Is.True, "the body stays on the battlefield this turn");
-
-            // Another unit shooting this turn still picks the closest soldier, even though they're down.
-            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
-            Assert.That(r.Shots[0].Target, Is.EqualTo(fallen));
-
-            Turns.StartNextTurn();
             Assert.That(fallen.CanBeTargeted, Is.False);
-            Assert.That(fallen.gameObject.activeSelf, Is.False, "removed at the start of the next turn");
-            var next = UnitShooting.Resolve(us, them, false, new System.Random(1));
-            Assert.That(next.Shots[0].Target, Is.EqualTo(them.Soldiers[1]));
+            Assert.That(fallen.gameObject.activeSelf, Is.False);
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(r.Shots[0].Target, Is.EqualTo(them.Soldiers[1]));
         }
 
         [Test]

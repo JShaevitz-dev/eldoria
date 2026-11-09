@@ -41,6 +41,8 @@ namespace Eldoira.Rules
         public int Crits => Shots.Count(s => s.Attack != null && s.Attack.Crit);
         public int TotalDamage => Shots.Sum(s => s.Attack?.DamageDealt ?? 0);
         public int Kills;
+        /// <summary>At least one soldier fired a shot (a soldier with no valid target doesn't).</summary>
+        public bool AnyShotsFired => Shots.Any(s => s.Attack != null);
     }
 
     /// <summary>
@@ -55,13 +57,35 @@ namespace Eldoira.Rules
     ///   8–12. Each soldier's attack in turn (see <see cref="Attack"/>): damage → penetration → accuracy and hit roll →
     ///       crit roll → damage applied. A soldier shoots the target it picked even if it has died in the meantime.
     ///   13. A soldier who took damage fires their "when damaged" keyword triggers.
-    /// Soldiers shoot with their primary weapon. Soldiers killed this turn can still be targeted until the next turn.
+    /// Soldiers shoot with their primary weapon. Soldiers killed in this volley stay targetable until it ends, then are
+    /// removed from the battlefield (see <see cref="Casualties"/>), so the next attacking unit can't target them.
     /// </summary>
     public static class UnitShooting
     {
+        /// <summary>Raised when a unit finishes a volley (after its casualties are removed), for sound and effects.</summary>
+        public static event System.Action<ShootingResult> VolleyFinished;
+
         public static ShootingResult Resolve(Unit attackers, Unit defenders, bool attackersSprinted, System.Random rng)
         {
             var result = new ShootingResult { Attackers = attackers, Defenders = defenders };
+            Casualties.BeginVolley();
+            try
+            {
+                ResolveVolley(result, attackers, defenders, attackersSprinted, rng);
+            }
+            finally
+            {
+                // The round of shooting is over: soldiers killed in it are removed, so later volleys can't target them.
+                var removed = Casualties.EndVolley();
+                if (removed.Count > 0)
+                    result.Log.Add("Removed from the battlefield: " + string.Join(", ", removed.Where(s => s != null).Select(s => s.name)) + ".");
+            }
+            VolleyFinished?.Invoke(result);
+            return result;
+        }
+
+        private static void ResolveVolley(ShootingResult result, Unit attackers, Unit defenders, bool attackersSprinted, System.Random rng)
+        {
             var shooters = attackers.LivingSoldiers.ToList();
             var targets = defenders.Soldiers.Where(t => t != null && t.CanBeTargeted).ToList();
 
@@ -82,7 +106,7 @@ namespace Eldoira.Rules
                 if (!anyIndirect)
                 {
                     result.Log.Add($"{attackers.DisplayName} can't see {defenders.DisplayName}.");
-                    return result;
+                    return;
                 }
             }
             if (result.ObjectsInLineOfSight.Count > 0)
@@ -155,7 +179,7 @@ namespace Eldoira.Rules
                     result.Log.Add($"{shot.Target.name} is down.");
                 }
             }
-            return result;
+            // (the volley ends in Resolve: casualties are removed there)
         }
 
         private static string Describe(SoldierShot shot)

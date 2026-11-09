@@ -64,10 +64,10 @@ namespace Eldoira.Tests
             Assert.That(enemy.LivingSoldiers.Any(s => s.HasKeyword("Led from the front")), Is.False);
 
             // Step 1: switch to the Field Commander and move them.
-            Assert.That(controller.ActiveUnit, Is.EqualTo(squad));
-            // Tab moves to another player unit (which one depends on scene order: commander or priest).
+            Assert.That(controller.ActiveUnit, Is.Null, "the turn starts with no unit selected");
+            // Tab picks a player unit (the first in the scene hierarchy); then switch to the commander.
             Assert.That(controller.SelectNextUnit(), Is.True);
-            Assert.That(controller.ActiveUnit, Is.Not.EqualTo(squad));
+            Assert.That(controller.ActiveUnit, Is.Not.Null);
             Assert.That(controller.SelectUnit(commander) || controller.ActiveUnit == commander, Is.True);
             Assert.That(controller.ActiveUnit, Is.EqualTo(commander));
             Assert.That(controller.OrderLeaderMove(commander.Leader.Position + new Vector3(-6f, 0f, 0f)), Is.True);
@@ -115,6 +115,38 @@ namespace Eldoira.Tests
             Assert.That(wounded.Health, Is.EqualTo(wounded.MaxHealth));
         }
 
+        [UnityTest]
+        public IEnumerator DivineSanctuaryMakesTheBlessedUnitSparkleUntilItWearsOff()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            var units = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None);
+            var squad = units.First(u => u.Side == Units.Side.Player && u.DisplayName == "Infantry Squad");
+            var priestUnit = units.First(u => u.DisplayName == "Battlefield Priest");
+            var enemy = units.First(u => u.Side == Units.Side.AI);
+            var priest = priestUnit.Leader;
+            var sanctuary = priest.Abilities.First(a => a.displayName == "Divine Sanctuary");
+
+            KeywordSparkles.RefreshNow();
+            Assert.That(squad.LivingSoldiers.Any(KeywordSparkles.IsSparkling), Is.False, "no sparkles before the spell");
+
+            Assert.That(controller.SelectUnit(priestUnit), Is.True);
+            Assert.That(controller.UseAbility(sanctuary, priest, squad.Leader).Used, Is.True);
+            KeywordSparkles.RefreshNow();
+            Assert.That(squad.LivingSoldiers.All(KeywordSparkles.IsSparkling), Is.True, "every soldier in the blessed unit sparkles");
+            Assert.That(KeywordSparkles.IsSparkling(priest), Is.False, "the priest's own unit wasn't the target");
+            Assert.That(enemy.LivingSoldiers.Any(KeywordSparkles.IsSparkling), Is.False);
+            Assert.That(KeywordSparkles.SparkleColorFor(squad.Leader).Value.r, Is.GreaterThan(0.9f), "gold");
+
+            yield return new WaitForSeconds(1.5f);
+            Snapshot("-snapshotSparkles", squad.Leader.Position + new Vector3(0f, 0.9f, -1.5f), new Vector3(2.5f, 4.5f, 8f));
+
+            // The spell lasts until the start of the next turn: then the sparkles stop.
+            controller.NextTurn();
+            KeywordSparkles.RefreshNow();
+            Assert.That(squad.LivingSoldiers.Any(s => s.HasKeyword("Divine Sanctuary")), Is.False);
+            Assert.That(squad.LivingSoldiers.Any(KeywordSparkles.IsSparkling), Is.False);
+        }
+
         [Test]
         public void ShootingUsesTheUnitsActionSoNoAbilityAfterwards()
         {
@@ -133,11 +165,14 @@ namespace Eldoira.Tests
         [Test]
         public void TheSquadShootsAtTheEnemySquad()
         {
-            var controller = Object.FindFirstObjectByType<MovementController>();
+            var controller = MovementControllerPlayTests.SelectInfantrySquad(Object.FindFirstObjectByType<MovementController>());
             var enemy = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None).First(u => u.Side == Units.Side.AI);
 
+            int soundsBefore = CombatAudio.VolleySoundsPlayed;
             var r = controller.OrderShoot(enemy);
             Assert.That(r, Is.Not.Null);
+            Assert.That(CombatAudio.VolleySoundsPlayed, Is.EqualTo(soundsBefore + 1), "the gunshot plays once when the volley ends");
+            Assert.That(Resources.Load<AudioClip>(CombatAudio.VolleySoundPath), Is.Not.Null);
             Assert.That(r.HasLineOfSight, Is.True);
             Assert.That(r.Shots.Count, Is.EqualTo(10), "every soldier picks a target");
             Assert.That(r.ObjectsInLineOfSight.Select(o => o.DisplayName), Does.Contain("Shipping Container"));
@@ -308,7 +343,7 @@ namespace Eldoira.Tests
         [UnityTest]
         public IEnumerator SquadLeaderMoveUsesTerrainDistance()
         {
-            var controller = Object.FindFirstObjectByType<MovementController>();
+            var controller = MovementControllerPlayTests.SelectInfantrySquad(Object.FindFirstObjectByType<MovementController>());
             var a = controller.Activation;
 
             // Up onto the stacked crates: ~14 m of walking + 10 m to climb is beyond a 20 m sprint.

@@ -190,6 +190,11 @@ namespace Eldoira.Units
         [Tooltip("Meters, measured horizontally from the nearest part of the object.")]
         [Min(0f)] public float grantRadius = 5f;
 
+        [Header("Visuals")]
+        [Tooltip("Soldiers with this keyword glitter with sparkles for as long as they have it (e.g. Divine Sanctuary).")]
+        public bool sparkles;
+        public Color sparkleColor = new Color(1f, 0.82f, 0.25f, 1f);
+
         public bool CanApplyTo(KeywordTarget target) => appliesTo == KeywordTarget.Any || appliesTo == target;
 
         public bool Is(string name) => string.Equals(displayName, name, StringComparison.OrdinalIgnoreCase);

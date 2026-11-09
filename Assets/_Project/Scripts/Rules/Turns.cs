@@ -22,7 +22,7 @@ namespace Eldoira.Rules
             Current++;
             foreach (var soldier in UnityEngine.Object.FindObjectsByType<Soldier>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
-                // Soldiers killed last turn are removed now; until then they could still be targeted.
+                // The dead are normally removed when the volley that killed them ends; this catches any left over.
                 if (!soldier.IsAlive) soldier.RemoveFromPlay();
                 else soldier.OnTurnStarted(Current);
             }
@@ -34,7 +34,11 @@ namespace Eldoira.Rules
         }
 
         /// <summary>Back to before the first turn (new game, tests).</summary>
-        public static void ResetCounter() => Current = 0;
+        public static void ResetCounter()
+        {
+            Current = 0;
+            Casualties.Reset();
+        }
 
         /// <summary>The turn number at whose start something gained now should wear off ("until the next turn").</summary>
         public static int NextTurn => Current + 1;

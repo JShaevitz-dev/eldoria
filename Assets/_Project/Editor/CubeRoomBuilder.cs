@@ -33,8 +33,8 @@ namespace Eldoira.EditorTools
             Material floorMat = GetOrCreateMaterial("Floor", new Color(0.32f, 0.36f, 0.30f), CreateGridTexture());
             Material wallMat = GetOrCreateMaterial("Wall", new Color(0.55f, 0.55f, 0.58f), null);
 
-            float w = BattlefieldScale.BoardWidth;
-            float d = BattlefieldScale.BoardDepth;
+            float w = BattlefieldScale.DefaultWidth;
+            float d = BattlefieldScale.DefaultDepth;
 
             // --- Room ---
             var room = new GameObject("CubeRoom");
@@ -89,7 +89,7 @@ namespace Eldoira.EditorTools
             camGo.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
             camGo.transform.localPosition = camGo.transform.localRotation * new Vector3(0f, 0f, -40f);
 
-            var squad = SquadBuilder.SpawnTestSquad();
+            SquadBuilder.SpawnTestSquad();
             SquadBuilder.SpawnEnemySquad();
             SquadBuilder.SpawnFieldCommander();
             SquadBuilder.SpawnBattlefieldPriest();
@@ -98,7 +98,6 @@ namespace Eldoira.EditorTools
             var gameController = new GameObject("GameController");
             var mover = gameController.AddComponent<Eldoira.Gameplay.MovementController>();
             var mso = new SerializedObject(mover);
-            mso.FindProperty("squad").objectReferenceValue = squad;
             mso.FindProperty("cam").objectReferenceValue = cam;
             mso.ApplyModifiedPropertiesWithoutUndo();
 

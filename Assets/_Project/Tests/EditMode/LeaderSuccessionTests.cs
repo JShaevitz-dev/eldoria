@@ -117,6 +117,63 @@ namespace Eldoira.Tests
             Assert.That(squad.IsDestroyed, Is.True);
         }
 
+        private Unit OtherUnit(string name, Transform parent = null)
+        {
+            var go = new GameObject(name);
+            if (parent != null) go.transform.SetParent(parent);
+            else created.Add(go);
+            return go.AddComponent<Unit>();
+        }
+
+        private Soldier SpawnIn(Unit unit, string name, bool sergeant, Vector3 pos)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(unit.transform);
+            go.transform.position = pos;
+            var m = go.AddComponent<Soldier>();
+            m.Configure(profile, sergeant);
+            return m;
+        }
+
+        [Test]
+        public void CommandNeverPassesToASoldierOfAnotherUnit()
+        {
+            // A neighbouring squad's soldier stands right next to the sergeant; the sergeant's own trooper is farther.
+            var sgt = Spawn("Sgt", true, Vector3.zero);
+            var own = Spawn("Own", false, new Vector3(0, 0, -4f));
+            var neighbours = OtherUnit("Neighbours");
+            var neighbourSgt = SpawnIn(neighbours, "Neighbour Sgt", true, new Vector3(5, 0, 0));
+            var stranger = SpawnIn(neighbours, "Stranger", false, new Vector3(0.6f, 0, 0));
+            squad.RefreshSoldiers();
+            neighbours.RefreshSoldiers();
+
+            sgt.Kill();
+
+            Assert.That(squad.Leader, Is.EqualTo(own));
+            Assert.That(neighbours.Leader, Is.EqualTo(neighbourSgt), "the other unit's command is untouched");
+            Assert.That(stranger.IsLeader, Is.False);
+        }
+
+        [Test]
+        public void AUnitPlacedInsideAnotherKeepsItsOwnSoldiers()
+        {
+            var sgt = Spawn("Sgt", true, Vector3.zero);
+            var own = Spawn("Own", false, new Vector3(0, 0, -4f));
+            var inner = OtherUnit("Inner", squad.transform);           // nested in the hierarchy
+            var innerSgt = SpawnIn(inner, "Inner Sgt", true, new Vector3(6, 0, 0));
+            var innerTrooper = SpawnIn(inner, "Inner Trooper", false, new Vector3(0.6f, 0, 0));
+            squad.RefreshSoldiers();
+            inner.RefreshSoldiers();
+
+            Assert.That(squad.Soldiers, Is.EquivalentTo(new[] { sgt, own }));
+            Assert.That(inner.Soldiers, Is.EquivalentTo(new[] { innerSgt, innerTrooper }));
+            Assert.That(innerTrooper.Unit, Is.EqualTo(inner));
+
+            sgt.Kill();
+            Assert.That(squad.Leader, Is.EqualTo(own), "not the closer soldier of the nested unit");
+            Assert.That(inner.Leader, Is.EqualTo(innerSgt));
+        }
+
         [Test]
         public void CohesionIsMeasuredFromTheNewLeader()
         {
