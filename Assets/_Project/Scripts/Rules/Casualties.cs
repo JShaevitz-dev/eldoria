@@ -32,7 +32,11 @@ namespace Eldoira.Rules
             foreach (var s in removed)
                 if (s != null) s.RemoveFromPlay();
             // The dead no longer put anyone in close range (or grant anything else nearby).
-            if (removed.Count > 0) Terrain.NearbyKeywords.RefreshAll();
+            if (removed.Count > 0)
+            {
+                Terrain.NearbyKeywords.RefreshAll();
+                Victory.Check();   // a side with no soldiers left loses
+            }
             return removed;
         }
 
@@ -45,6 +49,7 @@ namespace Eldoira.Rules
             {
                 soldier.RemoveFromPlay();
                 Terrain.NearbyKeywords.RefreshAll();
+                Victory.Check();
             }
         }
 

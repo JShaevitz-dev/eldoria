@@ -92,7 +92,7 @@ namespace Eldoira.Units
         /// <summary>Keywords gained during the game and when they wear off.</summary>
         public IReadOnlyList<GainedKeyword> GainedKeywords => keywordState.Gained;
 
-        /// <param name="expiresAtTurn">Turn number at whose start the keyword is removed; 0 = until removed.</param>
+        /// <param name="expiresAtTurn">Expiry point (see Rules.Turns.NextTurnOf) at whose start the keyword is removed; 0 = until removed.</param>
         public void GainKeyword(Keyword keyword, int expiresAtTurn = 0) => keywordState.Gain(keyword, InherentKeywords, expiresAtTurn);
         /// <summary>Removes a keyword, gained or inherent. Returns false if the soldier didn't have it.</summary>
         public bool LoseKeyword(Keyword keyword) => keywordState.Lose(keyword, InherentKeywords);

@@ -170,7 +170,7 @@ namespace Eldoira.Rules
                     }
                     if (ability.grantsKeyword != null)
                     {
-                        s.GainKeyword(ability.grantsKeyword, ability.grantUntilNextTurn ? Turns.NextTurn : 0);
+                        s.GainKeyword(ability.grantsKeyword, ability.grantUntilNextTurn ? Turns.NextTurnOf(user) : 0);   // the caster's next turn
                         result.Log.Add($"{user.name}'s {ability.displayName}: {s.name} gains {ability.grantsKeyword.displayName}.");
                     }
                 }

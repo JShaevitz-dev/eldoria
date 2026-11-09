@@ -164,6 +164,119 @@ namespace Eldoira.Tests
             Assert.That(checkedWindows, Is.GreaterThan(10));
         }
     
+        // ---- The AI ----
+
+        /// <summary>Optional: a straight-down view of the whole map, written to the path after <paramref name="argName"/>.</summary>
+        private static void TopDownSnapshot(string argName)
+        {
+            string outPath = null;
+            var args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length - 1; i++) if (args[i] == argName) outPath = args[i + 1];
+            if (outPath == null) return;
+            var cam = Camera.main;
+            var (pos, rot, ortho, size) = (cam.transform.position, cam.transform.rotation, cam.orthographic, cam.orthographicSize);
+            cam.orthographic = true;
+            cam.orthographicSize = 32f;
+            cam.transform.SetPositionAndRotation(new Vector3(0f, 80f, 0f), Quaternion.Euler(90f, 0f, 0f));
+            var rt = new RenderTexture(1280, 720, 24);
+            cam.targetTexture = rt;
+            cam.Render();
+            RenderTexture.active = rt;
+            var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0);
+            tex.Apply();
+            System.IO.File.WriteAllBytes(outPath, tex.EncodeToPNG());
+            cam.targetTexture = null;
+            RenderTexture.active = null;
+            cam.orthographic = ortho;
+            cam.orthographicSize = size;
+            cam.transform.SetPositionAndRotation(pos, rot);
+        }
+
+        private static Dictionary<Soldier, Vector3> PositionsOf(Side side) =>
+            Object.FindObjectsByType<Soldier>(FindObjectsSortMode.None).Where(s => s.Unit != null && s.Unit.Side == side)
+                .ToDictionary(s => s, s => s.Position);
+
+        [Test]
+        public void EndingTheTurnLetsTheAIMoveThenStartsTheNextTurn()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            var before = PositionsOf(Side.AI);
+            Assert.That(Turns.Current, Is.EqualTo(1));
+
+            controller.EndTurn(instant: true);
+
+            Assert.That(controller.IsAITurn, Is.False, "the AI's turn is over");
+            Assert.That(Turns.Current, Is.EqualTo(2), "and the next turn has started");
+            Assert.That(controller.ActiveUnit, Is.Null, "with no unit selected");
+            int moved = before.Count(kv => Vector3.Distance(kv.Key.Position, kv.Value) > 0.5f);
+            Assert.That(moved, Is.GreaterThan(10), "the AI's units advanced");
+            foreach (var kv in before)
+                Assert.That(MovementRules.IsInsideBattlefield(kv.Key.Position, 0f), Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator TheAITurnCanBeWatchedAndSkipped()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            controller.EndTurn();
+            Assert.That(controller.IsAITurn, Is.True, "the AI plays out its turn over time");
+            Assert.That(controller.SelectUnit(controller.PlayerUnits[0]), Is.False, "the player can only watch");
+            yield return new WaitForSeconds(1f);
+
+            controller.GetComponent<AITurnController>().Skip();
+            float waited = 0f;
+            while (controller.IsAITurn && waited < 20f)
+            {
+                waited += Time.deltaTime;
+                yield return null;
+            }
+            Assert.That(controller.IsAITurn, Is.False, "Skip finishes the AI's turn");
+            Assert.That(Turns.Current, Is.EqualTo(2));
+        }
+
+        [UnityTest]
+        public IEnumerator AgainstAPlayerWhoNeverActsTheAIAdvancesAndAttacks()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            var mine = Object.FindObjectsByType<Soldier>(FindObjectsSortMode.None).Where(s => s.Unit.Side == Side.Player).ToList();
+            int startHealth = mine.Sum(s => s.Health);
+            for (int turn = 0; turn < 12 && !Victory.IsOver; turn++)
+            {
+                controller.EndTurn(instant: true);
+                yield return null;
+                if (turn == 1) TopDownSnapshot("-snapshotAI");
+            }
+            int healthNow = mine.Sum(s => s.IsAlive ? s.Health : 0);
+            Debug.Log($"[Eldoira] After {Turns.Current - 1} AI turns: player health {healthNow}/{startHealth}, " +
+                      $"{mine.Count(s => !s.IsAlive)} down, outcome {Victory.Outcome}.");
+            Assert.That(healthNow, Is.LessThan(startHealth), "the AI has done damage");
+        }
+
+        [Test]
+        public void WipingOutTheEnemyArmyWinsTheBattleAndStopsOrders()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            var units = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+            var squad = controller.PlayerUnits.First(u => u.DisplayName == "Infantry Squad 2");
+            Assert.That(controller.SelectUnit(squad), Is.True);
+            Assert.That(controller.BattleOver, Is.False);
+
+            // Every enemy soldier but one falls; the battle isn't over until the last one does.
+            var enemies = units.Where(u => u.Side == Side.AI).SelectMany(u => u.LivingSoldiers).ToList();
+            Assert.That(enemies.Count, Is.EqualTo(32), "3 squads of 10, a commander and a priest");
+            foreach (var e in enemies.Skip(1)) e.Kill();
+            Assert.That(controller.BattleOver, Is.False);
+            enemies[0].Kill();
+
+            Assert.That(controller.BattleOver, Is.True);
+            Assert.That(Victory.Outcome, Is.EqualTo(BattleOutcome.PlayerWins));
+            Assert.That(controller.SelectUnit(controller.PlayerUnits.First(u => u != squad)), Is.False, "no more orders");
+            int turn = Turns.Current;
+            controller.NextTurn();
+            Assert.That(Turns.Current, Is.EqualTo(turn), "the turn doesn't advance");
+        }
+
         [UnityTest]
         public IEnumerator ARedMarkerShowsOverSoldiersInCloseRange()
         {

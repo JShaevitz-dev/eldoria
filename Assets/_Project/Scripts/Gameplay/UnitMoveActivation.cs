@@ -80,7 +80,7 @@ namespace Eldoira.Gameplay
             // Keywords from nearby terrain and auras (e.g. In half-cover, Led from the front) follow the new positions.
             Terrain.NearbyKeywords.RefreshAll(PlannedPosition);
             if (m.HasKeyword(KeywordLibrary.Moved)) return;
-            m.GainKeyword(KeywordLibrary.Get(KeywordLibrary.Moved), Turns.NextTurn);
+            m.GainKeyword(KeywordLibrary.Get(KeywordLibrary.Moved), Turns.NextTurnOf(m));
             givenMovedKeyword.Add(m);
         }
 

@@ -39,6 +39,13 @@ namespace Eldoira.CameraControl
         private float targetDistance = 40f;
         private float distance = 40f;
 
+        // Smoothly pan to a point (e.g. the AI unit acting); any manual pan cancels it.
+        private Vector3? focus;
+        [SerializeField] private float focusSpeed = 4f;
+
+        /// <summary>Glide the camera over to look at <paramref name="point"/>.</summary>
+        public void FocusOn(Vector3 point) => focus = new Vector3(point.x, 0f, point.z);
+
         private void Awake()
         {
             if (cam == null) cam = GetComponentInChildren<Camera>();
@@ -90,6 +97,15 @@ namespace Eldoira.CameraControl
             }
 
             Vector3 pos = transform.position + delta;
+            if (focus.HasValue)
+            {
+                if (delta.sqrMagnitude > 0.000001f) focus = null;
+                else
+                {
+                    pos = Vector3.Lerp(pos, new Vector3(focus.Value.x, pos.y, focus.Value.z), 1f - Mathf.Exp(-focusSpeed * dt));
+                    if ((pos - new Vector3(focus.Value.x, pos.y, focus.Value.z)).sqrMagnitude < 0.01f) focus = null;
+                }
+            }
             pos.x = Mathf.Clamp(pos.x, boundsMin.x, boundsMax.x);
             pos.z = Mathf.Clamp(pos.z, boundsMin.y, boundsMax.y);
             transform.position = pos;

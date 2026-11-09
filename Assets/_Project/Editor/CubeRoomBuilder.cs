@@ -178,10 +178,8 @@ namespace Eldoira.EditorTools
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
 
-        private static void SetAsOnlyBuildScene(string path)
-        {
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(path, true) };
-        }
+        /// <summary>Keeps the full scene list (main menu, demo map, test room) rather than just this room.</summary>
+        private static void SetAsOnlyBuildScene(string path) => ProjectScenes.Apply();
 
         private static void EnsureFolder(string parent, string child)
         {

@@ -18,7 +18,8 @@ namespace Eldoira.Gameplay
     ///   2. Click a soldier to select them, then click the ground to place them within
     ///      the green cohesion ring (5 m of the leader). G = gather everyone out of cohesion automatically.
     ///   3. Enter = end move (only once everyone is within 5 m). Backspace = undo the squad's move.
-    ///   N = start the next turn. K = (debug) kill the squad leader to test succession.
+    ///   N = end your turn: the AI takes its turn (watch it, or Space to skip), then the next turn starts.
+    ///   K = (debug) kill the squad leader to test succession.
     /// Camera: WASD / Q E / right-drag / middle-drag / scroll (left mouse is free for orders).
     /// </summary>
     public class MovementController : MonoBehaviour
@@ -73,6 +74,12 @@ namespace Eldoira.Gameplay
         private static readonly Color BlastColor = new Color(1f, 0.45f, 0.1f, 1f);
         private readonly List<string> recentLog = new List<string>();
 
+        // The enemy's turn, played by the AI once the player ends theirs.
+        private AITurnController ai;
+        private bool aiTurn;
+        /// <summary>The AI is taking its turn: the player can only watch (or skip).</summary>
+        public bool IsAITurn => aiTurn;
+
         public ShootingResult LastShooting => lastShooting;
         /// <summary>The active unit has taken its action this turn (shot, or used an ability).</summary>
         public bool HasTakenAction => actionTaken;
@@ -116,6 +123,9 @@ namespace Eldoira.Gameplay
             if (BattlefieldNavigation.Measurer != null) RangeRing.SurfaceHeight = TerrainMeasurer.SurfaceHeight;
 
             foreach (var u in playerUnits) u.LeaderChanged += OnLeaderChanged;
+            Victory.BattleEnded += OnBattleEnded;
+            ai = GetComponent<AITurnController>();
+            if (ai == null) ai = gameObject.AddComponent<AITurnController>();
 
             Turns.ResetCounter();
             NextTurn();
@@ -125,6 +135,47 @@ namespace Eldoira.Gameplay
         {
             foreach (var u in playerUnits)
                 if (u != null) u.LeaderChanged -= OnLeaderChanged;
+            Victory.BattleEnded -= OnBattleEnded;
+        }
+
+        // ------------------------------------------------------------------ End of the battle
+
+        /// <summary>The battle has been decided (a side has no soldiers left): no more orders.</summary>
+        public bool BattleOver => Victory.IsOver;
+
+        private void OnBattleEnded(BattleOutcome outcome)
+        {
+            // Raised in the middle of the killing volley or blast: just stop aiming and hide the move rings here;
+            // Update and the public orders refuse anything further once the battle is over.
+            shootMode = false;
+            abilityMode = null;
+            HideMoveVisuals();
+        }
+
+        /// <summary>Starts the battle again from the beginning (reloads the map).</summary>
+        public void Restart()
+        {
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            UnityEngine.SceneManagement.SceneManager.LoadScene(scene.buildIndex >= 0 ? scene.buildIndex : 0);
+        }
+
+        private void DrawBattleOverBanner()
+        {
+            var outcome = Victory.Outcome;
+            var colour = outcome == BattleOutcome.PlayerWins ? new Color(1f, 0.85f, 0.3f)
+                : outcome == BattleOutcome.AIWins ? new Color(1f, 0.35f, 0.3f) : new Color(0.85f, 0.85f, 0.85f);
+            string title = outcome == BattleOutcome.PlayerWins ? "VICTORY" : outcome == BattleOutcome.AIWins ? "DEFEAT" : "DRAW";
+
+            var box = new Rect(Screen.width / 2f - 260f, Screen.height / 2f - 110f, 520f, 220f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Box(box, GUIContent.none); // darker backing
+            var big = new GUIStyle(GUI.skin.label) { fontSize = 48, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+            big.normal.textColor = colour;
+            var small = new GUIStyle(GUI.skin.label) { fontSize = 18, alignment = TextAnchor.MiddleCenter, wordWrap = true };
+            GUI.Label(new Rect(box.x, box.y + 20f, box.width, 70f), title, big);
+            GUI.Label(new Rect(box.x + 20f, box.y + 95f, box.width - 40f, 50f), Victory.Describe(outcome), small);
+            if (GUI.Button(new Rect(box.x + box.width / 2f - 190f, box.y + 155f, 180f, 40f), "Restart (R)")) Restart();
+            if (GUI.Button(new Rect(box.x + box.width / 2f + 10f, box.y + 155f, 180f, 40f), "Main menu")) MainMenu.BackToMenu();
         }
 
         /// <summary>
@@ -133,6 +184,7 @@ namespace Eldoira.Gameplay
         /// </summary>
         public bool SelectUnit(Unit unit)
         {
+            if (Victory.IsOver || aiTurn) return false;
             if (unit == null || unit == squad || !playerUnits.Contains(unit) || unit.IsDestroyed) return false;
             if (actedThisTurn.Contains(unit))
             {
@@ -174,8 +226,35 @@ namespace Eldoira.Gameplay
 
         // ------------------------------------------------------------------ Orders (public so AI/tests can drive them)
 
+        /// <summary>
+        /// The player ends their turn: the AI takes its turn (watchable, unit by unit, unless <paramref name="instant"/>),
+        /// then the next turn starts. Not while a unit is half-way through its move.
+        /// </summary>
+        public void EndTurn(bool instant = false)
+        {
+            if (Victory.IsOver || aiTurn) return;
+            if (activation != null && activation.Phase == MovePhase.MoveFollowers)
+            {
+                Flash("Finish this unit's move first.");
+                return;
+            }
+            shootMode = false;
+            abilityMode = null;
+            Deselect();
+            aiTurn = true;
+            recentLog.Clear();
+            var enemySide = playerSide == Side.Player ? Side.AI : Side.Player;
+            StartCoroutine(ai.Run(this, enemySide, instant, () =>
+            {
+                aiTurn = false;
+                if (!Victory.IsOver) NextTurn();
+            }));
+        }
+
+        /// <summary>Starts the next turn straight away (the turn counter goes up; keywords that wear off now are removed).</summary>
         public void NextTurn()
         {
+            if (Victory.IsOver) return;
             Turns.StartNextTurn(); // removes keywords that wear off now, e.g. "Moved"
             actionTaken = false;
             shootMode = false;
@@ -347,6 +426,21 @@ namespace Eldoira.Gameplay
             var mouse = Mouse.current;
             var kb = Keyboard.current;
 
+            if (Victory.IsOver)
+            {
+                // The battle is decided: the only order left is to play again.
+                if (kb != null && kb.rKey.wasPressedThisFrame) Restart();
+                return;
+            }
+
+            if (aiTurn)
+            {
+                // Watching the AI: Space skips to the end of its turn.
+                if (kb != null && kb.spaceKey.wasPressedThisFrame) ai.Skip();
+                UpdateTimedVisuals();
+                return;
+            }
+
             UpdateHover(mouse);
 
             if (activation == null)
@@ -354,7 +448,7 @@ namespace Eldoira.Gameplay
                 // No unit selected (start of a turn): pick one with Tab or by clicking it.
                 if (Time.time > tracersUntil) foreach (var t in tracers) t.Hide();
                 if (kb != null && kb.tabKey.wasPressedThisFrame) SelectNextUnit();
-                if (kb != null && kb.nKey.wasPressedThisFrame) NextTurn();
+                if (kb != null && kb.nKey.wasPressedThisFrame) EndTurn();
                 if (mouse != null && mouse.leftButton.wasPressedThisFrame && !PointerOverHud(mouse))
                 {
                     if (hoverSoldier != null && playerUnits.Contains(hoverSoldier.Unit)) SelectUnit(hoverSoldier.Unit);
@@ -369,7 +463,7 @@ namespace Eldoira.Gameplay
                 if (kb.gKey.wasPressedThisFrame) OrderGather();
                 if (kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame) OrderEndMove();
                 if (kb.backspaceKey.wasPressedThisFrame) OrderReset();
-                if (kb.nKey.wasPressedThisFrame && activation.Phase == MovePhase.Complete) NextTurn();
+                if (kb.nKey.wasPressedThisFrame && activation.Phase == MovePhase.Complete) EndTurn();
                 if (kb.escapeKey.wasPressedThisFrame && activation.Phase == MovePhase.MoveFollowers) selected = null;
                 if (kb.kKey.wasPressedThisFrame) DebugKillLeader();
                 if (kb.fKey.wasPressedThisFrame) ToggleShootMode();
@@ -593,6 +687,50 @@ namespace Eldoira.Gameplay
             walking.Clear();
         }
 
+        // ------------------------------------------------------------------ Showing the AI's turn
+
+        /// <summary>Walks a soldier along a route (sprinting soldiers go faster).</summary>
+        public void WalkAlong(Soldier soldier, MovePath path, bool sprint) => WalkTo(soldier, path, sprint);
+
+        /// <summary>Any soldier still walking to their spot.</summary>
+        public bool AnyoneWalking => walking.Count > 0;
+
+        public void StopWalkingNow() => StopAllWalking();
+
+        /// <summary>Adds a line to the on-screen log.</summary>
+        public void AddLog(string line) => recentLog.Add(line);
+
+        /// <summary>Shows a volley someone else (the AI) fired: tracers, log and summary.</summary>
+        public void PresentShooting(Unit attackers, Unit target, ShootingResult r)
+        {
+            recentLog.Add($"{attackers.DisplayName} shoots at {target.DisplayName}: {r.Hits}/{r.ShotsTaken} hits, {r.TotalDamage} damage, {r.Kills} down.");
+            ShowTracers(r);
+        }
+
+        /// <summary>Shows an ability someone else (the AI) used: blast ring for area attacks, and the log.</summary>
+        public void PresentAbility(Unit unit, Soldier user, Ability ability, AbilityResult r)
+        {
+            if (!r.Used)
+            {
+                recentLog.Add($"{unit.DisplayName} couldn't use {ability.displayName}: {r.Reason}.");
+                return;
+            }
+            recentLog.Add($"{unit.DisplayName}: {user.name} uses {ability.displayName}.");
+            recentLog.AddRange(r.Log);
+            if (r.Point.HasValue && ability.IsAreaAttack)
+            {
+                blastRing.ShowCircle(r.Point.Value, ability.areaRadius, BlastColor);
+                blastUntil = Time.time + 2f;
+            }
+        }
+
+        /// <summary>Hides tracers and blast rings once their time is up.</summary>
+        private void UpdateTimedVisuals()
+        {
+            if (Time.time > tracersUntil) foreach (var t in tracers) t.Hide();
+            if (Time.time > blastUntil) blastRing.Hide();
+        }
+
         // ------------------------------------------------------------------ HUD
 
         private void Flash(string text)
@@ -615,12 +753,25 @@ namespace Eldoira.Gameplay
             if (Event.current.type == EventType.Repaint)
                 hudRect.height = Mathf.Min(GUILayoutUtility.GetLastRect().height + 16f, maxHeight);
             GUILayout.EndArea();
+
+            if (Victory.IsOver) DrawBattleOverBanner();
         }
 
         private void DrawHud()
         {
             var wrap = new GUIStyle(GUI.skin.label) { wordWrap = true };
             var title = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 14 };
+
+            if (aiTurn)
+            {
+                GUILayout.Label($"ENEMY TURN  —  Turn {Turns.Current}", title);
+                GUILayout.Label(ai.Status, wrap);
+                if (GUILayout.Button("Skip (Space)")) ai.Skip();
+                var smallLog = new GUIStyle(wrap) { fontSize = 11 };
+                foreach (var line in recentLog.Skip(Mathf.Max(0, recentLog.Count - 12)))
+                    GUILayout.Label(line, smallLog);
+                return;
+            }
 
             GUILayout.Label($"{(squad != null ? squad.DisplayName : "No unit selected")}  —  Turn {Turns.Current}", title);
             if (playerUnits.Count > 1 || squad == null)
@@ -641,8 +792,14 @@ namespace Eldoira.Gameplay
             if (activation == null)
             {
                 GUILayout.Label("Click one of your units, or press Tab, to command it.", wrap);
-                if (GUILayout.Button("Next turn (N)")) NextTurn();
+                if (GUILayout.Button("End turn (N)")) EndTurn();
                 if (!string.IsNullOrEmpty(message) && Time.time < messageUntil) GUILayout.Label(message, wrap);
+                if (recentLog.Count > 0)
+                {
+                    var smallLog = new GUIStyle(wrap) { fontSize = 11 };
+                    foreach (var line in recentLog.Skip(Mathf.Max(0, recentLog.Count - 8)))
+                        GUILayout.Label(line, smallLog);
+                }
                 return;
             }
 
@@ -679,7 +836,7 @@ namespace Eldoira.Gameplay
                     GUILayout.Label(actionTaken ? "Unit has taken its action; its turn is over." : "Unit has finished moving. It may shoot OR use one ability.", wrap);
                     GUILayout.BeginHorizontal();
                     if (!actionTaken && GUILayout.Button("Shoot (F)")) ToggleShootMode();
-                    if (GUILayout.Button("Next turn (N)")) NextTurn();
+                    if (GUILayout.Button("End turn (N)")) EndTurn();
                     if (GUILayout.Button("Kill leader (K, debug)")) DebugKillLeader();
                     GUILayout.EndHorizontal();
                     break;

@@ -211,6 +211,22 @@ Test room terrain:
 | Rock pillar (keyword: Full-cover) | Object | Yes | No | No |
 | Barricade (keyword: Half-cover) | Object | Yes | Yes | No |
 
+## Turns and the AI opponent — *implemented*
+
+- **Turn order:** each turn, the **player** activates their units, then presses **End turn**; then the **AI** activates all of its units; then the next turn starts.
+- **"Until the start of the next turn" means the caster's own next turn.** Something the player gains on their turn (Divine Sanctuary, Moved...) lasts through the AI's turn and wears off when the player's next turn starts; something the AI gains on its turn lasts through the player's turn and wears off when the AI's next turn starts. For a keyword trigger, it's the next turn of the soldier whose keyword fired.
+- The AI's turn is **watchable**, unit by unit: the camera pans to each unit, it moves, then takes its action. **Skip (Space)** resolves the rest at once. The player can't give orders during it.
+- **How the AI plays** (it uses the same rules as the player):
+  - **Order:** the Field Commander first (so its aura is in place), then the infantry squads, then the other support units.
+  - **Moving:** squads push toward the enemy, preferring spots in cover from which they can see enemies; they avoid close range, and avoid sprinting when it isn't worth the accuracy penalty. Support units (Field Commander, Battlefield Priest) stay about 5 m behind their squads, in cover where they can; the priest never sprints, so it can still cast. The rest of a squad gathers into cohesion around its leader.
+  - **Acting:** heal a friendly soldier missing 2+ health if it can; otherwise cast Divine Sanctuary on the friendly unit the most enemies can see; otherwise shoot the enemy unit the most of its soldiers can target; otherwise throw a grenade (once per battle) at the spot hitting the most enemies — never if it would hit its own soldiers.
+
+## Winning — *implemented*
+
+- **A side with no soldiers left loses**, and the other side wins. If both sides lose their last soldiers at the same moment (e.g. one grenade), it's a **draw**.
+- It's checked whenever soldiers are removed from the battlefield: at the end of a volley or blast, or when a soldier dies outside combat.
+- When the battle is decided, a **Victory / Defeat / Draw** banner appears, no more orders can be given, and **Restart (R)** starts the battle again.
+
 ## Maps
 
 ### Urban Demo — *built (Scenes/UrbanDemo, Eldoira > Build Urban Demo)*

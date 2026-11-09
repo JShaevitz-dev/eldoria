@@ -536,16 +536,8 @@ namespace Eldoira.EditorTools
             return mat;
         }
 
-        /// <summary>The demo map first (it's what the game opens), then the test room (used by the tests).</summary>
-        private static void AddToBuildSettings()
-        {
-            const string testRoom = Root + "/Scenes/CubeRoom.unity";
-            EditorBuildSettings.scenes = new[]
-            {
-                new EditorBuildSettingsScene(ScenePath, true),
-                new EditorBuildSettingsScene(testRoom, true),
-            };
-        }
+        /// <summary>Main menu, demo map, test room (see <see cref="ProjectScenes"/>).</summary>
+        private static void AddToBuildSettings() => ProjectScenes.Apply();
 
         private static void EnsureFolder(string parent, string child)
         {

@@ -54,6 +54,16 @@ namespace Eldoira.Terrain
                 : null;
         }
 
+        /// <summary>Could a soldier of this height standing at <paramref name="standingAt"/> see the target? (Same test as <see cref="CanSee"/>.)</summary>
+        public static bool CanSeeFrom(Vector3 standingAt, float height, Soldier target)
+        {
+            if (target == null) return false;
+            Vector3 eye = standingAt + Vector3.up * height * EyeHeight;
+            Vector3 chest = target.Position + Vector3.up * target.Height * ChestHeight;
+            Vector3 head = target.Position + Vector3.up * target.Height * EyeHeight;
+            return !Blocked(eye, chest) || !Blocked(eye, head);
+        }
+
         public static bool CanSee(Soldier attacker, Soldier target)
         {
             if (attacker == null || target == null) return true;

@@ -35,7 +35,7 @@ namespace Eldoira.Rules
 
                     if (t.action == TriggerAction.GainKeyword)
                     {
-                        subject.GainKeyword(t.keyword, t.untilNextTurn ? Turns.NextTurn : 0);
+                        subject.GainKeyword(t.keyword, t.untilNextTurn ? Turns.NextTurnOf(self) : 0);   // until the next turn of the soldier whose keyword fired
                         log.Add($"{self.name}'s {owner.displayName}: {subject.name} gains {t.keyword.displayName}");
                     }
                     else if (subject.LoseKeyword(t.keyword))
