@@ -191,6 +191,7 @@ namespace Eldoira.Tests
             var priestUnit = units.First(u => u.DisplayName == "Battlefield Priest");
             var priest = priestUnit.Leader;
             var enemy = units.First(u => u.Side == Units.Side.AI);
+            priest.transform.position = new Vector3(-4f, 0f, -2f);   // within pistol range (10 m) of the enemy squad
 
             Assert.That(controller.SelectUnit(priestUnit), Is.True);
             Assert.That(controller.OrderShoot(enemy), Is.Not.Null);
@@ -199,8 +200,23 @@ namespace Eldoira.Tests
         }
 
         [Test]
+        public void ShootingAnEnemyOutOfRangeIsRefusedAndDoesntUseTheAction()
+        {
+            // The squad's start line is ~22 m from the enemy squad: beyond the Assault Rifle's 20 m.
+            var controller = MovementControllerPlayTests.SelectInfantrySquad(Object.FindFirstObjectByType<MovementController>());
+            var enemy = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None).First(u => u.Side == Units.Side.AI);
+            int errors = CombatAudio.ErrorSoundsPlayed;
+            Assert.That(controller.OrderShoot(enemy), Is.Null);
+            Assert.That(CombatAudio.ErrorSoundsPlayed, Is.EqualTo(errors + 1), "error sound");
+            Assert.That(controller.HasTakenAction, Is.False, "the action isn't wasted");
+        }
+
+        [Test]
         public void TheSquadShootsAtTheEnemySquad()
         {
+            // From the start line the enemy is ~22 m away, beyond rifle range (20 m): step the squad 5 m forward first.
+            var squad = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None).First(u => u.Side == Units.Side.Player && u.DisplayName == "Infantry Squad");
+            foreach (var s in squad.Soldiers) s.transform.position += new Vector3(0f, 0f, 5f);
             var controller = MovementControllerPlayTests.SelectInfantrySquad(Object.FindFirstObjectByType<MovementController>());
             var enemy = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None).First(u => u.Side == Units.Side.AI);
 

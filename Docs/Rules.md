@@ -38,6 +38,7 @@ Living record of the rules decided so far. **Status** shows what the code does t
 | Base Damage | Damage dealt by a hit. |
 | Penetration | How well it gets through Armor Level. |
 | Accuracy Bonus | Added to the soldier's Accuracy. |
+| Range | The farthest a target can be (meters, horizontal). None defined = unlimited. |
 | Keywords | Extra properties, e.g. Explosive, Incendiary. |
 
 ## Units
@@ -53,10 +54,13 @@ Living record of the rules decided so far. **Status** shows what the code does t
 | Sergeant | 5 | 1 | 75% | 10 m | Assault Rifle, Pistol |
 | Trooper | 5 | 1 | 75% | 10 m | Assault Rifle |
 
-| Weapon | Base Damage | Penetration | Accuracy Bonus | Keywords |
-|---|---|---|---|---|
-| Assault Rifle | 4 | 1 | +0 | — |
-| Pistol | 2 | 0 | +0 | — |
+| Weapon | Base Damage | Penetration | Accuracy Bonus | Keywords | Range |
+|---|---|---|---|---|---|
+| Assault Rifle | 4 | 1 | +0 | — | 20 m |
+| Pistol | 2 | 0 | +0 | Pistol | 10 m |
+| SMG | 4 (as the Assault Rifle) | 0 | +0 | — | 10 m (as the Pistol) |
+
+- **SMG** is defined but no soldier carries it yet.
 
 ### Field Commander
 
@@ -290,7 +294,16 @@ Example: 6 damage, penetration beats armor → 9, crit → +9 = **18**. If armor
 
 ### Other shooting rules — *not yet implemented*
 
-- Cover, line of sight and range.
+- *(Cover, line of sight and range are now implemented — see above.)*
+
+### Weapon range — *implemented*
+
+- A soldier can only target an enemy **within their weapon's range**, measured horizontally (exactly at the range counts). Assault Rifle **20 m**, Pistol **10 m**, SMG **10 m**.
+- In step 6 each soldier picks the closest enemy they can target, so enemies out of range are passed over; a soldier with no enemy in range doesn't shoot.
+- **Indirect fire** ignores line of sight but **not** range.
+- If **none** of a unit's soldiers can target any soldier of the chosen enemy unit (out of range or out of sight), the shoot order is **refused** (error sound) and the unit's action isn't used.
+- **If no range is defined for a weapon, it has unlimited range.** (So far only the Frag Grenade's blast weapon has none; how far the grenade can be thrown is the ability's own 10 m.)
+- In shoot mode a red ring shows the unit leader's weapon range.
 
 ### Close range — *implemented*
 
@@ -344,4 +357,4 @@ Details:
 
 - Full cover: how close to the cover must a soldier be to count as concealed (currently 5 m, like half-cover)? Or is it purely a line-of-sight question?
 - Indirect fire: do accuracy **overrides** (e.g. "always misses" from being blinded) still apply? (Currently yes.)
-- Next to design: weapon range; what Explosive, Incendiary, Sniper and Robotic do.
+- Next to design: what Explosive, Incendiary, Sniper and Robotic do.

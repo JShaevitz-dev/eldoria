@@ -27,6 +27,9 @@ namespace Eldoira.Units
         /// <summary>The weapon's Penetration, or null if it has no penetration value (always 100% damage).</summary>
         public int? PenetrationValue => hasPenetration ? penetration : (int?)null;
 
+        [Tooltip("Meters (horizontal): the farthest a target can be to be shot with this weapon. 0 = no limit.")]
+        [Min(0f)] public float range;
+
         [Tooltip("Added to the soldier's Accuracy when attacking with this weapon (can be negative).")]
         [FormerlySerializedAs("aimModifier")]
         public int accuracyBonus;

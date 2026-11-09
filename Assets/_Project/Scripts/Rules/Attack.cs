@@ -50,7 +50,7 @@ namespace Eldoira.Rules
         {
             var result = new AttackResult { Keywords = KeywordRules.Evaluate(attacker, weapon, target) };
 
-            string reason = WhyNotTargetable(attacker, target, result.Keywords);
+            string reason = WhyNotTargetable(attacker, weapon, target, result.Keywords);
             if (reason != null)
             {
                 result.NotTargetable = true;
@@ -93,16 +93,23 @@ namespace Eldoira.Rules
             return result;
         }
 
-        /// <summary>Whether the attacker can choose this target with this weapon (in sight, not in full cover…).</summary>
+        /// <summary>Whether the attacker can choose this target with this weapon (in range, in sight, not in full cover…).</summary>
         public static bool CanTarget(Soldier attacker, Weapon weapon, Soldier target)
         {
             if (target == null || !target.CanBeTargeted) return false;
-            return WhyNotTargetable(attacker, target, KeywordRules.Evaluate(attacker, weapon, target)) == null;
+            return WhyNotTargetable(attacker, weapon, target, KeywordRules.Evaluate(attacker, weapon, target)) == null;
         }
 
+        /// <summary>Is the target within the weapon's range (horizontal distance; weapons without a range have no limit)?</summary>
+        public static bool InRange(Soldier attacker, Weapon weapon, Soldier target) =>
+            weapon == null || !weapon.HasRangeLimit || Measure.Between(attacker, target) <= weapon.Range + RangeTolerance;
+
+        private const float RangeTolerance = 0.01f;
+
         /// <summary>Null if the target can be attacked; otherwise the reason it can't.</summary>
-        private static string WhyNotTargetable(Soldier attacker, Soldier target, KeywordOutcome keywords)
+        private static string WhyNotTargetable(Soldier attacker, Weapon weapon, Soldier target, KeywordOutcome keywords)
         {
+            if (!InRange(attacker, weapon, target)) return $"Out of range ({weapon.Range:0} m)";
             if (keywords.CannotBeTargeted) return "Target is in full cover";
             if (!keywords.IgnoresLineOfSight && !LineOfSight.CanSee(attacker, target)) return "No line of sight";
             return null;

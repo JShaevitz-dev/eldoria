@@ -220,6 +220,22 @@ namespace Eldoira.Gameplay
             return false;
         }
 
+        /// <summary>
+        /// Leaves movement selection (Esc): the selected unit is deselected, as long as its leader hasn't moved yet and
+        /// it hasn't taken its action. It hasn't acted, so it can be selected again later this turn. Returns false otherwise.
+        /// </summary>
+        public bool CancelSelection()
+        {
+            if (aiTurn || activation == null || actionTaken) return false;
+            if (activation.Phase != MovePhase.MoveLeader || activation.LeaderMove != MoveKind.None) return false;
+            string name = squad.DisplayName;
+            shootMode = false;
+            abilityMode = null;
+            Deselect();
+            Flash($"{name} deselected. Click one of your units (or press Tab) to command it.");
+            return true;
+        }
+
         private bool CanSwitchUnit =>
             activation == null || activation.Phase == MovePhase.Complete
             || (activation.Phase == MovePhase.MoveLeader && activation.LeaderMove == MoveKind.None);
@@ -468,7 +484,12 @@ namespace Eldoira.Gameplay
                 if (kb.kKey.wasPressedThisFrame) DebugKillLeader();
                 if (kb.fKey.wasPressedThisFrame) ToggleShootMode();
                 if (kb.tabKey.wasPressedThisFrame && CanSwitchUnit) SelectNextUnit();
-                if (kb.escapeKey.wasPressedThisFrame) { shootMode = false; abilityMode = null; }
+                if (kb.escapeKey.wasPressedThisFrame)
+                {
+                    // Esc backs out one step: stop aiming first; otherwise leave the unit if it hasn't moved yet.
+                    if (shootMode || abilityMode != null) { shootMode = false; abilityMode = null; }
+                    else CancelSelection();
+                }
                 if (activation == null) return;
             }
 
@@ -583,6 +604,10 @@ namespace Eldoira.Gameplay
             if (shootMode)
             {
                 foreach (var r in new[] { moveRing, sprintRing, followRing, cursorRing, pathLine }.Concat(cohesionRings)) r.Hide();
+                // The leader's weapon range (each soldier measures from where they stand).
+                var leaderWeapon = activation.Leader != null ? activation.Leader.WeaponFor(null) : null;
+                if (leaderWeapon != null && leaderWeapon.HasRangeLimit)
+                    abilityRing.ShowCircle(activation.Leader.Position, leaderWeapon.Range, InvalidColor);
                 return;
             }
 
@@ -787,7 +812,7 @@ namespace Eldoira.Gameplay
             // Keywords of the soldier under the cursor (or the selected one).
             var shown = hoverSoldier != null ? hoverSoldier : selected;
             if (shown != null)
-                GUILayout.Label($"{shown.name}: {string.Join(", ", shown.Keywords.Select(k => k.displayName))}", wrap);
+                GUILayout.Label($"{SoldierLabels.LabelFor(shown)}: {string.Join(", ", shown.Keywords.Select(k => k.displayName))}", wrap);
 
             if (activation == null)
             {
@@ -813,7 +838,10 @@ namespace Eldoira.Gameplay
                     if (GUILayout.Button("Hold position (H)")) OrderHold();
                     if (GUILayout.Button("Shoot without moving (F)")) ToggleShootMode();
                     GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("Deselect (Esc)")) CancelSelection();
                     if (GUILayout.Button("Kill leader (K, debug)")) DebugKillLeader();
+                    GUILayout.EndHorizontal();
                     break;
 
                 case MovePhase.MoveFollowers:
@@ -994,6 +1022,13 @@ namespace Eldoira.Gameplay
         {
             if (enemy == null || enemy == squad || actionTaken || activation == null || activation.Phase == MovePhase.MoveFollowers)
                 return null;
+            // Nobody can target any of them (out of range or out of sight): refuse, so the action isn't wasted.
+            if (UnitShooting.SoldiersAbleToShoot(squad, enemy) == 0)
+            {
+                Flash($"None of {squad.DisplayName}'s soldiers can target {enemy.DisplayName}: out of range or out of sight.");
+                CombatAudio.PlayError();
+                return null;
+            }
             bool sprinted = activation.LeaderMove == MoveKind.Sprint;
             lastShooting = UnitShooting.Resolve(squad, enemy, sprinted, GameRandom.Shared);
             actionTaken = true;

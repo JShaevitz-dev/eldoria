@@ -209,6 +209,40 @@ namespace Eldoira.EditorTools
             });
         }
 
+        /// <summary>
+        /// SMG: Base Damage as the Assault Rifle (4), Penetration 0, Accuracy Bonus +0, no keywords.
+        /// Range: the same as the Pistol (weapon range isn't in the rules yet). Not carried by anyone yet.
+        /// </summary>
+        public static WeaponTemplate EnsureSmg()
+        {
+            EnsureFolder(DataDir, "Weapons");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/SMG.asset", w =>
+            {
+                w.displayName = "SMG";
+                w.baseDamage = rifle != null ? rifle.baseDamage : 4;   // same damage as the rifle
+                w.hasPenetration = true;
+                w.penetration = 0;
+                w.accuracyBonus = 0;
+                w.range = 10f;                                          // same as the pistol
+                w.keywords = new List<Keyword>();
+            });
+        }
+
+        /// <summary>Weapon ranges (meters): Assault Rifle 20, Pistol 10, SMG 10. Applied to the existing weapon assets.</summary>
+        public static readonly (string file, float range)[] WeaponRanges = { ("AssaultRifle", 20f), ("Pistol", 10f), ("SMG", 10f) };
+
+        private static void ApplyWeaponRanges()
+        {
+            foreach (var (file, range) in WeaponRanges)
+            {
+                var w = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/{file}.asset");
+                if (w == null) continue;
+                w.range = range;
+                EditorUtility.SetDirty(w);
+            }
+        }
+
         private static void GiveAbility(SoldierTemplate soldier, Ability ability)
         {
             if (soldier.abilities == null) soldier.abilities = new List<Ability>();
@@ -234,6 +268,8 @@ namespace Eldoira.EditorTools
         {
             var keywords = EnsureKeywords();
             var frag = EnsureFragGrenade(keywords);
+            EnsureSmg();
+            ApplyWeaponRanges();
             var pistolWeapon = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
             if (pistolWeapon != null)
             {
@@ -545,13 +581,14 @@ namespace Eldoira.EditorTools
             var rifle = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset", w =>
             {
                 w.displayName = "Assault Rifle";
-                w.baseDamage = 4; w.penetration = 1; w.accuracyBonus = 0;
+                w.baseDamage = 4; w.penetration = 1; w.accuracyBonus = 0; w.range = 20f;
             });
             var pistol = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset", w =>
             {
                 w.displayName = "Pistol";
-                w.baseDamage = 2; w.penetration = 0; w.accuracyBonus = 0;
+                w.baseDamage = 2; w.penetration = 0; w.accuracyBonus = 0; w.range = 10f;
             }, w => Keyword.AddUnique(w.keywords, keywords["Pistol"]));   // usable in close range
+            EnsureSmg();
 
             // --- Soldiers (placeholder stats); re-link weapons if any are missing ---
             var trooper = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/Trooper.asset", s =>

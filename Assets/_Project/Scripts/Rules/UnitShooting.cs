@@ -57,6 +57,7 @@ namespace Eldoira.Rules
     ///   8–12. Each soldier's attack in turn (see <see cref="Attack"/>): damage → penetration → accuracy and hit roll →
     ///       crit roll → damage applied. A soldier shoots the target it picked even if it has died in the meantime.
     ///   13. A soldier who took damage fires their "when damaged" keyword triggers.
+    /// A soldier can only pick a target within their weapon's range (horizontal; e.g. Assault Rifle 20 m, Pistol 10 m).
     /// Soldiers shoot with their primary weapon - except in close range (a Biological enemy within 2 m), where only a
     /// Pistol can be used: soldiers with one switch to it, the rest don't shoot (see <see cref="CloseRange"/>).
     /// Otherwise soldiers shoot with their primary weapon. Soldiers killed in this volley stay targetable until it ends, then are
@@ -66,6 +67,20 @@ namespace Eldoira.Rules
     {
         /// <summary>Raised when a unit finishes a volley (after its casualties are removed), for sound and effects.</summary>
         public static event System.Action<ShootingResult> VolleyFinished;
+
+        /// <summary>How many of the attacking unit's soldiers have at least one soldier of the defending unit they can
+        /// target (in range, in sight, not prevented by keywords). 0 means the unit can't usefully shoot at it.</summary>
+        public static int SoldiersAbleToShoot(Unit attackers, Unit defenders)
+        {
+            int count = 0;
+            foreach (var s in attackers.LivingSoldiers)
+            {
+                var weapon = s.WeaponFor(null);
+                if (weapon == null) continue;
+                if (defenders.Soldiers.Any(t => t != null && Attack.CanTarget(s, weapon, t) && !KeywordRules.Evaluate(s, weapon, t).NoEffect)) count++;
+            }
+            return count;
+        }
 
         public static ShootingResult Resolve(Unit attackers, Unit defenders, bool attackersSprinted, System.Random rng)
         {
@@ -160,8 +175,9 @@ namespace Eldoira.Rules
 
                 if (shot.Target == null)
                 {
-                    shot.Note = "no target it can shoot";
-                    result.Log.Add($"{shooter.name} has no target it can shoot and won't shoot this turn.");
+                    bool anyInRange = candidates.Any(t => Attack.InRange(shooter, shot.Weapon, t));
+                    shot.Note = anyInRange ? "no target it can shoot" : $"no target within range ({shot.Weapon.Range:0} m)";
+                    result.Log.Add($"{shooter.name} has {shot.Note} and won't shoot this turn.");
                     continue;
                 }
                 shot.ObjectsInLine = ShotGeometry.ObjectsBetween(shooter.Position, shot.Target.Position);

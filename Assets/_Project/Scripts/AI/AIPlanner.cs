@@ -35,7 +35,7 @@ namespace Eldoira.AI
     /// The AI opponent's decisions. Uses only the rules (no visuals or input), so it can be tested on its own.
     /// Each unit, in turn:
     ///  1. Moves (or holds). Fighting units (infantry squads) push toward the enemy, preferring spots in cover from which
-    ///     they can see enemies, avoiding close range and avoiding sprinting (it costs accuracy). Support units
+    ///     enemies are in sight and within weapon range, avoiding close range and avoiding sprinting (it costs accuracy). Support units
     ///     (Field Commander, Battlefield Priest) stay a few meters behind their own squads, in cover where they can; the
     ///     priest never sprints, so it can still cast.
     ///  2. Acts: heals a wounded friendly soldier (2+ health missing) if it can; otherwise blesses a friendly unit that
@@ -120,7 +120,10 @@ namespace Eldoira.AI
         {
             float nearest = enemies.Min(e => Measure.Horizontal(e.Position, at));
             var nearestEnemy = enemies.OrderBy(e => Measure.Horizontal(e.Position, at)).First();
-            int visible = enemies.Count(e => ShotGeometry.CanSeeFrom(at, leader.Height, e));
+            // Enemies the leader could shoot from here: in sight and within the weapon's range.
+            var weapon = leader.PrimaryWeapon;
+            float range = weapon != null && weapon.HasRangeLimit ? weapon.Range : float.MaxValue;
+            int visible = enemies.Count(e => Measure.Horizontal(e.Position, at) <= range && ShotGeometry.CanSeeFrom(at, leader.Height, e));
             int cover = CoverAt(at, nearestEnemy);
             bool closeRange = leader.HasKeyword("Biological") &&
                               enemies.Any(e => e.HasKeyword("Biological") && Measure.Horizontal(e.Position, at) < CloseRange.Distance);
@@ -135,7 +138,8 @@ namespace Eldoira.AI
             }
             else
             {
-                // Push toward the enemy; seeing enemies (to shoot) and being in cover from them are worth a lot.
+                // Push toward the enemy; having enemies in sight and in range (to shoot) and being in cover from them
+                // are worth a lot.
                 score = -0.6f * nearest + (visible > 0 ? 12f + Mathf.Min(visible, 10) : 0f) + cover * 10f;
             }
             if (closeRange) score -= CloseRangePenalty;

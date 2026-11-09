@@ -164,6 +164,50 @@ namespace Eldoira.Tests
             Assert.That(checkedWindows, Is.GreaterThan(10));
         }
     
+        // ---- Controls and feedback ----
+
+        [Test]
+        public void EscLeavesASelectedUnitThatHasntMovedYet()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            var squad = controller.PlayerUnits.First(u => u.DisplayName == "Infantry Squad 1");
+            Assert.That(controller.SelectUnit(squad), Is.True);
+
+            Assert.That(controller.CancelSelection(), Is.True);
+            Assert.That(controller.ActiveUnit, Is.Null);
+            Assert.That(controller.HasActed(squad), Is.False, "it didn't act, so it can be picked again");
+            Assert.That(controller.SelectUnit(squad), Is.True);
+
+            // Once the leader has moved, Esc no longer leaves the unit.
+            Assert.That(controller.OrderLeaderMove(squad.Leader.Position + new Vector3(0f, 0f, 4f)), Is.True);
+            Assert.That(controller.CancelSelection(), Is.False);
+            Assert.That(controller.ActiveUnit, Is.EqualTo(squad));
+        }
+
+        [Test]
+        public void TheBellRingsWhenThePlayersTurnStarts()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            Assert.That(CombatAudio.BellsPlayed, Is.GreaterThan(0), "it rang for turn 1");
+            int before = CombatAudio.BellsPlayed;
+            controller.EndTurn(instant: true);   // the AI plays, then the player's turn 2 starts
+            Assert.That(Turns.Current, Is.EqualTo(2));
+            Assert.That(CombatAudio.BellsPlayed, Is.EqualTo(before + 1), "once, at the start of the player's turn");
+        }
+
+        [Test]
+        public void EverySoldiersLabelShowsTheirHealth()
+        {
+            var trooper = Object.FindObjectsByType<Soldier>(FindObjectsSortMode.None).First(s => s.name == "Trooper_03");
+            Assert.That(SoldierLabels.LabelFor(trooper), Is.EqualTo("Trooper_03  5/5"));
+            trooper.TakeDamage(2);
+            Assert.That(SoldierLabels.LabelFor(trooper), Is.EqualTo("Trooper_03  3/5"));
+            Assert.That(SoldierLabels.ShortLabelFor(trooper), Is.EqualTo("T3 3/5"), "the compact form when zoomed out");
+            Assert.That(SoldierLabels.ShortName("Sergeant"), Is.EqualTo("Sgt"));
+            Assert.That(SoldierLabels.ShortName("Field Commander"), Is.EqualTo("Cmdr"));
+            Assert.That(SoldierLabels.ShortName("Battlefield Priest"), Is.EqualTo("Priest"));
+        }
+
         // ---- The AI ----
 
         /// <summary>Optional: a straight-down view of the whole map, written to the path after <paramref name="argName"/>.</summary>
