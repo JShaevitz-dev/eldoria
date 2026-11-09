@@ -115,6 +115,42 @@ namespace Eldoira.Tests
             Assert.That(wounded.Health, Is.EqualTo(wounded.MaxHealth));
         }
 
+        [Test]
+        public void HealingAnInvalidTargetPlaysAnErrorAndLetsThePlayerPickAgain()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            var units = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None);
+            var squad = units.First(u => u.Side == Units.Side.Player && u.DisplayName == "Infantry Squad");
+            var priestUnit = units.First(u => u.DisplayName == "Battlefield Priest");
+            var priest = priestUnit.Leader;
+            var healing = priest.Abilities.First(a => a.displayName == "Divine Healing");
+            var healthy = squad.Leader;
+            var wounded = squad.LivingSoldiers.Last();
+            wounded.TakeDamage(3);
+
+            Assert.That(controller.SelectUnit(priestUnit), Is.True);
+            controller.BeginAbility(priest, healing);   // the HUD button
+
+            int errorsBefore = CombatAudio.ErrorSoundsPlayed;
+            int castsBefore = CombatAudio.CastSoundsPlayed;
+            var refused = controller.UseAbility(healing, priest, healthy);
+            Assert.That(CombatAudio.CastSoundsPlayed, Is.EqualTo(castsBefore), "no hallelujah for a refused target");
+            Assert.That(refused.Used, Is.False);
+            Assert.That(refused.Reason, Does.Contain("full health"));
+            Assert.That(CombatAudio.ErrorSoundsPlayed, Is.EqualTo(errorsBefore + 1), "error sound");
+            Assert.That(controller.HasTakenAction, Is.False, "nothing happened");
+            Assert.That(controller.TargetingAbility, Is.EqualTo(healing), "still choosing a target");
+            Assert.That(healthy.Health, Is.EqualTo(healthy.MaxHealth));
+
+            // Pick a different target: it works.
+            Assert.That(controller.UseAbility(healing, priest, wounded).Used, Is.True);
+            Assert.That(wounded.Health, Is.EqualTo(wounded.MaxHealth));
+            Assert.That(controller.TargetingAbility, Is.Null);
+            Assert.That(CombatAudio.ErrorSoundsPlayed, Is.EqualTo(errorsBefore + 1), "no error for a valid target");
+            Assert.That(CombatAudio.CastSoundsPlayed, Is.EqualTo(castsBefore + 1), "the hallelujah plays once");
+            Assert.That(CombatAudio.LastCastSound.name, Is.EqualTo("Hallelujah"));
+        }
+
         [UnityTest]
         public IEnumerator DivineSanctuaryMakesTheBlessedUnitSparkleUntilItWearsOff()
         {

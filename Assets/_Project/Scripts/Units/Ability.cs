@@ -72,6 +72,10 @@ namespace Eldoira.Units
         [Tooltip("How many times a soldier can use this ability each turn.")]
         [Min(1)] public int usesPerTurn = 1;
 
+        [Header("Presentation")]
+        [Tooltip("Played once when the ability is used successfully (not when a target is refused).")]
+        public AudioClip castSound;
+
         public bool IsAura => kind == AbilityKind.Passive && grantsNearby != null;
         public bool IsActive => kind == AbilityKind.Active;
 

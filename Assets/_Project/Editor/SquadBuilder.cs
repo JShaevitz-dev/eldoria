@@ -181,7 +181,12 @@ namespace Eldoira.EditorTools
         private static void TagAsSpell(Ability ability, Dictionary<string, Keyword> keywords)
         {
             Keyword.AddUnique(ability.keywords, keywords["Spell"]);
+            // The Battlefield Priest's spells ring out with a hallelujah when cast.
+            ability.castSound = AssetDatabase.LoadAssetAtPath<AudioClip>(PriestSpellSoundPath);
+            if (ability.castSound == null) Debug.LogWarning($"[Eldoira] Missing priest spell sound at {PriestSpellSoundPath}.");
         }
+
+        private const string PriestSpellSoundPath = Root + "/Resources/Audio/Hallelujah.mp3";
 
         /// <summary>
         /// Updates the keyword and ability assets in place without rebuilding prefabs or touching the scene

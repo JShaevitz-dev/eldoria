@@ -21,6 +21,9 @@ namespace Eldoira.Rules
     {
         private const float Epsilon = 0.01f;
 
+        /// <summary>Raised after an ability has been used successfully (user, ability, result), for sound and effects.</summary>
+        public static event System.Action<Soldier, Ability, AbilityResult> AbilityUsed;
+
         /// <summary>
         /// Null if the soldier can use the ability at all right now (whatever the target); otherwise why not.
         /// Spells can't be cast by a soldier whose unit sprinted this turn.
@@ -50,6 +53,9 @@ namespace Eldoira.Rules
                 if (Measure.Between(user, targetSoldier) > ability.range + Epsilon) return $"Out of range ({ability.range:0} m)";
                 if (ability.targetMustHave != null && !targetSoldier.HasKeyword(ability.targetMustHave.displayName))
                     return $"Target must be {ability.targetMustHave.displayName}";
+                // A purely healing ability (e.g. Divine Healing) would do nothing to a soldier at full health.
+                if (IsHealOnly(ability) && targetSoldier.Health >= targetSoldier.MaxHealth)
+                    return $"{targetSoldier.name} is already at full health";
                 return null;
             }
 
@@ -60,6 +66,9 @@ namespace Eldoira.Rules
             if (living.Min(s => Measure.Between(user, s)) > ability.range + Epsilon) return $"Out of range ({ability.range:0} m)";
             return null;
         }
+
+        /// <summary>The ability's only effect is restoring health.</summary>
+        public static bool IsHealOnly(Ability ability) => ability != null && ability.heal > 0 && ability.grantsKeyword == null;
 
         private static bool SideOk(Ability ability, Soldier user, Soldier target)
         {
@@ -97,6 +106,7 @@ namespace Eldoira.Rules
 
             user.RecordAbilityUse(ability);
             result.Used = true;
+            AbilityUsed?.Invoke(user, ability, result);
             return result;
         }
     }

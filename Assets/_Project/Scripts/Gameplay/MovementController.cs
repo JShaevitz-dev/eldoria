@@ -748,12 +748,16 @@ namespace Eldoira.Gameplay
                     if (a != null && a.IsActive) yield return (s, a);
         }
 
-        private void BeginAbility(Soldier user, Ability ability)
+        /// <summary>Picks an ability to use (the HUD button): the next click chooses its target.</summary>
+        public void BeginAbility(Soldier user, Ability ability)
         {
             shootMode = false;
             abilityUser = user;
             abilityMode = ability;
         }
+
+        /// <summary>The ability waiting for the player to click a target (null if none).</summary>
+        public Ability TargetingAbility => abilityMode;
 
         /// <summary>Uses an active ability on a soldier (or, for unit abilities, that soldier's unit / the given unit).</summary>
         public AbilityResult UseAbility(Ability ability, Soldier user, Soldier targetSoldier, Unit targetUnit = null)
@@ -762,13 +766,17 @@ namespace Eldoira.Gameplay
             {
                 var refused = new AbilityResult { Reason = actionTaken ? "This unit has already taken its action this turn" : "Finish the move first" };
                 Flash(refused.Reason);
+                CombatAudio.PlayError();
                 return refused;
             }
             if (ability.targets == AbilityTarget.Unit && targetUnit == null && targetSoldier != null) targetUnit = targetSoldier.Unit;
             var result = ActiveAbilities.Use(user, ability, targetSoldier, targetUnit);
             if (!result.Used)
             {
+                // Refused (e.g. healing a soldier at full health, or one who isn't Biological): nothing happens.
+                // The ability stays selected, so the player can pick another target, or press Esc to do something else.
                 Flash(result.Reason);
+                CombatAudio.PlayError();
                 return result;
             }
             abilityMode = null;

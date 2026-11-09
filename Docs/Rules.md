@@ -76,7 +76,7 @@ Living record of the rules decided so far. **Status** shows what the code does t
 | Battlefield Priest | 5 | 0 | 50% | 10 m | Pistol |
 
 - **Keywords:** Biological (Trait), Officer (Trait), Solo (Trait), Magic (Trait).
-- **Active ability (Spell) — Divine Healing:** choose a **friendly** soldier within **25 m** who is **Biological** (the priest can choose themself): they restore **5 health** (not above their starting health). The dead can't be healed.
+- **Active ability (Spell) — Divine Healing:** choose a **friendly** soldier within **25 m** who is **Biological** (the priest can choose themself): they restore **5 health** (not above their starting health). The dead can't be healed. A soldier **already at full health can't be chosen** (nor one who isn't Biological): the error sound plays, nothing happens, and the player can pick another target or do something else — the ability isn't used up.
 - **Active ability (Spell) — Divine Sanctuary:** choose a **friendly unit** within **25 m** (measured to its closest soldier): **every soldier in that unit** gains **Divine Sanctuary: +1 Armor Level**, until the **start of the next turn**.
 
 ### Keywords — *implemented*
@@ -119,6 +119,7 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - Casting a Spell after a normal move, after holding position, or instead of moving is allowed. Undoing a sprint lifts the restriction; it ends at the start of the next turn.
 - Abilities that aren't Spells can still be used after sprinting.
 - Spells so far: **Divine Healing**, **Divine Sanctuary**. (Lead from the front is not a Spell.)
+- *Sound:* when the Battlefield Priest successfully casts a spell, a **hallelujah** plays once (not when a target is refused).
 
 #### Gaining and losing keywords — *implemented*
 

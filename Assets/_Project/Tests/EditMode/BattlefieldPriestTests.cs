@@ -149,11 +149,85 @@ namespace Eldoira.Tests
             var far = MakeUnit("Far", Side.Player, trooperT, new Vector3(0, 0, 26)).Soldiers[0];
             var edge = MakeUnit("Edge", Side.Player, trooperT, new Vector3(0, 0, 25)).Soldiers[0];
             var enemy = MakeUnit("Enemy", Side.AI, trooperT, new Vector3(0, 0, 5)).Soldiers[0];
+            foreach (var s in new[] { robot, far, edge, enemy }) s.TakeDamage(1); // wounded, so only the tested reason applies
 
             Assert.That(ActiveAbilities.WhyCannotUse(priest, healing, robot), Does.Contain("Biological"));
             Assert.That(ActiveAbilities.WhyCannotUse(priest, healing, far), Does.Contain("range"));
             Assert.That(ActiveAbilities.WhyCannotUse(priest, healing, enemy), Is.Not.Null);
             Assert.That(ActiveAbilities.WhyCannotUse(priest, healing, edge), Is.Null);
+        }
+
+        [Test]
+        public void HealingCantTargetASoldierAtFullHealthAndIsNotUsedUp()
+        {
+            var priest = Priest();
+            var healthy = MakeUnit("Squad", Side.Player, trooperT, new Vector3(0, 0, 5)).Soldiers[0];
+            var wounded = MakeUnit("Others", Side.Player, trooperT, new Vector3(0, 0, 8)).Soldiers[0];
+            wounded.TakeDamage(2);
+
+            var r = ActiveAbilities.Use(priest, healing, healthy);
+            Assert.That(r.Used, Is.False);
+            Assert.That(r.Reason, Does.Contain("full health"));
+            Assert.That(priest.TimesUsedThisTurn(healing), Is.EqualTo(0), "a refused target doesn't use up the ability");
+
+            // ... so the priest can still heal someone else this turn.
+            Assert.That(ActiveAbilities.Use(priest, healing, wounded).Used, Is.True);
+            Assert.That(wounded.Health, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void ARefusedNonBiologicalTargetIsNotUsedUpEither()
+        {
+            var priest = Priest();
+            var robot = MakeUnit("Robots", Side.Player, robotT, new Vector3(0, 0, 5)).Soldiers[0];
+            robot.TakeDamage(2);
+            Assert.That(ActiveAbilities.Use(priest, healing, robot).Reason, Does.Contain("Biological"));
+            Assert.That(priest.TimesUsedThisTurn(healing), Is.EqualTo(0));
+        }
+
+        [Test]
+        public void AbilityUsedIsRaisedOnlyForASuccessfulCast()
+        {
+            var priest = Priest();
+            var healthy = MakeUnit("Squad", Side.Player, trooperT, new Vector3(0, 0, 5)).Soldiers[0];
+            var wounded = MakeUnit("Others", Side.Player, trooperT, new Vector3(0, 0, 8)).Soldiers[0];
+            wounded.TakeDamage(2);
+            var used = new List<Ability>();
+            System.Action<Soldier, Ability, AbilityResult> handler = (u, a, r) => used.Add(a);
+            ActiveAbilities.AbilityUsed += handler;
+            try
+            {
+                ActiveAbilities.Use(priest, healing, healthy);   // refused: full health
+                Assert.That(used, Is.Empty);
+                ActiveAbilities.Use(priest, healing, wounded);   // cast
+                Assert.That(used, Is.EqualTo(new[] { healing }));
+            }
+            finally
+            {
+                ActiveAbilities.AbilityUsed -= handler;
+            }
+        }
+
+        [Test]
+        public void ThePriestsSpellsPlayTheHallelujah()
+        {
+            var p = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/BattlefieldPriest.asset").leader;
+            foreach (var spell in p.abilities)
+            {
+                Assert.That(spell.IsSpell, Is.True);
+                Assert.That(spell.castSound, Is.Not.Null, spell.displayName);
+                Assert.That(spell.castSound.name, Is.EqualTo("Hallelujah"));
+            }
+            var lead = AssetDatabase.LoadAssetAtPath<Ability>($"{Data}/Abilities/LeadFromTheFront.asset");
+            Assert.That(lead.castSound, Is.Null, "not a spell, no sound");
+        }
+
+        [Test]
+        public void SanctuaryCanStillTargetAUnitAtFullHealth()
+        {
+            var priest = Priest();
+            var squad = MakeUnit("Squad", Side.Player, trooperT, new Vector3(0, 0, 10));
+            Assert.That(ActiveAbilities.Use(priest, sanctuary, null, squad).Used, Is.True, "the full-health check is only for healing");
         }
 
         [Test]
@@ -179,7 +253,9 @@ namespace Eldoira.Tests
         {
             var priest = Priest();
             var ally = MakeUnit("Squad", Side.Player, trooperT, new Vector3(0, 0, 5)).Soldiers[0];
+            ally.TakeDamage(4);
             Assert.That(ActiveAbilities.Use(priest, healing, ally).Used, Is.True);
+            ally.TakeDamage(2);
             Assert.That(ActiveAbilities.Use(priest, healing, ally).Reason, Does.Contain("already been used"));
             Assert.That(ActiveAbilities.Use(priest, sanctuary, null, ally.Unit).Used, Is.True, "a different ability is still available");
 
