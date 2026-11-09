@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6585612470302688262}
   - component: {fileID: 8689483166947148143}
   - component: {fileID: 4241225099704753896}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 4300076126040152525}
   - component: {fileID: 8987880514924899383}
   - component: {fileID: 266724939011597793}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -191,7 +191,7 @@ GameObject:
   - component: {fileID: 1103525983561157961}
   - component: {fileID: 2787641983860484077}
   - component: {fileID: 7762983311073647051}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Trooper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -227,9 +227,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Eldoira.Units.UnitModel
-  profile: {fileID: 11400000, guid: b99f2bc187e76ea46b7b16cbd27a9256, type: 2}
-  isLeader: 0
+  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  template: {fileID: 11400000, guid: b99f2bc187e76ea46b7b16cbd27a9256, type: 2}
+  isSergeant: 0
+  health: 0
+  weapons: []
+  keywordState:
+    gained: []
+    lost: []
+  nearbyKeywords: []
 --- !u!136 &7762983311073647051
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -264,7 +270,7 @@ GameObject:
   - component: {fileID: 7012976983988019868}
   - component: {fileID: 78156115827395666}
   - component: {fileID: 4146510651379848344}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}

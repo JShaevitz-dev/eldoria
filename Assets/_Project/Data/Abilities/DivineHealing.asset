@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d19a61d1a0328e040abadba0dd86f72a, type: 3}
+  m_Name: DivineHealing
+  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Ability
+  displayName: Divine Healing
+  description: 'Active. Choose a friendly Biological soldier within 25 m: they restore
+    5 health.'
+  kind: 1
+  affects: 0
+  includeSelf: 1
+  grantsNearby: {fileID: 0}
+  radius: 15
+  targets: 0
+  range: 25
+  targetMustHave: {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
+  heal: 5
+  grantsKeyword: {fileID: 0}
+  grantUntilNextTurn: 1
+  usesPerTurn: 1

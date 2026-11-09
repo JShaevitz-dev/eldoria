@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1982089135443459875}
   - component: {fileID: 288682663862064963}
   - component: {fileID: 7279866044849603004}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Crest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 1955323099753420179}
   - component: {fileID: 1986958772911115176}
   - component: {fileID: 866236262431307476}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -191,7 +191,7 @@ GameObject:
   - component: {fileID: 4770464269424568650}
   - component: {fileID: 644138050930395340}
   - component: {fileID: 7092471160797697295}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sergeant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -231,9 +231,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Eldoira.Units.UnitModel
-  profile: {fileID: 11400000, guid: ac6683a9268f31c40b052e2a957f5dc8, type: 2}
-  isLeader: 1
+  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  template: {fileID: 11400000, guid: ac6683a9268f31c40b052e2a957f5dc8, type: 2}
+  isSergeant: 1
+  health: 0
+  weapons: []
+  keywordState:
+    gained: []
+    lost: []
+  nearbyKeywords: []
 --- !u!136 &7092471160797697295
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -268,7 +274,7 @@ GameObject:
   - component: {fileID: 4049372879482788912}
   - component: {fileID: 8856926780921318964}
   - component: {fileID: 1798212217724029646}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Pauldron_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -358,7 +364,7 @@ GameObject:
   - component: {fileID: 2025349523307902686}
   - component: {fileID: 5221310001766546086}
   - component: {fileID: 3081866858092515028}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Pauldron_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -448,7 +454,7 @@ GameObject:
   - component: {fileID: 7311747842294970103}
   - component: {fileID: 4835604764040049596}
   - component: {fileID: 850594161359501986}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -538,7 +544,7 @@ GameObject:
   - component: {fileID: 6247588180428706229}
   - component: {fileID: 6613702404198520666}
   - component: {fileID: 9024928480953460424}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -628,7 +634,7 @@ GameObject:
   - component: {fileID: 8751438780532134419}
   - component: {fileID: 6953848097811411588}
   - component: {fileID: 2295266573407176619}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}

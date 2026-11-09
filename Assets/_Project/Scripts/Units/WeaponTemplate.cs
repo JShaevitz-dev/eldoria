@@ -1,0 +1,36 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Serialization;
+
+namespace Eldoira.Units
+{
+    /// <summary>
+    /// Template for a class of weapon (e.g. "Assault Rifle"): its stats and keywords.
+    /// Soldier templates list the weapon templates their soldiers carry.
+    /// </summary>
+    [CreateAssetMenu(menuName = "Eldoira/Weapon Template", fileName = "NewWeapon", order = 2)]
+    public class WeaponTemplate : ScriptableObject
+    {
+        public string displayName = "Weapon";
+
+        [Header("Stats")]
+        [Tooltip("Damage dealt by a hit.")]
+        [FormerlySerializedAs("maxDamage")]
+        [Min(0)] public int baseDamage = 3;
+
+        [Tooltip("How well the weapon gets through armor (compared against the target's Armor Level).")]
+        [Min(0)] public int penetration;
+
+        [Tooltip("Added to the soldier's Accuracy when attacking with this weapon (can be negative).")]
+        [FormerlySerializedAs("aimModifier")]
+        public int accuracyBonus;
+
+        [Header("Keywords")]
+        [Tooltip("Extra properties, e.g. Explosive or Incendiary.")]
+        public List<Keyword> keywords = new List<Keyword>();
+
+        public bool HasKeyword(string name) => Keyword.Contains(keywords, name);
+
+        private void OnValidate() => Keyword.RemoveDuplicates(keywords);
+    }
+}

@@ -16,8 +16,8 @@ namespace Eldoira.Rules
             return Vector3.Distance(a, b);
         }
 
-        public static float Between(UnitModel a, UnitModel b) => Horizontal(a.Position, b.Position);
+        public static float Between(Soldier a, Soldier b) => Horizontal(a.Position, b.Position);
 
-        public static float ToPoint(UnitModel a, Vector3 point) => Horizontal(a.Position, point);
+        public static float ToPoint(Soldier a, Vector3 point) => Horizontal(a.Position, point);
     }
 }

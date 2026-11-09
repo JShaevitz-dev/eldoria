@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d19a61d1a0328e040abadba0dd86f72a, type: 3}
+  m_Name: LeadFromTheFront
+  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Ability
+  displayName: Lead from the front
+  description: Passive. Other friendly soldiers within 15 m gain +15% accuracy. Each soldier is checked on its own.
+  kind: 0
+  grantsNearby: {fileID: 11400000, guid: 92655d74e92299c4b847aa9adcb28db5, type: 2}
+  radius: 15
+  affects: 0
+  includeSelf: 0

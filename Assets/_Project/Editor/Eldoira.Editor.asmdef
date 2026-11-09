@@ -1,0 +1,19 @@
+{
+    "name": "Eldoira.Editor",
+    "rootNamespace": "Eldoira.EditorTools",
+    "references": [
+        "Eldoira",
+        "Unity.AI.Navigation"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

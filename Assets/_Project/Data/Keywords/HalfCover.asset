@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acfb139d20d848147a999647b1e7934f, type: 3}
+  m_Name: HalfCover
+  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Keyword
+  displayName: Half-cover
+  description: Soldiers within 5 m gain In half-cover.
+  appliesTo: 3
+  interactions: []
+  grantsNearby: {fileID: 11400000, guid: 60ad221a2cee80a4d93bc979e964029d, type: 2}
+  grantRadius: 5

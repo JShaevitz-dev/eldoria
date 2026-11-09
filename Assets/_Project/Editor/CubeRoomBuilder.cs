@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 namespace Eldoira.EditorTools
 {
     /// <summary>
-    /// Generates the empty "cube room" test scene: a 60m x 44m floor enclosed by
+    /// Generates the "cube room" test scene: a 60m x 44m battlefield (with test terrain) enclosed by
     /// four walls (open top so the tactical camera can see in), lighting and a camera rig.
     /// Menu: Eldoira > Build Cube Room. Also callable from the command line via
     /// -executeMethod Eldoira.EditorTools.CubeRoomBuilder.Build
@@ -39,19 +39,20 @@ namespace Eldoira.EditorTools
             // --- Room ---
             var room = new GameObject("CubeRoom");
 
-            var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            floor.name = "Floor";
-            floor.transform.SetParent(room.transform);
-            floor.transform.localPosition = new Vector3(0f, -0.5f, 0f); // top surface at y = 0
-            floor.transform.localScale = new Vector3(w, 1f, d);
-            floor.GetComponent<Renderer>().sharedMaterial = floorMat;
-            floor.layer = 0;
-            GameObjectUtility.SetStaticEditorFlags(floor, StaticEditorFlags.BatchingStatic | StaticEditorFlags.ContributeGI);
+            // Ground (with a hill and a ditch) is structure terrain.
+            TerrainBuilder.BuildGround(room.transform, floorMat);
 
             CreateWall(room.transform, "Wall_North", new Vector3(0f, WallHeight / 2f, d / 2f + WallThickness / 2f), new Vector3(w + WallThickness * 2f, WallHeight, WallThickness), wallMat);
             CreateWall(room.transform, "Wall_South", new Vector3(0f, WallHeight / 2f, -d / 2f - WallThickness / 2f), new Vector3(w + WallThickness * 2f, WallHeight, WallThickness), wallMat);
             CreateWall(room.transform, "Wall_East", new Vector3(w / 2f + WallThickness / 2f, WallHeight / 2f, 0f), new Vector3(WallThickness, WallHeight, d), wallMat);
             CreateWall(room.transform, "Wall_West", new Vector3(-w / 2f - WallThickness / 2f, WallHeight / 2f, 0f), new Vector3(WallThickness, WallHeight, d), wallMat);
+
+            // Test terrain: a building (structure) and props (objects).
+            TerrainBuilder.BuildTestTerrain(room.transform);
+
+            // Walkable-area map, built when the scene starts.
+            room.AddComponent<Unity.AI.Navigation.NavMeshSurface>();
+            room.AddComponent<Eldoira.Terrain.BattlefieldNavigation>();
 
             // --- Lighting ---
             var sun = new GameObject("Directional Light");
@@ -88,7 +89,18 @@ namespace Eldoira.EditorTools
             camGo.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
             camGo.transform.localPosition = camGo.transform.localRotation * new Vector3(0f, 0f, -40f);
 
-            SquadBuilder.SpawnTestSquad();
+            var squad = SquadBuilder.SpawnTestSquad();
+            SquadBuilder.SpawnEnemySquad();
+            SquadBuilder.SpawnFieldCommander();
+            SquadBuilder.SpawnBattlefieldPriest();
+
+            // --- Game controller (player movement orders for the test squad) ---
+            var gameController = new GameObject("GameController");
+            var mover = gameController.AddComponent<Eldoira.Gameplay.MovementController>();
+            var mso = new SerializedObject(mover);
+            mso.FindProperty("squad").objectReferenceValue = squad;
+            mso.FindProperty("cam").objectReferenceValue = cam;
+            mso.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             SetAsOnlyBuildScene(ScenePath);
@@ -104,6 +116,8 @@ namespace Eldoira.EditorTools
             wall.transform.localPosition = pos;
             wall.transform.localScale = scale;
             wall.GetComponent<Renderer>().sharedMaterial = mat;
+            wall.layer = Eldoira.Terrain.TerrainLayers.Structure;
+            wall.AddComponent<Eldoira.Terrain.StructureTerrain>().Configure(Eldoira.Terrain.StructureKind.Building);
             GameObjectUtility.SetStaticEditorFlags(wall, StaticEditorFlags.BatchingStatic | StaticEditorFlags.ContributeGI);
         }
 
@@ -123,8 +137,8 @@ namespace Eldoira.EditorTools
             {
                 mat.SetTexture("_BaseMap", tex);
                 mat.mainTexture = tex;
-                // One texture tile = 5m: thin grid line every meter, heavier line every 5 meters.
-                var tiling = new Vector2(BattlefieldScale.BoardWidth / 5f, BattlefieldScale.BoardDepth / 5f);
+                // Ground UVs are already in 5 m units: one tile = thin line every meter, heavier every 5 m.
+                var tiling = Vector2.one;
                 mat.SetTextureScale("_BaseMap", tiling);
                 mat.mainTextureScale = tiling;
             }
