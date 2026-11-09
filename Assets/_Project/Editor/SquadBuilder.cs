@@ -135,7 +135,7 @@ namespace Eldoira.EditorTools
                 a.targetMustHave = keywords["Biological"];
                 a.heal = 5;
                 a.usesPerTurn = 1;
-            });
+            }, a => TagAsSpell(a, keywords));
             var sanctuary = GetOrCreate<Ability>($"{DataDir}/Abilities/DivineSanctuary.asset", a =>
             {
                 a.displayName = "Divine Sanctuary";
@@ -148,7 +148,7 @@ namespace Eldoira.EditorTools
                 a.grantsKeyword = keywords["Divine Sanctuary"];
                 a.grantUntilNextTurn = true;
                 a.usesPerTurn = 1;
-            });
+            }, a => TagAsSpell(a, keywords));
 
             var priest = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/BattlefieldPriest.asset", s =>
             {
@@ -175,6 +175,30 @@ namespace Eldoira.EditorTools
             });
             AssetDatabase.SaveAssets();
             return unit;
+        }
+
+        /// <summary>Divine Healing and Divine Sanctuary are Spells (can't be cast after the unit sprinted).</summary>
+        private static void TagAsSpell(Ability ability, Dictionary<string, Keyword> keywords)
+        {
+            Keyword.AddUnique(ability.keywords, keywords["Spell"]);
+        }
+
+        /// <summary>
+        /// Updates the keyword and ability assets in place without rebuilding prefabs or touching the scene
+        /// (batchmode: -executeMethod Eldoira.EditorTools.SquadBuilder.UpdateAbilityData).
+        /// </summary>
+        public static void UpdateAbilityData()
+        {
+            var keywords = EnsureKeywords();
+            foreach (var file in new[] { "DivineHealing", "DivineSanctuary" })
+            {
+                var ability = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/{file}.asset");
+                if (ability == null) continue;
+                TagAsSpell(ability, keywords);
+                EditorUtility.SetDirty(ability);
+            }
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Eldoira] Ability data updated.");
         }
 
         /// <summary>Spawns the player's Battlefield Priest just behind the Infantry Squad's right side.</summary>
@@ -338,6 +362,7 @@ namespace Eldoira.EditorTools
             Kw("Officer", "Officer", KeywordTarget.Soldier, "A commissioned officer. (Effect not designed yet.)");
             Kw("Solo", "Solo", KeywordTarget.Soldier, "Fights as a unit of one. No effect on its own; some weapons and abilities check for it.");
             Kw("Magic", "Magic", KeywordTarget.Soldier, "Wields magic. No effect on its own; some weapons and abilities check for it.");
+            Kw("Spell", "Spell", KeywordTarget.Ability, "A magical ability. Can't be cast by a soldier whose unit sprinted this turn.");
             GetOrCreate<Keyword>($"{DataDir}/Keywords/DivineSanctuary.asset", k =>
             {
                 k.displayName = "Divine Sanctuary";
@@ -372,6 +397,7 @@ namespace Eldoira.EditorTools
             {
                 ["Biological"] = KeywordCategory.Trait, ["Robotic"] = KeywordCategory.Trait, ["Sniper"] = KeywordCategory.Trait,
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
+                ["Spell"] = KeywordCategory.Trait,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,

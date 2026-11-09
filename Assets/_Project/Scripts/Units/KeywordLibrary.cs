@@ -16,6 +16,9 @@ namespace Eldoira.Units
         /// <summary>Given to a soldier who moved this turn; removed at the start of the next turn.</summary>
         public const string Moved = "Moved";
 
+        /// <summary>Ability keyword: a Spell can't be cast by a soldier whose unit sprinted this turn.</summary>
+        public const string Spell = "Spell";
+
         public List<Keyword> keywords = new List<Keyword>();
 
         private static KeywordLibrary loaded;

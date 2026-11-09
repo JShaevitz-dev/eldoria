@@ -16,6 +16,8 @@ MonoBehaviour:
   description: 'Active. Choose a friendly unit within 25 m: every soldier in it gains
     +1 armor until the next turn.'
   kind: 1
+  keywords:
+  - {fileID: 11400000, guid: 526a5a5836e0bc64dbee80b0583cc1dd, type: 2}
   affects: 0
   includeSelf: 1
   grantsNearby: {fileID: 0}

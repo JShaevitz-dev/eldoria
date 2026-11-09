@@ -10,7 +10,9 @@ namespace Eldoira.Units
         Weapon,
         Soldier,
         Any,
-        TerrainObject
+        TerrainObject,
+        /// <summary>Classifies an ability, e.g. Spell.</summary>
+        Ability
     }
 
     /// <summary>What kind of keyword this is.</summary>

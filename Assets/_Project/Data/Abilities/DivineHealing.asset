@@ -16,6 +16,8 @@ MonoBehaviour:
   description: 'Active. Choose a friendly Biological soldier within 25 m: they restore
     5 health.'
   kind: 1
+  keywords:
+  - {fileID: 11400000, guid: 526a5a5836e0bc64dbee80b0583cc1dd, type: 2}
   affects: 0
   includeSelf: 1
   grantsNearby: {fileID: 0}

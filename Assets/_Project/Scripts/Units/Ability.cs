@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Eldoira.Units
@@ -42,6 +43,9 @@ namespace Eldoira.Units
         [TextArea] public string description;
         public AbilityKind kind = AbilityKind.Passive;
 
+        [Tooltip("What kind of ability this is, e.g. Spell (a Spell can't be cast if the soldier's unit sprinted this turn).")]
+        public List<Keyword> keywords = new List<Keyword>();
+
         [Tooltip("Passive: who the aura affects. Active: who can be targeted.")]
         public AuraAffects affects = AuraAffects.Allies;
         [Tooltip("Passive: whether the soldier with the ability is affected too. Active: whether they can target themself (or their own unit).")]
@@ -70,5 +74,12 @@ namespace Eldoira.Units
 
         public bool IsAura => kind == AbilityKind.Passive && grantsNearby != null;
         public bool IsActive => kind == AbilityKind.Active;
+
+        public bool HasKeyword(string name) => Keyword.Contains(keywords, name);
+
+        /// <summary>Spells can't be cast by a soldier whose unit sprinted this turn.</summary>
+        public bool IsSpell => HasKeyword(KeywordLibrary.Spell);
+
+        private void OnValidate() => Keyword.RemoveDuplicates(keywords);
     }
 }

@@ -33,6 +33,15 @@ namespace Eldoira.Units
         [SerializeField] private List<Soldier> soldiers = new List<Soldier>();
         [SerializeField] private Soldier leader;
 
+        /// <summary>The turn number in which this unit sprinted (0 = hasn't sprinted).</summary>
+        private int sprintedOnTurn;
+
+        /// <summary>The unit's leader sprinted this turn, so the whole unit counts as having sprinted.</summary>
+        public bool SprintedThisTurn => sprintedOnTurn != 0 && sprintedOnTurn == Turns.Current;
+
+        /// <summary>Records whether the unit sprinted this turn (set when its leader sprints; cleared if the move is undone).</summary>
+        public void SetSprintedThisTurn(bool sprinted) => sprintedOnTurn = sprinted ? Mathf.Max(1, Turns.Current) : 0;
+
         public string DisplayName => displayName;
         public UnitTemplate Template => template;
         public Side Side => side;

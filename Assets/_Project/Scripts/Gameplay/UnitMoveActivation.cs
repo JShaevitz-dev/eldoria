@@ -100,6 +100,7 @@ namespace Eldoira.Gameplay
             paths[Leader] = check.Path;
             MarkMoved(Leader);
             LeaderMove = check.Kind;
+            Unit.SetSprintedThisTurn(check.Kind == MoveKind.Sprint);
             Phase = MovePhase.MoveFollowers;
             return true;
         }
@@ -192,6 +193,7 @@ namespace Eldoira.Gameplay
             paths.Clear();
             foreach (var m in givenMovedKeyword) m.LoseKeyword(KeywordLibrary.Get(KeywordLibrary.Moved));
             givenMovedKeyword.Clear();
+            Unit.SetSprintedThisTurn(false);
             LeaderMove = MoveKind.None;
             Phase = MovePhase.MoveLeader;
         }

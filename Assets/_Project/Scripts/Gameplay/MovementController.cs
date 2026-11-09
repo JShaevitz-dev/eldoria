@@ -616,8 +616,14 @@ namespace Eldoira.Gameplay
                 foreach (var (user, ability) in ActiveAbilitiesOfUnit())
                 {
                     int left = ability.usesPerTurn - user.TimesUsedThisTurn(ability);
-                    GUI.enabled = left > 0;
-                    if (GUILayout.Button($"{ability.displayName} ({left} left) — {ability.range:0} m"))
+                    string why = ActiveAbilities.WhyCannotCast(user, ability);
+                    string spell = ability.IsSpell ? " [Spell]" : "";
+                    // Greyed out with the reason (e.g. a Spell after sprinting); used-up abilities just show 0 left.
+                    string label = why == null || left <= 0
+                        ? $"{ability.displayName}{spell} ({left} left) — {ability.range:0} m"
+                        : $"{ability.displayName}{spell} — {why}";
+                    GUI.enabled = why == null;
+                    if (GUILayout.Button(label))
                         BeginAbility(user, ability);
                     GUI.enabled = true;
                 }

@@ -76,8 +76,8 @@ Living record of the rules decided so far. **Status** shows what the code does t
 | Battlefield Priest | 5 | 0 | 50% | 10 m | Pistol |
 
 - **Keywords:** Biological (Trait), Officer (Trait), Solo (Trait), Magic (Trait).
-- **Active ability — Divine Healing:** choose a **friendly** soldier within **25 m** who is **Biological** (the priest can choose themself): they restore **5 health** (not above their starting health). The dead can't be healed.
-- **Active ability — Divine Sanctuary:** choose a **friendly unit** within **25 m** (measured to its closest soldier): **every soldier in that unit** gains **Divine Sanctuary: +1 Armor Level**, until the **start of the next turn**.
+- **Active ability (Spell) — Divine Healing:** choose a **friendly** soldier within **25 m** who is **Biological** (the priest can choose themself): they restore **5 health** (not above their starting health). The dead can't be healed.
+- **Active ability (Spell) — Divine Sanctuary:** choose a **friendly unit** within **25 m** (measured to its closest soldier): **every soldier in that unit** gains **Divine Sanctuary: +1 Armor Level**, until the **start of the next turn**.
 
 ### Keywords — *implemented*
 
@@ -93,7 +93,7 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 
 #### Keyword categories
 
-Keywords are marked **Trait** (what a soldier is: Biological, Robotic, Sniper, Officer, Solo) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front).
+Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Sniper, Officer, Solo, Spell) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front).
 
 - Some traits **do nothing on their own**: **Officer** and **Solo** only matter because other weapons and abilities check for them (e.g. something that only affects Officers, or has no effect on Solo soldiers) — done with keyword interactions such as *"if the target has / lacks Officer → …"*.
 
@@ -111,6 +111,14 @@ Keywords are marked **Trait** (what a soldier is: Biological, Robotic, Sniper, O
 - Effects so far: **restore health** (up to starting health) and **give a keyword** (to the soldier, or every soldier of the unit), optionally until the next turn.
 - Each soldier can use each active ability once per turn (and in practice a unit uses at most one ability per turn — see Unit actions).
 - Keywords can now change **Armor Level** for an attack (armor bonus / penalty), which counts in the penetration check.
+
+#### Spells — *implemented*
+
+- Abilities can have keywords that classify them. **Spell** (ability keyword, Trait) marks an ability as a spell.
+- **A Spell can't be cast if the soldier sprinted** — meaning the soldier's **unit sprinted this turn** (its leader sprinted), the same test as the sprint accuracy penalty. So every soldier in a sprinting unit is affected.
+- Casting a Spell after a normal move, after holding position, or instead of moving is allowed. Undoing a sprint lifts the restriction; it ends at the start of the next turn.
+- Abilities that aren't Spells can still be used after sprinting.
+- Spells so far: **Divine Healing**, **Divine Sanctuary**. (Lead from the front is not a Spell.)
 
 #### Gaining and losing keywords — *implemented*
 

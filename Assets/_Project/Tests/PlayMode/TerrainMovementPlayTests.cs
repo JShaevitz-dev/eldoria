@@ -65,7 +65,10 @@ namespace Eldoira.Tests
 
             // Step 1: switch to the Field Commander and move them.
             Assert.That(controller.ActiveUnit, Is.EqualTo(squad));
+            // Tab moves to another player unit (which one depends on scene order: commander or priest).
             Assert.That(controller.SelectNextUnit(), Is.True);
+            Assert.That(controller.ActiveUnit, Is.Not.EqualTo(squad));
+            Assert.That(controller.SelectUnit(commander) || controller.ActiveUnit == commander, Is.True);
             Assert.That(controller.ActiveUnit, Is.EqualTo(commander));
             Assert.That(controller.OrderLeaderMove(commander.Leader.Position + new Vector3(-6f, 0f, 0f)), Is.True);
             Assert.That(controller.Activation.Phase, Is.EqualTo(MovePhase.MoveFollowers), "a unit of one still finishes its move");

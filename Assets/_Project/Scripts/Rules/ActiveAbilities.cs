@@ -21,13 +21,26 @@ namespace Eldoira.Rules
     {
         private const float Epsilon = 0.01f;
 
-        /// <summary>Null if the ability can be used on this target; otherwise why not.</summary>
-        public static string WhyCannotUse(Soldier user, Ability ability, Soldier targetSoldier = null, Unit targetUnit = null)
+        /// <summary>
+        /// Null if the soldier can use the ability at all right now (whatever the target); otherwise why not.
+        /// Spells can't be cast by a soldier whose unit sprinted this turn.
+        /// </summary>
+        public static string WhyCannotCast(Soldier user, Ability ability)
         {
             if (user == null || !user.IsAlive) return "The user can't act";
             if (ability == null || !ability.IsActive) return "Not an active ability";
             if (!user.Abilities.Contains(ability)) return $"{user.name} doesn't have {ability.displayName}";
             if (user.TimesUsedThisTurn(ability) >= ability.usesPerTurn) return $"{ability.displayName} has already been used this turn";
+            if (ability.IsSpell && user.Unit != null && user.Unit.SprintedThisTurn)
+                return $"{ability.displayName} is a Spell and can't be cast after sprinting";
+            return null;
+        }
+
+        /// <summary>Null if the ability can be used on this target; otherwise why not.</summary>
+        public static string WhyCannotUse(Soldier user, Ability ability, Soldier targetSoldier = null, Unit targetUnit = null)
+        {
+            string cannotCast = WhyCannotCast(user, ability);
+            if (cannotCast != null) return cannotCast;
 
             if (ability.targets == AbilityTarget.Soldier)
             {
