@@ -144,10 +144,18 @@ namespace Eldoira.Units
         }
 
         /// <summary>
-        /// The weapon to shoot <paramref name="target"/> with. Normally the primary weapon; circumstances or abilities
-        /// that make a soldier use an alternative weapon will hook in here.
+        /// The weapon to shoot <paramref name="target"/> with. Normally the primary weapon. In close range only a weapon
+        /// with the Pistol keyword can be used: the primary if it is one, otherwise the soldier's first pistol, otherwise
+        /// none (null: the soldier can't shoot). Other circumstances that change weapons will hook in here too.
         /// </summary>
-        public Weapon WeaponFor(Soldier target) => PrimaryWeapon;
+        public Weapon WeaponFor(Soldier target)
+        {
+            var primary = PrimaryWeapon;
+            if (Rules.CloseRange.CanUseWeapon(this, primary)) return primary;
+            foreach (var w in Weapons)
+                if (w.HasKeyword(Rules.CloseRange.PistolKeyword)) return w;
+            return null;
+        }
 
         /// <summary>Weapons this soldier is carrying.</summary>
         public IReadOnlyList<Weapon> Weapons { get { EnsureInitialized(); return weapons; } }

@@ -31,6 +31,8 @@ namespace Eldoira.Rules
             pending.Clear();
             foreach (var s in removed)
                 if (s != null) s.RemoveFromPlay();
+            // The dead no longer put anyone in close range (or grant anything else nearby).
+            if (removed.Count > 0) Terrain.NearbyKeywords.RefreshAll();
             return removed;
         }
 
@@ -39,7 +41,11 @@ namespace Eldoira.Rules
         {
             if (soldier == null) return;
             if (VolleyInProgress) { if (!pending.Contains(soldier)) pending.Add(soldier); }
-            else soldier.RemoveFromPlay();
+            else
+            {
+                soldier.RemoveFromPlay();
+                Terrain.NearbyKeywords.RefreshAll();
+            }
         }
 
         /// <summary>Forgets any open volley (new game, tests).</summary>

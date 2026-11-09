@@ -70,7 +70,7 @@ namespace Eldoira.Rules
 
             // 9. Armor penetration (against the target's Armor Level, adjusted by keywords such as Divine Sanctuary).
             result.TargetArmor = ArmorAgainst(target, result.Keywords);
-            var penetration = ArmorPenetration.Resolve(result.FinalDamage, weapon.Penetration, result.TargetArmor);
+            var penetration = ArmorPenetration.Resolve(result.FinalDamage, weapon.PenetrationValue, result.TargetArmor);
 
             // 10. Accuracy and hit roll.
             result.Accuracy = Rules.Accuracy.ForAttack(attacker, weapon, attackerSprinted, result.Keywords.AccuracyModifiers,

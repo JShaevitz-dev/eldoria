@@ -20,6 +20,8 @@ namespace Eldoira.Units
         public string Name => template != null ? template.displayName : "(none)";
         public int BaseDamage => template != null ? template.baseDamage : 0;
         public int Penetration => template != null ? template.penetration : 0;
+        /// <summary>Penetration, or null if the weapon has no penetration value: its attacks always do 100% damage, regardless of armor.</summary>
+        public int? PenetrationValue => template != null ? template.PenetrationValue : 0;
         public int AccuracyBonus => template != null ? template.accuracyBonus : 0;
 
         private IEnumerable<Keyword> Inherent => template != null ? template.keywords : null;

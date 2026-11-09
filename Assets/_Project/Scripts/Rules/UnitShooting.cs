@@ -57,7 +57,9 @@ namespace Eldoira.Rules
     ///   8–12. Each soldier's attack in turn (see <see cref="Attack"/>): damage → penetration → accuracy and hit roll →
     ///       crit roll → damage applied. A soldier shoots the target it picked even if it has died in the meantime.
     ///   13. A soldier who took damage fires their "when damaged" keyword triggers.
-    /// Soldiers shoot with their primary weapon. Soldiers killed in this volley stay targetable until it ends, then are
+    /// Soldiers shoot with their primary weapon - except in close range (a Biological enemy within 2 m), where only a
+    /// Pistol can be used: soldiers with one switch to it, the rest don't shoot (see <see cref="CloseRange"/>).
+    /// Otherwise soldiers shoot with their primary weapon. Soldiers killed in this volley stay targetable until it ends, then are
     /// removed from the battlefield (see <see cref="Casualties"/>), so the next attacking unit can't target them.
     /// </summary>
     public static class UnitShooting
@@ -126,7 +128,12 @@ namespace Eldoira.Rules
                 result.Shots.Add(shot);
                 if (shot.Weapon == null)
                 {
-                    shot.Note = "no weapon";
+                    if (CloseRange.IsInCloseRange(shooter))
+                    {
+                        shot.Note = "in close range without a pistol";
+                        result.Log.Add($"{shooter.name} is in close range and has no pistol: can't shoot.");
+                    }
+                    else shot.Note = "no weapon";
                     continue;
                 }
 

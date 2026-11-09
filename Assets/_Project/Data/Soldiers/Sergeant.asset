@@ -20,7 +20,8 @@ MonoBehaviour:
   movementRange: 10
   keywords:
   - {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: 990bc6df05bf97d4eaa6ed9d6c4621e8, type: 2}
   weapons:
   - {fileID: 11400000, guid: 888ab10d5cd37a14897c7ebfc9ce8cef, type: 2}
   - {fileID: 11400000, guid: 91a661bd5ba10cb459f504ddde841782, type: 2}

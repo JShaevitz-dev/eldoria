@@ -164,6 +164,81 @@ namespace Eldoira.Tests
             Assert.That(checkedWindows, Is.GreaterThan(10));
         }
     
+        [UnityTest]
+        public IEnumerator ARedMarkerShowsOverSoldiersInCloseRange()
+        {
+            var units = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+            var mine = units.First(u => u.DisplayName == "Infantry Squad 2").Leader;
+            var theirs = units.First(u => u.DisplayName == "Infantry Squad 2 (Enemy)").Soldiers.Last();
+            CloseRangeMarkers.RefreshNow();
+            Assert.That(CloseRangeMarkers.IsShowing(mine), Is.False);
+
+            // An enemy walks up to within 1.5 m.
+            var theirStart = theirs.transform.position;
+            theirs.transform.position = mine.Position + new Vector3(1.5f, 0f, 0f);
+            CloseRangeMarkers.RefreshNow();
+            Assert.That(CloseRangeMarkers.IsShowing(mine), Is.True);
+            Assert.That(CloseRangeMarkers.IsShowing(theirs), Is.True, "both are in close range");
+            Assert.That(CloseRangeMarkers.IsShowing(units.First(u => u.DisplayName == "Infantry Squad 2").Soldiers.Last()), Is.False,
+                "squadmates farther away are not");
+
+            yield return null;
+            string outPath = null;
+            var args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length - 1; i++) if (args[i] == "-snapshotCloseRange") outPath = args[i + 1];
+            if (outPath != null)
+            {
+                var cam = Camera.main;
+                var look = mine.Position + new Vector3(0.75f, 1.2f, 0f);
+                cam.transform.position = look + new Vector3(-1.5f, 3f, -6f);
+                cam.transform.LookAt(look);
+                var rt = new RenderTexture(1280, 720, 24);
+                cam.targetTexture = rt;
+                cam.Render();
+                RenderTexture.active = rt;
+                var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+                tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0);
+                tex.Apply();
+                System.IO.File.WriteAllBytes(outPath, tex.EncodeToPNG());
+                cam.targetTexture = null;
+                RenderTexture.active = null;
+            }
+
+            // They go back where they came from: the markers go.
+            theirs.transform.position = theirStart;
+            CloseRangeMarkers.RefreshNow();
+            Assert.That(CloseRangeMarkers.IsShowing(mine), Is.False);
+            Assert.That(CloseRangeMarkers.IsShowing(theirs), Is.False);
+        }
+
+        [Test]
+        public void AnInfantrySquadThrowsOneFragGrenadeAsItsActionOncePerBattle()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            var squad = controller.PlayerUnits.First(u => u.DisplayName == "Infantry Squad 2");
+            Assert.That(controller.SelectUnit(squad), Is.True);
+
+            // Ten soldiers have the ability; the unit gets one Frag Grenade button.
+            var abilities = ActiveAbilities.UnitAbilities(squad);
+            Assert.That(abilities.Count(a => a.ability.displayName == "Frag Grenade"), Is.EqualTo(1));
+            var (user, frag) = abilities.Single(a => a.ability.displayName == "Frag Grenade");
+            Assert.That(user, Is.EqualTo(squad.Leader));
+
+            controller.BeginAbility(user, frag);
+            var spot = squad.Leader.Position + new Vector3(0f, 0f, 8f);
+            var r = controller.UseAbility(frag, user, null, null, spot);
+            Assert.That(r.Used, Is.True, r.Reason);
+            Assert.That(controller.HasTakenAction, Is.True, "throwing is the unit's action");
+            Assert.That(controller.OrderShoot(Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).First(u => u.Side == Side.AI)), Is.Null,
+                "no shooting as well");
+
+            controller.NextTurn();
+            Assert.That(controller.SelectUnit(squad), Is.True);
+            controller.BeginAbility(user, frag);
+            Assert.That(controller.UseAbility(frag, user, null, null, spot).Used, Is.False, "once per battle");
+            Assert.That(controller.HasTakenAction, Is.False, "the refused grenade cost nothing");
+        }
+
         [Test]
         public void ASquadLeaderIsReplacedFromTheirOwnSquadEvenWithAnotherSquadNearby()
         {

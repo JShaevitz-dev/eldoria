@@ -14,6 +14,8 @@ namespace Eldoira.Terrain
     ///    soldiers within its Grant Radius of the nearest part of the object have the granted keyword.
     ///  - Soldier auras: if a living soldier has a passive aura ability (e.g. Lead from the front → Led from the front),
     ///    the soldiers it affects (allies/enemies, optionally itself) within its radius have the granted keyword.
+    ///  - Close range: a Biological soldier with a Biological enemy less than 2 m away has "In close range"
+    ///    (see Rules.CloseRange; the rule itself is always checked live, this keyword is for display).
     /// All distances are horizontal. Refreshed whenever a soldier moves, a move is undone, and at the start of each turn.
     /// </summary>
     public static class NearbyKeywords
@@ -22,7 +24,7 @@ namespace Eldoira.Terrain
 
         /// <summary>Works out a soldier's nearby-granted keywords as if everyone stood where <paramref name="positionOf"/> says.</summary>
         public static void Refresh(Soldier soldier, Func<Soldier, Vector3> positionOf, IEnumerable<TerrainObject> objects,
-            IEnumerable<Soldier> auraSources)
+            IEnumerable<Soldier> auraSources, IEnumerable<Soldier> everyone = null)
         {
             Vector3 at = positionOf(soldier);
             var granted = new List<NearbyKeyword>();
@@ -49,6 +51,13 @@ namespace Eldoira.Terrain
                 }
             }
 
+            if (everyone != null)
+            {
+                var enemies = CloseRange.EnemiesInCloseRange(soldier, everyone, positionOf);
+                if (enemies.Count > 0)
+                    granted.Add(new NearbyKeyword { keyword = KeywordLibrary.Get(CloseRange.StatusKeyword), source = enemies[0] });
+            }
+
             soldier.SetNearbyKeywords(granted);
         }
 
@@ -63,7 +72,8 @@ namespace Eldoira.Terrain
 
         public static void Refresh(Soldier soldier, Vector3 at)
         {
-            Refresh(soldier, s => s == soldier ? at : s.Position, AllObjects(), AllSoldiers().Where(s => s.Abilities.Count > 0));
+            var all = AllSoldiers();
+            Refresh(soldier, s => s == soldier ? at : s.Position, AllObjects(), all.Where(s => s.Abilities.Count > 0), all);
         }
 
         /// <summary>
@@ -77,7 +87,7 @@ namespace Eldoira.Terrain
             var soldiers = AllSoldiers();
             var sources = soldiers.Where(s => s.Abilities.Count > 0).ToList();
             foreach (var s in soldiers)
-                Refresh(s, positionOf, objects, sources);
+                Refresh(s, positionOf, objects, sources, soldiers);
         }
 
         private static TerrainObject[] AllObjects() =>

@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoira::Eldoira.Units.WeaponTemplate
   displayName: Pistol
   baseDamage: 2
+  hasPenetration: 1
   penetration: 0
   accuracyBonus: 0
-  keywords: []
+  keywords:
+  - {fileID: 11400000, guid: 8b2415ec0952344488141ee0f211ead4, type: 2}

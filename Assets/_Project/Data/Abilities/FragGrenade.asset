@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d19a61d1a0328e040abadba0dd86f72a, type: 3}
+  m_Name: FragGrenade
+  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Ability
+  displayName: Frag Grenade
+  description: 'Active, once per battle per unit. Throw at a spot within 10 m of
+    the unit leader: everyone within 2.5 m takes 2 damage (penetration 0), unless
+    terrain shields them from the blast.'
+  kind: 1
+  keywords: []
+  affects: 2
+  includeSelf: 1
+  grantsNearby: {fileID: 0}
+  radius: 15
+  targets: 2
+  range: 10
+  targetMustHave: {fileID: 0}
+  heal: 0
+  grantsKeyword: {fileID: 0}
+  grantUntilNextTurn: 1
+  usesPerTurn: 1
+  usesPerBattle: 1
+  areaRadius: 2.5
+  areaWeapon: {fileID: 11400000, guid: 7c156355addbcdb42aadaa4cbf972e74, type: 2}
+  castSound: {fileID: 0}

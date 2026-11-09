@@ -170,6 +170,28 @@ namespace Eldoira.Tests
         }
 
         [Test]
+        public void AbilityButtonsDontShowUsesPerTurn()
+        {
+            var (caster, ally) = Setup();
+            string label = MovementController.AbilityButtonLabel(caster, spell);
+            Assert.That(label, Is.EqualTo("Mend [Spell] — 25 m"));
+            Assert.That(label, Does.Not.Contain("left"));
+
+            ActiveAbilities.Use(caster, spell, ally);
+            Assert.That(MovementController.AbilityButtonLabel(caster, spell), Is.EqualTo("Mend [Spell] — 25 m"), "no count after it's used either");
+
+            Assert.That(MovementController.AbilityButtonLabel(caster, plainAbility), Is.EqualTo("Bandage — 25 m"));
+        }
+
+        [Test]
+        public void TheButtonSaysWhyASpellCantBeCastAfterSprinting()
+        {
+            var (caster, _) = Setup();
+            Activate(caster).TryMoveLeader(new Vector3(0, 0, 15), out _);
+            Assert.That(MovementController.AbilityButtonLabel(caster, spell), Does.Contain("can't be cast after sprinting"));
+        }
+
+        [Test]
         public void ThePriestsAbilitiesAreSpells()
         {
             var healing = AssetDatabase.LoadAssetAtPath<Ability>($"{Data}/Abilities/DivineHealing.asset");

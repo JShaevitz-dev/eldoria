@@ -46,6 +46,8 @@ Living record of the rules decided so far. **Status** shows what the code does t
 
 1 **Sergeant** (leader) + 9 **Troopers**. All soldiers are **Biological**.
 
+- **Active ability — Frag Grenade** (every Sergeant and Trooper has it): pick a **spot on the ground within 10 m of the unit leader** (no line of sight needed: it's lobbed over walls). **Every soldier within 2.5 m** of the spot — friend or foe — takes an area attack of **2 damage, penetration 0** (no hit roll; armor and armor keywords count, e.g. vs Armor Level 1 it does 1). The explosion **can't go through object or structure terrain** (see Explosions). **Each unit can throw it once per battle**, and throwing it is the unit's action.
+
 | Soldier | Health | Armor Level | Accuracy | Movement | Weapons (primary first) |
 |---|---|---|---|---|---|
 | Sergeant | 5 | 1 | 75% | 10 m | Assault Rifle, Pistol |
@@ -110,6 +112,17 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - The target must be the right side (e.g. friendly), within range (horizontal; for a unit, to its closest soldier) and have any required keyword (e.g. Biological).
 - Effects so far: **restore health** (up to starting health) and **give a keyword** (to the soldier, or every soldier of the unit), optionally until the next turn.
 - Each soldier can use each active ability once per turn (and in practice a unit uses at most one ability per turn — see Unit actions).
+- *Display:* ability buttons don't show uses per turn. A use limit is only shown to the player for abilities limited to a number of uses **per battle** (e.g. Frag Grenade: "1 left this battle").
+- **Uses per battle:** some abilities can only be used a number of times per battle **by each unit** (Frag Grenade: once). The count is shared by all the unit's soldiers.
+- **Duplicate abilities are condensed:** when several soldiers in a unit have the same ability, the interface shows **one button**, and pressing it uses the ability **once**, as the unit's action. It's used by the unit leader if they have it (ranges are measured from them), otherwise by another soldier who does.
+- **Area attacks** (target: a spot on the ground): every soldier within the radius is attacked with the ability's weapon, friend or foe. There's no hit roll; for each soldier, keywords, damage and penetration vs armor apply as for shooting, "when damaged" triggers fire, and anyone killed is removed when the blast is over.
+
+#### Explosions — *implemented*
+
+- **Under normal circumstances an explosion can't go through object terrain or structure terrain.** A soldier in the blast radius is only hit if the blast can reach them:
+  - **Object terrain** (crates, low walls, cars, sandbags, window sills...) shields a soldier if the line from the blast to them, **seen from above**, crosses it — whatever its height. The object the blast lands on, and one the soldier stands on, don't count.
+  - **Structure terrain** (building walls, hill crests, platforms) shields a soldier if a straight line just above the ground (0.3 m) from the blast to them hits it.
+- Cover keywords (In half-cover, In full cover) don't matter for explosions; only the terrain in between does.
 - Keywords can now change **Armor Level** for an attack (armor bonus / penalty), which counts in the penetration check.
 
 #### Spells — *implemented*
@@ -222,6 +235,7 @@ When shooting, the weapon's **Penetration** is compared with the target's **Armo
 | Equal | 100% | Apply |
 | 1 lower | 50% | Apply |
 | 2 or more lower | 0% | **Do not apply** |
+| **No penetration value** (not a number, or none listed) | **100%, regardless of armor** | Apply |
 
 - Fractions are **rounded down** (50% of 5 = 2; 150% of 5 = 7).
 
@@ -262,6 +276,16 @@ Example: 6 damage, penetration beats armor → 9, crit → +9 = **18**. If armor
 
 - Cover, line of sight and range.
 
+### Close range — *implemented*
+
+- A **Biological** soldier is **in close range** if a **Biological enemy** soldier is **less than 2 m** away (horizontally; exactly 2 m is not close range). The dead don't count.
+- A soldier in close range **can't use any weapon unless it has the keyword Pistol**:
+  - **Shooting:** they shoot with a Pistol if they carry one (the Sergeant switches from his Assault Rifle to his Pistol); a soldier with no Pistol (e.g. a Trooper) doesn't shoot.
+  - **Abilities that use a weapon** (e.g. Frag Grenade) can't be used by a soldier in close range. For a unit's shared ability, another soldier of the unit who isn't in close range uses it instead (ranges are then measured from them); if everyone is in close range, it can't be used.
+- **Magic and non-weapon abilities still work** in close range (e.g. Divine Healing). **Passive abilities are unaffected** (e.g. Lead from the front).
+- Soldiers in close range show the status keyword **In close range**, and a **red marker** floats over their head.
+- **Pistol** (weapon keyword, Trait): usable in close range. The Pistol has it.
+
 ### Unit actions — *implemented*
 
 Each turn, every unit can be activated once. It **may move**, then — **after moving, or instead of moving** — it takes **one action**:
@@ -296,7 +320,7 @@ Details:
 - A target **can't be picked** if it's out of sight or in full cover behind its cover — unless the weapon ignores line of sight (Indirect fire).
 - **Keyword triggers** (on keyword assets): *when Targeted / when Damaged → Self / Attacker gains / loses keyword X* (optionally until the next turn). Coded abilities can hook the same moments.
 - **Shooting is the unit's action** and ends its turn. A unit may shoot without moving (its leader then counts as holding position).
-- **Primary weapon:** every soldier template designates one weapon as its **primary weapon**, used to shoot under normal conditions (the demo squad's is the Assault Rifle). Circumstances or abilities may make a soldier use an alternative weapon (hook in place, none defined yet).
+- **Primary weapon:** every soldier template designates one weapon as its **primary weapon**, used to shoot under normal conditions (the demo squad's is the Assault Rifle). Circumstances can make a soldier use an alternative weapon: so far, **close range** (a Pistol only).
 - **The dead:** a soldier killed during a round of shooting (one attacking unit's volley) stays on the battlefield **until that round of shooting ends** — so soldiers of that unit who already picked them still shoot at them (step 12). When the round ends, the dead are **removed from their unit and the battlefield**: a **second attacking unit can't target them**, even in the same turn. A soldier killed outside shooting is removed at once.
 - **"When targeted"** means *when targeted*: a soldier's "when targeted" triggers fire when they are picked in step 6, **even if no attack follows** (e.g. step 7 sends the shooter on to another target). They fire **only once per volley** — one attacking unit's sequence of shooting — however many soldiers from that unit pick them. A **different attacking unit's volley** in the same turn can trigger them again.
 

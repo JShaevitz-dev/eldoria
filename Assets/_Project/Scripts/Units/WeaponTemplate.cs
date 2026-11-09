@@ -18,8 +18,14 @@ namespace Eldoira.Units
         [FormerlySerializedAs("maxDamage")]
         [Min(0)] public int baseDamage = 3;
 
-        [Tooltip("How well the weapon gets through armor (compared against the target's Armor Level).")]
+        [Tooltip("Off = the weapon has no penetration value (\"—\"): its attacks always do 100% damage, regardless of armor.")]
+        public bool hasPenetration = true;
+
+        [Tooltip("How well the weapon gets through armor (compared against the target's Armor Level). Ignored if Has Penetration is off.")]
         [Min(0)] public int penetration;
+
+        /// <summary>The weapon's Penetration, or null if it has no penetration value (always 100% damage).</summary>
+        public int? PenetrationValue => hasPenetration ? penetration : (int?)null;
 
         [Tooltip("Added to the soldier's Accuracy when attacking with this weapon (can be negative).")]
         [FormerlySerializedAs("aimModifier")]

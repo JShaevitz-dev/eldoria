@@ -177,6 +177,44 @@ namespace Eldoira.EditorTools
             return unit;
         }
 
+        /// <summary>
+        /// Frag Grenade: the unit (any trooper or its sergeant) throws one grenade, once per battle, at a spot within 10 m of
+        /// the unit leader. Everyone within 2.5 m of the spot whom the blast can reach takes 2 damage, penetration 0.
+        /// The blast is the "Frag Grenade" weapon (keyword Explosive).
+        /// </summary>
+        public static Ability EnsureFragGrenade(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            EnsureFolder(DataDir, "Abilities");
+            var weapon = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/FragGrenade.asset", w =>
+            {
+                w.displayName = "Frag Grenade";
+                w.baseDamage = 2; w.penetration = 0; w.accuracyBonus = 0;
+                w.keywords = new List<Keyword> { keywords["Explosive"] };
+            });
+            return GetOrCreate<Ability>($"{DataDir}/Abilities/FragGrenade.asset", a =>
+            {
+                a.displayName = "Frag Grenade";
+                a.description = "Active, once per battle per unit. Throw at a spot within 10 m of the unit leader: everyone within 2.5 m " +
+                                "takes 2 damage (penetration 0), unless terrain shields them from the blast.";
+                a.kind = AbilityKind.Active;
+                a.targets = AbilityTarget.Point;
+                a.affects = AuraAffects.Everyone;
+                a.includeSelf = true;
+                a.range = 10f;
+                a.areaRadius = 2.5f;
+                a.areaWeapon = weapon;
+                a.usesPerTurn = 1;
+                a.usesPerBattle = 1;
+            });
+        }
+
+        private static void GiveAbility(SoldierTemplate soldier, Ability ability)
+        {
+            if (soldier.abilities == null) soldier.abilities = new List<Ability>();
+            if (!soldier.abilities.Contains(ability)) soldier.abilities.Add(ability);
+        }
+
         /// <summary>Divine Healing and Divine Sanctuary are Spells (can't be cast after the unit sprinted).</summary>
         private static void TagAsSpell(Ability ability, Dictionary<string, Keyword> keywords)
         {
@@ -195,6 +233,20 @@ namespace Eldoira.EditorTools
         public static void UpdateAbilityData()
         {
             var keywords = EnsureKeywords();
+            var frag = EnsureFragGrenade(keywords);
+            var pistolWeapon = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
+            if (pistolWeapon != null)
+            {
+                Keyword.AddUnique(pistolWeapon.keywords, keywords["Pistol"]);
+                EditorUtility.SetDirty(pistolWeapon);
+            }
+            foreach (var file in new[] { "Trooper", "Sergeant" })
+            {
+                var soldier = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset");
+                if (soldier == null) continue;
+                GiveAbility(soldier, frag);
+                EditorUtility.SetDirty(soldier);
+            }
             foreach (var file in new[] { "DivineHealing", "DivineSanctuary" })
             {
                 var ability = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/{file}.asset");
@@ -405,6 +457,9 @@ namespace Eldoira.EditorTools
             Kw("Solo", "Solo", KeywordTarget.Soldier, "Fights as a unit of one. No effect on its own; some weapons and abilities check for it.");
             Kw("Magic", "Magic", KeywordTarget.Soldier, "Wields magic. No effect on its own; some weapons and abilities check for it.");
             Kw("Spell", "Spell", KeywordTarget.Ability, "A magical ability. Can't be cast by a soldier whose unit sprinted this turn.");
+            Kw("Pistol", "Pistol", KeywordTarget.Weapon, "A sidearm: the only kind of weapon a soldier in close range can use.");
+            Kw("InCloseRange", "In close range", KeywordTarget.Soldier,
+                "A Biological enemy is less than 2 m away: can only use weapons with the Pistol keyword (spells and other abilities still work).");
             GetOrCreate<Keyword>($"{DataDir}/Keywords/DivineSanctuary.asset", k =>
             {
                 k.displayName = "Divine Sanctuary";
@@ -444,7 +499,7 @@ namespace Eldoira.EditorTools
             {
                 ["Biological"] = KeywordCategory.Trait, ["Robotic"] = KeywordCategory.Trait, ["Sniper"] = KeywordCategory.Trait,
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
-                ["Spell"] = KeywordCategory.Trait,
+                ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,
@@ -484,6 +539,7 @@ namespace Eldoira.EditorTools
 
             var keywords = EnsureKeywords();
             var biological = keywords["Biological"];
+            var frag = EnsureFragGrenade(keywords);
 
             // --- Weapons (placeholder stats) ---
             var rifle = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset", w =>
@@ -495,7 +551,7 @@ namespace Eldoira.EditorTools
             {
                 w.displayName = "Pistol";
                 w.baseDamage = 2; w.penetration = 0; w.accuracyBonus = 0;
-            });
+            }, w => Keyword.AddUnique(w.keywords, keywords["Pistol"]));   // usable in close range
 
             // --- Soldiers (placeholder stats); re-link weapons if any are missing ---
             var trooper = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/Trooper.asset", s =>
@@ -507,6 +563,7 @@ namespace Eldoira.EditorTools
                 if (s.weapons.Count == 0 || s.weapons.Contains(null)) s.weapons = new List<WeaponTemplate> { rifle };
                 if (s.primaryWeapon == null) s.primaryWeapon = rifle;
                 if (!s.HasKeyword("Biological")) s.keywords.Add(biological);
+                GiveAbility(s, frag);
             });
             var sergeant = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/Sergeant.asset", s =>
             {
@@ -517,6 +574,7 @@ namespace Eldoira.EditorTools
                 if (s.weapons.Count == 0 || s.weapons.Contains(null)) s.weapons = new List<WeaponTemplate> { rifle, pistol };
                 if (s.primaryWeapon == null) s.primaryWeapon = rifle;
                 if (!s.HasKeyword("Biological")) s.keywords.Add(biological);
+                GiveAbility(s, frag);
             });
 
             // --- Placeholder models ---

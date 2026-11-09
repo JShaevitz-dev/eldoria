@@ -5,17 +5,54 @@ using UnityEngine;
 namespace Eldoira.Terrain
 {
     /// <summary>
-    /// Geometry for shooting:
+    /// Geometry for shooting and explosions:
     ///  - Line of sight: a soldier can see another if nothing on the Structure layer (walls, hill crests,
     ///    platforms) blocks the line from their eyes to the target's chest or head. Objects don't block sight;
     ///    they give cover through their keywords instead.
     ///  - Objects in the line of fire: terrain objects the line between two soldiers passes through,
     ///    seen from above (so a low barricade counts even though a soldier can see over it).
+    ///  - Explosions: whether a blast reaches a soldier (terrain in between stops it).
     /// </summary>
     public static class ShotGeometry
     {
         private const float EyeHeight = 0.9f;   // fraction of soldier height
         private const float ChestHeight = 0.6f;
+
+        /// <summary>Height above the ground (meters) at which an explosion's path is traced against structure terrain.</summary>
+        public const float BlastHeight = 0.3f;
+
+        /// <summary>
+        /// Can an explosion at <paramref name="point"/> reach the soldier? Under normal circumstances it can't go through terrain:
+        ///  - Structure terrain (building walls, hill crests, platforms): blocked if a straight line just above the ground
+        ///    from the blast to the soldier hits it.
+        ///  - Object terrain (crates, low walls, cars, window sills...): blocked if the line between them, seen from above,
+        ///    crosses the object - whatever its height. The object the blast sits on, and one the soldier stands on, don't count.
+        /// </summary>
+        public static bool BlastReaches(Vector3 point, Soldier soldier)
+        {
+            if (soldier == null) return false;
+            Vector3 target = soldier.Position;
+            Vector3 a = point + Vector3.up * BlastHeight, b = target + Vector3.up * BlastHeight;
+            if ((b - a).sqrMagnitude > 1e-6f && Physics.Linecast(a, b, TerrainLayers.StructureMask, QueryTriggerInteraction.Ignore))
+                return false;
+
+            var restingOn = ObjectUnder(point);
+            var standingOn = ObjectUnder(target);
+            foreach (var obj in Object.FindObjectsByType<TerrainObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if (obj == restingOn || obj == standingOn) continue;
+                if (Crosses(point, target, obj)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>The terrain object directly beneath a point (e.g. the crate a soldier stands on), if any.</summary>
+        private static TerrainObject ObjectUnder(Vector3 p)
+        {
+            return Physics.Raycast(p + Vector3.up * 0.2f, Vector3.down, out var hit, 0.6f, TerrainLayers.ObjectMask, QueryTriggerInteraction.Ignore)
+                ? hit.collider.GetComponentInParent<TerrainObject>()
+                : null;
+        }
 
         public static bool CanSee(Soldier attacker, Soldier target)
         {

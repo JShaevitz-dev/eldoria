@@ -29,4 +29,7 @@ MonoBehaviour:
   grantsKeyword: {fileID: 0}
   grantUntilNextTurn: 1
   usesPerTurn: 1
+  usesPerBattle: 0
+  areaRadius: 2.5
+  areaWeapon: {fileID: 0}
   castSound: {fileID: 8300000, guid: 3327937ab22ef1c418b488d0c40260b7, type: 3}

@@ -33,6 +33,22 @@ namespace Eldoira.Units
         [SerializeField] private List<Soldier> soldiers = new List<Soldier>();
         [SerializeField] private Soldier leader;
 
+        /// <summary>Uses of per-battle-limited abilities (e.g. Frag Grenade), counted for the whole unit.</summary>
+        private readonly Dictionary<Ability, int> battleUses = new Dictionary<Ability, int>();
+
+        /// <summary>How many times this unit has used the ability this battle (any of its soldiers).</summary>
+        public int TimesUsedThisBattle(Ability ability) => ability != null && battleUses.TryGetValue(ability, out int n) ? n : 0;
+
+        /// <summary>Uses left this battle for an ability limited per battle (int.MaxValue if it isn't limited).</summary>
+        public int UsesLeftThisBattle(Ability ability) =>
+            ability == null || ability.usesPerBattle <= 0 ? int.MaxValue : Mathf.Max(0, ability.usesPerBattle - TimesUsedThisBattle(ability));
+
+        public void RecordBattleUse(Ability ability)
+        {
+            if (ability == null) return;
+            battleUses[ability] = TimesUsedThisBattle(ability) + 1;
+        }
+
         /// <summary>The turn number in which this unit sprinted (0 = hasn't sprinted).</summary>
         private int sprintedOnTurn;
 

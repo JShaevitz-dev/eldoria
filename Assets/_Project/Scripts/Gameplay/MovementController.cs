@@ -67,6 +67,10 @@ namespace Eldoira.Gameplay
         private Ability abilityMode;
         private Soldier abilityUser;
         private RangeRing abilityRing;
+        // Where the last area attack (e.g. Frag Grenade) went off, shown briefly.
+        private RangeRing blastRing;
+        private float blastUntil;
+        private static readonly Color BlastColor = new Color(1f, 0.45f, 0.1f, 1f);
         private readonly List<string> recentLog = new List<string>();
 
         public ShootingResult LastShooting => lastShooting;
@@ -107,6 +111,7 @@ namespace Eldoira.Gameplay
             cursorRing = RangeRing.Create("Ring_Cursor", transform, 0.06f);
             pathLine = RangeRing.Create("Line_Path", transform, 0.06f);
             abilityRing = RangeRing.Create("Ring_Ability", transform, 0.1f);
+            blastRing = RangeRing.Create("Ring_Blast", transform, 0.15f);
 
             if (BattlefieldNavigation.Measurer != null) RangeRing.SurfaceHeight = TerrainMeasurer.SurfaceHeight;
 
@@ -383,6 +388,11 @@ namespace Eldoira.Gameplay
         {
             if (abilityMode != null)
             {
+                if (abilityMode.targets == AbilityTarget.Point)
+                {
+                    if (hasHover) UseAbility(abilityMode, abilityUser, null, null, hoverPoint);
+                    return;
+                }
                 if (hoverSoldier == null) { Flash($"Click a {(abilityMode.targets == AbilityTarget.Unit ? "unit" : "soldier")} for {abilityMode.displayName} (Esc to cancel)."); return; }
                 UseAbility(abilityMode, abilityUser, hoverSoldier, hoverSoldier.Unit);
                 return;
@@ -461,11 +471,18 @@ namespace Eldoira.Gameplay
         private void UpdateVisuals()
         {
             if (Time.time > tracersUntil) foreach (var t in tracers) t.Hide();
+            if (Time.time > blastUntil) blastRing.Hide();
             UpdateTargetRings();
             if (abilityMode != null && abilityUser != null)
             {
                 foreach (var r in new[] { moveRing, sprintRing, followRing, cursorRing, pathLine }.Concat(cohesionRings)) r.Hide();
                 abilityRing.ShowCircle(abilityUser.Position, abilityMode.range, FollowColor);
+                // Aiming at the ground: preview the blast area under the cursor (red if out of range).
+                if (abilityMode.targets == AbilityTarget.Point && hasHover)
+                {
+                    bool ok = ActiveAbilities.WhyCannotUse(abilityUser, abilityMode, targetPoint: hoverPoint) == null;
+                    cursorRing.ShowCircle(hoverPoint, abilityMode.areaRadius, ok ? BlastColor : InvalidColor);
+                }
                 return;
             }
             abilityRing.Hide();
@@ -670,23 +687,20 @@ namespace Eldoira.Gameplay
 
             if (CanUseAbilities)
             {
-                foreach (var (user, ability) in ActiveAbilitiesOfUnit())
+                // One button per ability, however many of the unit's soldiers have it (e.g. Frag Grenade).
+                foreach (var (user, ability) in ActiveAbilities.UnitAbilities(squad))
                 {
-                    int left = ability.usesPerTurn - user.TimesUsedThisTurn(ability);
-                    string why = ActiveAbilities.WhyCannotCast(user, ability);
-                    string spell = ability.IsSpell ? " [Spell]" : "";
-                    // Greyed out with the reason (e.g. a Spell after sprinting); used-up abilities just show 0 left.
-                    string label = why == null || left <= 0
-                        ? $"{ability.displayName}{spell} ({left} left) — {ability.range:0} m"
-                        : $"{ability.displayName}{spell} — {why}";
-                    GUI.enabled = why == null;
-                    if (GUILayout.Button(label))
+                    GUI.enabled = ActiveAbilities.WhyCannotCast(user, ability) == null;
+                    if (GUILayout.Button(AbilityButtonLabel(user, ability)))
                         BeginAbility(user, ability);
                     GUI.enabled = true;
                 }
             }
             if (abilityMode != null)
-                GUILayout.Label($"{abilityMode.displayName.ToUpperInvariant()}: click a {(abilityMode.targets == AbilityTarget.Unit ? "friendly unit" : "friendly soldier")} within the green ring. Esc to cancel.", title);
+                GUILayout.Label($"{abilityMode.displayName.ToUpperInvariant()}: click " +
+                    (abilityMode.targets == AbilityTarget.Point ? $"a spot within the green ring ({abilityMode.areaRadius:0.#} m blast)"
+                        : abilityMode.targets == AbilityTarget.Unit ? "a friendly unit within the green ring" : "a friendly soldier within the green ring") +
+                    ". Esc to cancel.", title);
 
             if (shootMode)
                 GUILayout.Label("SHOOTING: click an enemy soldier to shoot at their unit. Esc to cancel.", title);
@@ -741,11 +755,20 @@ namespace Eldoira.Gameplay
         /// </summary>
         private bool CanUseAbilities => activation != null && !actionTaken && activation.Phase != MovePhase.MoveFollowers;
 
-        private IEnumerable<(Soldier, Ability)> ActiveAbilitiesOfUnit()
+        /// <summary>
+        /// The HUD button text for an ability: its name, [Spell] if it is one, and its range. Uses per turn are not
+        /// shown; a limit is only shown for abilities limited per battle (e.g. Frag Grenade: "1 left this battle").
+        /// If it can't be used right now for a reason other than this turn's use (e.g. a Spell after sprinting, or
+        /// used up for the battle), the reason is shown instead of the range.
+        /// </summary>
+        public static string AbilityButtonLabel(Soldier user, Ability ability)
         {
-            foreach (var s in squad.LivingSoldiers)
-                foreach (var a in s.Abilities)
-                    if (a != null && a.IsActive) yield return (s, a);
+            string spell = ability.IsSpell ? " [Spell]" : "";
+            bool usedThisTurn = user.TimesUsedThisTurn(ability) >= ability.usesPerTurn;
+            string why = usedThisTurn ? null : ActiveAbilities.WhyCannotCast(user, ability);
+            if (why != null) return $"{ability.displayName}{spell} — {why}";
+            string perBattle = ability.usesPerBattle > 0 && user.Unit != null ? $" ({user.Unit.UsesLeftThisBattle(ability)} left this battle)" : "";
+            return $"{ability.displayName}{spell} — {ability.range:0} m{perBattle}";
         }
 
         /// <summary>Picks an ability to use (the HUD button): the next click chooses its target.</summary>
@@ -759,8 +782,11 @@ namespace Eldoira.Gameplay
         /// <summary>The ability waiting for the player to click a target (null if none).</summary>
         public Ability TargetingAbility => abilityMode;
 
-        /// <summary>Uses an active ability on a soldier (or, for unit abilities, that soldier's unit / the given unit).</summary>
-        public AbilityResult UseAbility(Ability ability, Soldier user, Soldier targetSoldier, Unit targetUnit = null)
+        /// <summary>
+        /// Uses an active ability on a soldier (or, for unit abilities, that soldier's unit / the given unit, or for
+        /// ground-aimed abilities such as Frag Grenade, the spot <paramref name="point"/>). Ends the unit's turn.
+        /// </summary>
+        public AbilityResult UseAbility(Ability ability, Soldier user, Soldier targetSoldier, Unit targetUnit = null, Vector3? point = null)
         {
             if (!CanUseAbilities)
             {
@@ -770,7 +796,7 @@ namespace Eldoira.Gameplay
                 return refused;
             }
             if (ability.targets == AbilityTarget.Unit && targetUnit == null && targetSoldier != null) targetUnit = targetSoldier.Unit;
-            var result = ActiveAbilities.Use(user, ability, targetSoldier, targetUnit);
+            var result = ActiveAbilities.Use(user, ability, targetSoldier, targetUnit, point);
             if (!result.Used)
             {
                 // Refused (e.g. healing a soldier at full health, or one who isn't Biological): nothing happens.
@@ -785,7 +811,14 @@ namespace Eldoira.Gameplay
             activation.EndActivation(); // the unit's action ends its turn (no moving afterwards)
             recentLog.Clear();
             recentLog.AddRange(result.Log);
-            Flash($"{user.name} uses {ability.displayName}. {squad.DisplayName}'s turn is over.");
+            if (result.Point.HasValue && ability.IsAreaAttack)
+            {
+                blastRing.ShowCircle(result.Point.Value, ability.areaRadius, BlastColor);
+                blastUntil = Time.time + 2f;
+                int hit = result.AreaHits.Count(h => h.damage > 0), down = result.AreaHits.Count(h => !h.soldier.IsAlive);
+                Flash($"{ability.displayName}: {hit} hurt, {down} down, {result.Shielded.Count} shielded by terrain. {squad.DisplayName}'s turn is over.");
+            }
+            else Flash($"{user.name} uses {ability.displayName}. {squad.DisplayName}'s turn is over.");
             return result;
         }
 

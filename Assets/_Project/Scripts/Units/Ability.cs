@@ -25,7 +25,9 @@ namespace Eldoira.Units
         /// <summary>One soldier.</summary>
         Soldier,
         /// <summary>A whole unit: every soldier in it is affected.</summary>
-        Unit
+        Unit,
+        /// <summary>A spot on the ground (e.g. Frag Grenade): an area attack centred there.</summary>
+        Point
     }
 
     /// <summary>
@@ -71,6 +73,16 @@ namespace Eldoira.Units
         public bool grantUntilNextTurn = true;
         [Tooltip("How many times a soldier can use this ability each turn.")]
         [Min(1)] public int usesPerTurn = 1;
+        [Tooltip("How many times a unit can use this ability in a whole battle, shared by all its soldiers. 0 = no limit. " +
+                 "Only limits like this are shown to the player.")]
+        [Min(0)] public int usesPerBattle;
+
+        [Header("Area attack (target: Point)")]
+        [Tooltip("Every soldier within this many meters (horizontally) of the chosen spot is attacked - friend or foe.")]
+        [Min(0f)] public float areaRadius = 2.5f;
+        [Tooltip("The weapon the area attack uses: its Base Damage, Penetration and keywords (e.g. Frag Grenade: 2, 0, Explosive). " +
+                 "No hit roll: everyone in the area is hit. Cover doesn't protect; armor does.")]
+        public WeaponTemplate areaWeapon;
 
         [Header("Presentation")]
         [Tooltip("Played once when the ability is used successfully (not when a target is refused).")]
@@ -78,6 +90,7 @@ namespace Eldoira.Units
 
         public bool IsAura => kind == AbilityKind.Passive && grantsNearby != null;
         public bool IsActive => kind == AbilityKind.Active;
+        public bool IsAreaAttack => targets == AbilityTarget.Point && areaWeapon != null;
 
         public bool HasKeyword(string name) => Keyword.Contains(keywords, name);
 

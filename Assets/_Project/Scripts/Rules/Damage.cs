@@ -35,7 +35,7 @@ namespace Eldoira.Rules
     /// </summary>
     public static class Damage
     {
-        public static DamageResult Resolve(int finalDamage, int penetration, int armorLevel, bool crit)
+        public static DamageResult Resolve(int finalDamage, int? penetration, int armorLevel, bool crit)
         {
             var pen = ArmorPenetration.Resolve(finalDamage, penetration, armorLevel);
             int critBonus = crit ? pen.Damage : 0;
@@ -44,7 +44,7 @@ namespace Eldoira.Rules
 
         public static DamageResult Resolve(int finalDamage, Weapon weapon, Soldier target, bool crit)
         {
-            return Resolve(finalDamage, weapon.Penetration, target.ArmorLevel, crit);
+            return Resolve(finalDamage, weapon.PenetrationValue, target.ArmorLevel, crit);
         }
     }
 }

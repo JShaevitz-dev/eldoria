@@ -12,7 +12,9 @@ namespace Eldoira.Rules
         /// <summary>Penetration equals Armor Level: 100% damage.</summary>
         Normal,
         /// <summary>Penetration is above Armor Level by any amount: 150% damage.</summary>
-        Overpenetrating
+        Overpenetrating,
+        /// <summary>The attack has no penetration value: 100% damage whatever the armor.</summary>
+        IgnoresArmor
     }
 
     public readonly struct PenetrationOutcome
@@ -35,11 +37,12 @@ namespace Eldoira.Rules
     }
 
     /// <summary>
-    /// When shooting, the weapon's Penetration is compared with the target's Armor Level:
+    /// When attacking, the weapon's Penetration is compared with the target's Armor Level:
     ///   Penetration > Armor          → 150% of the final damage
     ///   Penetration = Armor          → 100%
     ///   Penetration = Armor − 1      → 50%
     ///   Penetration ≤ Armor − 2      → 0%, and the attack's bonus effects don't apply
+    ///   No penetration value         → 100%, whatever the armor
     /// The multiplier is applied to the final damage calculation (the last step); fractions are rounded down.
     /// </summary>
     public static class ArmorPenetration
@@ -58,25 +61,29 @@ namespace Eldoira.Rules
             switch (result)
             {
                 case PenetrationResult.Overpenetrating: return 1.5f;
-                case PenetrationResult.Normal: return 1f;
+                case PenetrationResult.Normal:
+                case PenetrationResult.IgnoresArmor: return 1f;
                 case PenetrationResult.Reduced: return 0.5f;
                 default: return 0f;
             }
         }
 
-        /// <summary>Applies penetration vs armor to an attack's final damage.</summary>
-        public static PenetrationOutcome Resolve(int finalDamage, int penetration, int armorLevel)
+        /// <summary>
+        /// Applies penetration vs armor to an attack's final damage. <paramref name="penetration"/> null means the attack
+        /// has no penetration value: it always does 100% damage, regardless of armor.
+        /// </summary>
+        public static PenetrationOutcome Resolve(int finalDamage, int? penetration, int armorLevel)
         {
-            var result = Compare(penetration, armorLevel);
+            var result = penetration.HasValue ? Compare(penetration.Value, armorLevel) : PenetrationResult.IgnoresArmor;
             float multiplier = Multiplier(result);
             int damage = Mathf.FloorToInt(Mathf.Max(0, finalDamage) * multiplier);
             return new PenetrationOutcome(result, multiplier, damage, result != PenetrationResult.Blocked);
         }
 
-        /// <summary>Applies a weapon's Penetration against a soldier's Armor Level to an attack's final damage.</summary>
+        /// <summary>Applies a weapon's Penetration (or lack of one) against a soldier's Armor Level to an attack's final damage.</summary>
         public static PenetrationOutcome Resolve(int finalDamage, Weapon weapon, Soldier target)
         {
-            return Resolve(finalDamage, weapon.Penetration, target.ArmorLevel);
+            return Resolve(finalDamage, weapon.PenetrationValue, target.ArmorLevel);
         }
     }
 }
