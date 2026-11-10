@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
   m_Name: BattlefieldPriest
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.UnitTemplate
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Battlefield Priest
   leader: {fileID: 11400000, guid: 5062a9432123ec045bc3022ba187bd2f, type: 2}
   members: []

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     /// <summary>
     /// Builds a <see cref="Unit"/> on the battlefield from a <see cref="UnitTemplate"/>: one soldier per roster slot,

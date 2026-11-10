@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: acfb139d20d848147a999647b1e7934f, type: 3}
   m_Name: Biological
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Keyword
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Keyword
   displayName: Biological
   category: 1
   description: A living being. Every living soldier has this keyword.

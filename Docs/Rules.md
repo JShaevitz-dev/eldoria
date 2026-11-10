@@ -1,4 +1,4 @@
-# Eldoira — Game Rules
+# Eldoria — Game Rules
 
 Living record of the rules decided so far. **Status** shows what the code does today.
 
@@ -233,7 +233,7 @@ Test room terrain:
 
 ## Maps
 
-### Urban Demo — *built (Scenes/UrbanDemo, Eldoira > Build Urban Demo)*
+### Urban Demo — *built (Scenes/UrbanDemo, Eldoria > Build Urban Demo)*
 
 - **80 × 60 m**, with **180° rotational symmetry**: every feature in the south half has a twin at the opposite point, turned round, so both sides face the same choices.
 - **Deployment zones:** the player sets up in the southern **8 m** of the map, the AI in the northern 8 m.

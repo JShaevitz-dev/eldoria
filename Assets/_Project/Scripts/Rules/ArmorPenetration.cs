@@ -1,7 +1,7 @@
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     public enum PenetrationResult
     {

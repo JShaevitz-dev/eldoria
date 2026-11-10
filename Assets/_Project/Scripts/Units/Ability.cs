@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     public enum AbilityKind
     {
@@ -38,7 +38,7 @@ namespace Eldoira.Units
     ///    they can restore health and/or give a keyword (e.g. Divine Sanctuary: +1 armor).
     /// All distances are horizontal, ignoring height.
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoira/Ability", fileName = "NewAbility", order = 5)]
+    [CreateAssetMenu(menuName = "Eldoria/Ability", fileName = "NewAbility", order = 5)]
     public class Ability : ScriptableObject
     {
         public string displayName = "Ability";

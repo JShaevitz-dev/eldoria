@@ -1,16 +1,16 @@
 using System.Collections;
 using System.Linq;
-using Eldoira.Rules;
+using Eldoria.Rules;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>
     /// A quick end-to-end check of a built game, off unless the program is started with <c>-smokeTest</c>:
     /// from the main menu it starts a game, selects a unit and previews a move, lets the AI play three turns, checks the
     /// runtime shaders and visuals, then quits with exit code 0 (passed) or 1 (an error was logged or a check failed).
-    /// Usage: Eldoira.exe -batchmode -nographics -smokeTest -logFile smoke.log
+    /// Usage: Eldoria.exe -batchmode -nographics -smokeTest -logFile smoke.log
     /// With a window (no -batchmode) and <c>-smokeScreenshots folder</c>, it also saves screenshots of the main menu and
     /// the game (HUD and labels included) into that folder.
     /// </summary>
@@ -38,16 +38,16 @@ namespace Eldoira.Gameplay
             var tex = ScreenCapture.CaptureScreenshotAsTexture();
             System.IO.File.WriteAllBytes(System.IO.Path.Combine(args[i + 1], file), tex.EncodeToPNG());
             Destroy(tex);
-            Debug.Log($"[Eldoira] Screenshot saved: {file}");
+            Debug.Log($"[Eldoria] Screenshot saved: {file}");
         }
 
         private void Check(bool ok, string what)
         {
-            if (ok) Debug.Log($"[Eldoira] Smoke test ok: {what}");
+            if (ok) Debug.Log($"[Eldoria] Smoke test ok: {what}");
             else
             {
                 problems++;
-                Debug.LogWarning($"[Eldoira] Smoke test FAILED: {what}");
+                Debug.LogWarning($"[Eldoria] Smoke test FAILED: {what}");
             }
         }
 
@@ -87,7 +87,7 @@ namespace Eldoira.Gameplay
             Check(Resources.Load<AudioClip>(CombatAudio.VolleySoundPath) != null, "the gunshot sound is in the build");
 
             yield return null;
-            Debug.Log(problems == 0 ? "[Eldoira] Smoke test PASSED" : $"[Eldoira] Smoke test found {problems} problem(s)");
+            Debug.Log(problems == 0 ? "[Eldoria] Smoke test PASSED" : $"[Eldoria] Smoke test found {problems} problem(s)");
             Application.Quit(problems == 0 ? 0 : 1);
         }
     }

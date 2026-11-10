@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     /// <summary>What the keywords involved in an attack add up to.</summary>
     public class KeywordOutcome

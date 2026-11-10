@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Terrain;
-using Eldoira.Units;
+using Eldoria.Terrain;
+using Eldoria.Units;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     /// <summary>One soldier's shot during a unit's shooting.</summary>
     public class SoldierShot

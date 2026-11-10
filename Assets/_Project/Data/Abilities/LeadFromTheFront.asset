@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d19a61d1a0328e040abadba0dd86f72a, type: 3}
   m_Name: LeadFromTheFront
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Ability
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
   displayName: Lead from the front
   description: Passive. Other friendly soldiers within 15 m gain +15% accuracy. Each soldier is checked on its own.
   kind: 0

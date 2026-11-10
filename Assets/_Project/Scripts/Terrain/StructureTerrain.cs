@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Eldoira.Terrain
+namespace Eldoria.Terrain
 {
     public enum StructureKind
     {

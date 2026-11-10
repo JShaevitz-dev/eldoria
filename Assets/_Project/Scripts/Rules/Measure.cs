@@ -1,7 +1,7 @@
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     /// <summary>
     /// Distance measuring for rules. All results are in meters, measured horizontally

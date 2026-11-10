@@ -1,4 +1,4 @@
-namespace Eldoira.Core
+namespace Eldoria.Core
 {
     /// <summary>
     /// Shared source of randomness for rules (tie-breaks now; dice rolls later).

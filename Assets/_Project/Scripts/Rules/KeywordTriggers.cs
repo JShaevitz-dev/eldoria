@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Units;
+using Eldoria.Units;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     /// <summary>
     /// Resolves keyword triggers when something happens to a soldier during shooting. Data-driven triggers

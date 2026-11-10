@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 using UnityEditor;
 #endif
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     /// <summary>
     /// A single soldier on the battlefield, built from a <see cref="SoldierTemplate"/>. Belongs to a <see cref="Unit"/>

@@ -1,14 +1,14 @@
 using System.Collections.Generic;
-using Eldoira.CameraControl;
-using Eldoira.Gameplay;
-using Eldoira.Terrain;
-using Eldoira.Units;
+using Eldoria.CameraControl;
+using Eldoria.Gameplay;
+using Eldoria.Terrain;
+using Eldoria.Units;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Eldoira.EditorTools
+namespace Eldoria.EditorTools
 {
     /// <summary>
     /// Builds the demo map "Urban Demo": an 80 x 60 m town district with 180° rotational symmetry
@@ -22,7 +22,7 @@ namespace Eldoira.EditorTools
     ///
     /// Buildings are roofless (so the camera can see in), with doorways and windows. Window sills are low objects:
     /// soldiers can see, shoot and climb through a window (it costs no extra movement), and its sill gives half-cover.
-    /// Menu: Eldoira > Build Urban Demo, or -executeMethod Eldoira.EditorTools.UrbanMapBuilder.Build
+    /// Menu: Eldoria > Build Urban Demo, or -executeMethod Eldoria.EditorTools.UrbanMapBuilder.Build
     /// </summary>
     public static class UrbanMapBuilder
     {
@@ -51,7 +51,7 @@ namespace Eldoira.EditorTools
             public static Opening Win(float offset, float width = WindowWidth) => new Opening { Offset = offset, Width = width, Window = true };
         }
 
-        [MenuItem("Eldoira/Build Urban Demo")]
+        [MenuItem("Eldoria/Build Urban Demo")]
         public static void Build()
         {
             EnsureFolder(Root, "Scenes");
@@ -103,7 +103,7 @@ namespace Eldoira.EditorTools
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddToBuildSettings();
             AssetDatabase.SaveAssets();
-            Debug.Log($"[Eldoira] Urban demo map built at {ScenePath}");
+            Debug.Log($"[Eldoria] Urban demo map built at {ScenePath}");
         }
 
         // ------------------------------------------------------------------ One half (twinned by rotation)

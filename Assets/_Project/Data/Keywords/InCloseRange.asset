@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: acfb139d20d848147a999647b1e7934f, type: 3}
   m_Name: InCloseRange
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Keyword
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Keyword
   displayName: In close range
   category: 2
   description: 'A Biological enemy is less than 2 m away: can only use weapons with

@@ -1,8 +1,8 @@
-using Eldoira.Terrain;
+using Eldoria.Terrain;
 using UnityEditor;
 using UnityEngine;
 
-namespace Eldoira.EditorTools
+namespace Eldoria.EditorTools
 {
     /// <summary>
     /// Builds the test terrain for the cube room:

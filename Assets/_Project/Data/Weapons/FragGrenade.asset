@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8dbfc63585eb20f49a138553c8d769aa, type: 3}
   m_Name: FragGrenade
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.WeaponTemplate
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.WeaponTemplate
   displayName: Frag Grenade
   baseDamage: 2
   penetration: 0

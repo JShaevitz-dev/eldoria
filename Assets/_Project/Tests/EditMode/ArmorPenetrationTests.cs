@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using Eldoira.Rules;
-using Eldoira.Units;
+using Eldoria.Rules;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     public class ArmorPenetrationTests
     {

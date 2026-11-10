@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>
     /// The main menu (Scenes/MainMenu, the first scene the game opens):
@@ -44,7 +44,7 @@ namespace Eldoira.Gameplay
             }
 
             float cx = Screen.width / 2f, cy = Screen.height / 2f;
-            GUI.Label(new Rect(cx - 400f, cy - 220f, 800f, 100f), "ELDOIRA", titleStyle);
+            GUI.Label(new Rect(cx - 400f, cy - 220f, 800f, 100f), "ELDORIA", titleStyle);
             GUI.Label(new Rect(cx - 400f, cy - 125f, 800f, 30f), "Turn-based tactics — urban demo", subtitleStyle);
 
             const float w = 260f, h = 60f;

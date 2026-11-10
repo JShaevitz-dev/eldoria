@@ -5,34 +5,34 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEditor.Build;
 
-namespace Eldoira.EditorTools
+namespace Eldoria.EditorTools
 {
     /// <summary>
-    /// Builds the playable Windows game: Builds/Eldoira/Eldoira.exe (with its Eldoira_Data folder next to it), opening on the
+    /// Builds the playable Windows game: Builds/Eldoria/Eldoria.exe (with its Eldoria_Data folder next to it), opening on the
     /// main menu. Needs no Unity install to run.
-    /// Menu: Eldoira > Build Game (Windows), or -executeMethod Eldoira.EditorTools.GameBuilder.BuildWindows
+    /// Menu: Eldoria > Build Game (Windows), or -executeMethod Eldoria.EditorTools.GameBuilder.BuildWindows
     /// (batchmode exits with code 1 if the build fails).
     /// </summary>
     public static class GameBuilder
     {
-        public const string OutputDir = "Builds/Eldoira";
-        public const string ExeName = "Eldoira.exe";
+        public const string OutputDir = "Builds/Eldoria";
+        public const string ExeName = "Eldoria.exe";
 
         /// <summary>Shaders the game loads by name at runtime (so the build must keep them).</summary>
         private static readonly string[] RuntimeShaders = { "Sprites/Default", "Universal Render Pipeline/Unlit" };
 
-        [MenuItem("Eldoira/Build Game (Windows)")]
+        [MenuItem("Eldoria/Build Game (Windows)")]
         public static void BuildWindows()
         {
             ProjectScenes.Apply();
             var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
             if (scenes.Length == 0 || !scenes[0].EndsWith("MainMenu.unity"))
-                Fail("The main menu must be the first scene in the build (run Eldoira > Build Main Menu).");
+                Fail("The main menu must be the first scene in the build (run Eldoria > Build Main Menu).");
 
             EnsureShadersIncluded();
 
-            PlayerSettings.companyName = "Eldoira";
-            PlayerSettings.productName = "Eldoira";
+            PlayerSettings.companyName = "Eldoria";
+            PlayerSettings.productName = "Eldoria";
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -51,7 +51,7 @@ namespace Eldoira.EditorTools
             var summary = report.summary;
             if (summary.result != BuildResult.Succeeded)
                 Fail($"Build {summary.result}: {summary.totalErrors} error(s).");
-            Debug.Log($"[Eldoira] Built {summary.outputPath} ({summary.totalSize / (1024f * 1024f):0.0} MB) in {summary.totalTime.TotalSeconds:0} s.");
+            Debug.Log($"[Eldoria] Built {summary.outputPath} ({summary.totalSize / (1024f * 1024f):0.0} MB) in {summary.totalTime.TotalSeconds:0} s.");
         }
 
         /// <summary>Adds the shaders the game finds by name to Graphics Settings > Always Included Shaders.</summary>
@@ -77,7 +77,7 @@ namespace Eldoira.EditorTools
 
         private static void Fail(string message)
         {
-            Debug.LogError("[Eldoira] " + message);
+            Debug.LogError("[Eldoria] " + message);
             if (Application.isBatchMode) EditorApplication.Exit(1);
             throw new BuildFailedException(message);
         }

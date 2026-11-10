@@ -2,7 +2,7 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     public class BuildScenesTests
     {

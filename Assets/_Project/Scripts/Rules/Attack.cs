@@ -1,7 +1,7 @@
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     /// <summary>Everything that happened in one soldier's attack, step by step.</summary>
     public class AttackResult

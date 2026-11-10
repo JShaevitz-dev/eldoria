@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Rules;
-using Eldoira.Units;
+using Eldoria.Rules;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>
     /// Visual only: a red marker floats over the head of every soldier who is in close range (a Biological enemy less

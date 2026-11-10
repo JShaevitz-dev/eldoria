@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     /// <summary>
     /// Close range: a Biological soldier is "in close range" if a Biological enemy soldier is less than 2 m away

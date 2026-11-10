@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Rules;
-using Eldoira.Units;
+using Eldoria.Rules;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>Weapon range: a soldier can only target enemies within their weapon's range (horizontal).</summary>
     public class WeaponRangeTests

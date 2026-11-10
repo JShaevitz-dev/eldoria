@@ -1,7 +1,7 @@
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>
     /// The area of the map where one side sets up its army before the battle (a rectangle on the ground,

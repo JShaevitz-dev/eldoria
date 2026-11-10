@@ -1,8 +1,8 @@
 using System.Linq;
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>
     /// Visual only: every living soldier on the battlefield shows their name and health ("Trooper_03  4/5") floating over

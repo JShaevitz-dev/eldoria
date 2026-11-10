@@ -1,8 +1,8 @@
 using System;
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     /// <summary>
     /// The game's turn counter. Each turn the player's side goes first, then the AI's side (see <see cref="StartSideTurn"/>).

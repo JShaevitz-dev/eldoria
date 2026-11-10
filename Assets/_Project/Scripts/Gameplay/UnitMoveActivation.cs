@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Rules;
-using Eldoira.Units;
+using Eldoria.Rules;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     public enum MovePhase
     {

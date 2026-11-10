@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d19a61d1a0328e040abadba0dd86f72a, type: 3}
   m_Name: DivineSanctuary
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Ability
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
   displayName: Divine Sanctuary
   description: 'Active. Choose a friendly unit within 25 m: every soldier in it gains
     +1 armor until the next turn.'

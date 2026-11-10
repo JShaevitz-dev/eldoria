@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     /// <summary>
     /// Template for a class of unit (e.g. "Infantry Squad"): which soldier templates it is made of, and how many.
     /// The leader leads the unit when it is deployed (see leader succession in the rules).
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoira/Unit Template", fileName = "NewUnit", order = 0)]
+    [CreateAssetMenu(menuName = "Eldoria/Unit Template", fileName = "NewUnit", order = 0)]
     public class UnitTemplate : ScriptableObject
     {
         [Serializable]

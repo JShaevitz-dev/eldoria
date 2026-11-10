@@ -1,17 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Core;
-using Eldoira.Gameplay;
-using Eldoira.Rules;
-using Eldoira.Terrain;
-using Eldoira.Units;
+using Eldoria.Core;
+using Eldoria.Gameplay;
+using Eldoria.Rules;
+using Eldoria.Terrain;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>The Urban Demo map: size, 180° symmetry, deployment, and that every area can be reached.</summary>
     public class UrbanDemoPlayTests
@@ -292,7 +292,7 @@ namespace Eldoira.Tests
                 if (turn == 1) TopDownSnapshot("-snapshotAI");
             }
             int healthNow = mine.Sum(s => s.IsAlive ? s.Health : 0);
-            Debug.Log($"[Eldoira] After {Turns.Current - 1} AI turns: player health {healthNow}/{startHealth}, " +
+            Debug.Log($"[Eldoria] After {Turns.Current - 1} AI turns: player health {healthNow}/{startHealth}, " +
                       $"{mine.Count(s => !s.IsAlive)} down, outcome {Victory.Outcome}.");
             Assert.That(healthNow, Is.LessThan(startHealth), "the AI has done damage");
         }

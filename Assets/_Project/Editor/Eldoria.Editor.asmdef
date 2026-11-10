@@ -1,11 +1,13 @@
 {
-    "name": "Eldoira",
-    "rootNamespace": "Eldoira",
+    "name": "Eldoria.Editor",
+    "rootNamespace": "Eldoria.EditorTools",
     "references": [
-        "Unity.InputSystem",
+        "Eldoria",
         "Unity.AI.Navigation"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

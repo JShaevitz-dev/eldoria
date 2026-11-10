@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     /// <summary>
     /// A weapon carried by a soldier during play. Stats come from its template; keywords are the template's

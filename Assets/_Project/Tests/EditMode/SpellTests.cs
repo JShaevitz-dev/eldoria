@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Gameplay;
-using Eldoira.Rules;
-using Eldoira.Units;
+using Eldoria.Gameplay;
+using Eldoria.Rules;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>Abilities classified as Spells can't be cast if the soldier's unit sprinted this turn.</summary>
     public class SpellTests

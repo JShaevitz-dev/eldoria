@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>A flat circle or line drawn on the ground (range rings, selection, path preview).</summary>
     [RequireComponent(typeof(LineRenderer))]

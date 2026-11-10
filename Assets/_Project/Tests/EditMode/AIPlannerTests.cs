@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.AI;
-using Eldoira.Gameplay;
-using Eldoira.Rules;
-using Eldoira.Terrain;
-using Eldoira.Units;
+using Eldoria.AI;
+using Eldoria.Gameplay;
+using Eldoria.Rules;
+using Eldoria.Terrain;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>The AI's decisions, on flat open ground (straight-line moves).</summary>
     public class AIPlannerTests

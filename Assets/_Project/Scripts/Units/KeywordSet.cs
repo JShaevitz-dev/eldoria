@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     /// <summary>A keyword gained during the game, with when it wears off.</summary>
     [Serializable]

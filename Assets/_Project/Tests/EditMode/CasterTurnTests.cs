@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using Eldoira.AI;
-using Eldoira.Gameplay;
-using Eldoira.Rules;
-using Eldoira.Units;
+using Eldoria.AI;
+using Eldoria.Gameplay;
+using Eldoria.Rules;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>"Until the start of the next turn" means the caster's own next turn (the player goes first each turn).</summary>
     public class CasterTurnTests

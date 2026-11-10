@@ -1,20 +1,20 @@
 using System.Linq;
-using Eldoira.Gameplay;
+using Eldoria.Gameplay;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace Eldoira.EditorTools
+namespace Eldoria.EditorTools
 {
     /// <summary>
     /// Builds the main menu scene (Scenes/MainMenu): a camera and the <see cref="MainMenu"/> (Play / Quit).
-    /// Menu: Eldoira > Build Main Menu, or -executeMethod Eldoira.EditorTools.MainMenuBuilder.Build
+    /// Menu: Eldoria > Build Main Menu, or -executeMethod Eldoria.EditorTools.MainMenuBuilder.Build
     /// </summary>
     public static class MainMenuBuilder
     {
         public const string ScenePath = "Assets/_Project/Scenes/MainMenu.unity";
 
-        [MenuItem("Eldoira/Build Main Menu")]
+        [MenuItem("Eldoria/Build Main Menu")]
         public static void Build()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -31,7 +31,7 @@ namespace Eldoira.EditorTools
             EditorSceneManager.SaveScene(scene, ScenePath);
             ProjectScenes.Apply();
             AssetDatabase.SaveAssets();
-            Debug.Log($"[Eldoira] Main menu built at {ScenePath}");
+            Debug.Log($"[Eldoria] Main menu built at {ScenePath}");
         }
     }
 

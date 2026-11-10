@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Units;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     public class UnitTemplateTests
     {

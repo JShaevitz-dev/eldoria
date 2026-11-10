@@ -1,8 +1,8 @@
-using Eldoira.Rules;
+using Eldoria.Rules;
 using Unity.AI.Navigation;
 using UnityEngine;
 
-namespace Eldoira.Terrain
+namespace Eldoria.Terrain
 {
     /// <summary>
     /// Builds the walkable-area map (NavMesh) for the battlefield when the scene starts, from

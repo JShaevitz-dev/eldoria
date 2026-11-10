@@ -1,7 +1,7 @@
-using Eldoira.Rules;
+using Eldoria.Rules;
 using NUnit.Framework;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     public class DamageTests
     {

@@ -323,7 +323,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
   template: {fileID: 11400000, guid: 261f39bca7f2c59489776612e04bcf27, type: 2}
   isSergeant: 1
   health: 0

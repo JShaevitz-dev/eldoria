@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Eldoira.Core;
-using Eldoira.Units;
+using Eldoria.Core;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     public enum MoveKind
     {

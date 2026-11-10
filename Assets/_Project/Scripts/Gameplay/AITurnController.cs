@@ -1,15 +1,15 @@
 using System;
 using System.Collections;
 using System.Linq;
-using Eldoira.AI;
-using Eldoira.CameraControl;
-using Eldoira.Core;
-using Eldoira.Rules;
-using Eldoira.Terrain;
-using Eldoira.Units;
+using Eldoria.AI;
+using Eldoria.CameraControl;
+using Eldoria.Core;
+using Eldoria.Rules;
+using Eldoria.Terrain;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>
     /// Plays the AI's turn, one unit at a time, so the player can watch: the camera pans to the unit, it moves (its

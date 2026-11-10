@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Eldoira.Units;
+using Eldoria.Units;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     /// <summary>
     /// When the dead leave the battlefield. A soldier killed during a volley (one attacking unit's round of shooting)

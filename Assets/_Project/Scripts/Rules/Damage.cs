@@ -1,6 +1,6 @@
-using Eldoira.Units;
+using Eldoria.Units;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     /// <summary>Damage dealt by a hit, with each step for display.</summary>
     public readonly struct DamageResult

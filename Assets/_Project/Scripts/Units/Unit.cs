@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Core;
-using Eldoira.Rules;
+using Eldoria.Core;
+using Eldoria.Rules;
 using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     public enum Side
     {

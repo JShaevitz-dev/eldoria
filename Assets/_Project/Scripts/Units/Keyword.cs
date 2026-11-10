@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     public enum KeywordTarget
     {
@@ -169,7 +169,7 @@ namespace Eldoira.Units
     /// Keywords interact with each other: each keyword lists its interactions, checked whenever it is
     /// involved in an attack (see Rules.KeywordRules). Each keyword is its own asset so new ones need no code.
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoira/Keyword", fileName = "NewKeyword", order = 3)]
+    [CreateAssetMenu(menuName = "Eldoria/Keyword", fileName = "NewKeyword", order = 3)]
     public class Keyword : ScriptableObject
     {
         public string displayName = "Keyword";

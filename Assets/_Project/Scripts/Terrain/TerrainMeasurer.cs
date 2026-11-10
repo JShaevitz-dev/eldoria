@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Eldoira.Rules;
+using Eldoria.Rules;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Eldoira.Terrain
+namespace Eldoria.Terrain
 {
     /// <summary>
     /// Measures moves over real terrain:

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
   m_Name: InfantrySquad
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.UnitTemplate
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Infantry Squad
   leader: {fileID: 11400000, guid: ac6683a9268f31c40b052e2a957f5dc8, type: 2}
   members:

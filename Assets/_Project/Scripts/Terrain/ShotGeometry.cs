@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Terrain
+namespace Eldoria.Terrain
 {
     /// <summary>
     /// Geometry for shooting and explosions:

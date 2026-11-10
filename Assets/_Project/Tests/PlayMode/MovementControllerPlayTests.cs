@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Linq;
-using Eldoira.Gameplay;
-using Eldoira.Rules;
+using Eldoria.Gameplay;
+using Eldoria.Rules;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>Drives the real CubeRoom scene through a full squad move.</summary>
     public class MovementControllerPlayTests
@@ -96,7 +96,7 @@ namespace Eldoira.Tests
             Assert.That(summary.Any(e => e.keyword.displayName == "In half-cover"), Is.True, "troopers by the barricade");
 
             var lines = MovementController.UnitKeywordLines(controller.ActiveUnit);
-            Debug.Log("[Eldoira] HUD unit keywords:\n" + string.Join("\n", lines));
+            Debug.Log("[Eldoria] HUD unit keywords:\n" + string.Join("\n", lines));
             Assert.That(lines, Does.Contain("Biological — all 10"));
             Assert.That(lines.Any(l => l.StartsWith("In half-cover (status) — ") && l.Contains(" of 10: ")), Is.True);
             yield return null;

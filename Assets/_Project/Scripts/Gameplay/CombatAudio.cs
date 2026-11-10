@@ -1,7 +1,7 @@
-using Eldoira.Rules;
+using Eldoria.Rules;
 using UnityEngine;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>
     /// Sound only. Starts itself when play begins.
@@ -59,7 +59,7 @@ namespace Eldoira.Gameplay
             source.playOnAwake = false;
             source.spatialBlend = 0f; // heard the same wherever the camera is
             volleySound = Resources.Load<AudioClip>(VolleySoundPath);
-            if (volleySound == null) Debug.LogWarning($"[Eldoira] No volley sound at Resources/{VolleySoundPath}.");
+            if (volleySound == null) Debug.LogWarning($"[Eldoria] No volley sound at Resources/{VolleySoundPath}.");
             errorSound = Resources.Load<AudioClip>(ErrorSoundPath);
             if (errorSound == null) errorSound = SynthesiseErrorSound();
             bellSound = Resources.Load<AudioClip>(BellSoundPath);

@@ -1,4 +1,4 @@
-namespace Eldoira.Core
+namespace Eldoria.Core
 {
     /// <summary>
     /// World scale conventions for the battlefield.

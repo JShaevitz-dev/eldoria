@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a47d69299e5d58e4a9527cba3ee53753, type: 3}
   m_Name: KeywordLibrary
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.KeywordLibrary
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.KeywordLibrary
   keywords:
   - {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
   - {fileID: 11400000, guid: 485f19f6957fbe6489d2fd051029a0bf, type: 2}

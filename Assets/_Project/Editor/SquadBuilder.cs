@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace Eldoira.EditorTools
+namespace Eldoria.EditorTools
 {
     /// <summary>
     /// Creates the template assets for the test unit and spawns it in the open scene:
@@ -16,7 +16,7 @@ namespace Eldoira.EditorTools
     ///   Unit:     Infantry Squad = 1 Sergeant + 9 Troopers    (Data/Units)
     /// plus placeholder soldier prefabs built from primitives. Existing template assets are kept, so
     /// stats edited in the Inspector survive a rebuild.
-    /// Menu: Eldoira > Spawn Test Unit.
+    /// Menu: Eldoria > Spawn Test Unit.
     /// </summary>
     public static class SquadBuilder
     {
@@ -27,7 +27,7 @@ namespace Eldoira.EditorTools
 
         private const string UnitName = "Infantry Squad";
 
-        [MenuItem("Eldoira/Spawn Test Unit")]
+        [MenuItem("Eldoria/Spawn Test Unit")]
         public static void SpawnInOpenScene()
         {
             SpawnTestSquad();
@@ -53,7 +53,7 @@ namespace Eldoira.EditorTools
             markerSo.ApplyModifiedPropertiesWithoutUndo();
 
             EditorUtility.SetDirty(unit);
-            Debug.Log($"[Eldoira] Spawned {unit.Soldiers.Count}-soldier unit '{unit.DisplayName}' from template " +
+            Debug.Log($"[Eldoria] Spawned {unit.Soldiers.Count}-soldier unit '{unit.DisplayName}' from template " +
                       $"'{infantry.displayName}', leader {unit.Leader.name}, in formation: {unit.IsInFormation()}");
             return unit;
         }
@@ -255,14 +255,14 @@ namespace Eldoira.EditorTools
             Keyword.AddUnique(ability.keywords, keywords["Spell"]);
             // The Battlefield Priest's spells ring out with a hallelujah when cast.
             ability.castSound = AssetDatabase.LoadAssetAtPath<AudioClip>(PriestSpellSoundPath);
-            if (ability.castSound == null) Debug.LogWarning($"[Eldoira] Missing priest spell sound at {PriestSpellSoundPath}.");
+            if (ability.castSound == null) Debug.LogWarning($"[Eldoria] Missing priest spell sound at {PriestSpellSoundPath}.");
         }
 
         private const string PriestSpellSoundPath = Root + "/Resources/Audio/Hallelujah.mp3";
 
         /// <summary>
         /// Updates the keyword and ability assets in place without rebuilding prefabs or touching the scene
-        /// (batchmode: -executeMethod Eldoira.EditorTools.SquadBuilder.UpdateAbilityData).
+        /// (batchmode: -executeMethod Eldoria.EditorTools.SquadBuilder.UpdateAbilityData).
         /// </summary>
         public static void UpdateAbilityData()
         {
@@ -291,7 +291,7 @@ namespace Eldoira.EditorTools
                 EditorUtility.SetDirty(ability);
             }
             AssetDatabase.SaveAssets();
-            Debug.Log("[Eldoira] Ability data updated.");
+            Debug.Log("[Eldoria] Ability data updated.");
         }
 
         /// <summary>Spawns the player's Battlefield Priest just behind the Infantry Squad's right side.</summary>
@@ -305,7 +305,7 @@ namespace Eldoira.EditorTools
                 unitName: PriestName,
                 instantiate: (prefab, parent) => (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent));
             EditorUtility.SetDirty(unit);
-            Debug.Log($"[Eldoira] Spawned '{unit.DisplayName}' ({unit.Soldiers.Count} soldier).");
+            Debug.Log($"[Eldoria] Spawned '{unit.DisplayName}' ({unit.Soldiers.Count} soldier).");
             return unit;
         }
 
@@ -320,7 +320,7 @@ namespace Eldoira.EditorTools
                 unitName: CommanderName,
                 instantiate: (prefab, parent) => (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent));
             EditorUtility.SetDirty(unit);
-            Debug.Log($"[Eldoira] Spawned '{unit.DisplayName}' ({unit.Soldiers.Count} soldier).");
+            Debug.Log($"[Eldoria] Spawned '{unit.DisplayName}' ({unit.Soldiers.Count} soldier).");
             return unit;
         }
 
@@ -346,7 +346,7 @@ namespace Eldoira.EditorTools
             {
                 var p = soldier.transform.position;
                 if (Physics.Raycast(new Vector3(p.x, 50f, p.z), Vector3.down, out var hit, 100f,
-                        Eldoira.Terrain.TerrainLayers.StructureMask, QueryTriggerInteraction.Ignore))
+                        Eldoria.Terrain.TerrainLayers.StructureMask, QueryTriggerInteraction.Ignore))
                     soldier.transform.position = new Vector3(p.x, hit.point.y, p.z);
             }
 
@@ -391,7 +391,7 @@ namespace Eldoira.EditorTools
             markerSo.ApplyModifiedPropertiesWithoutUndo();
 
             EditorUtility.SetDirty(unit);
-            Debug.Log($"[Eldoira] Spawned enemy unit '{unit.DisplayName}' ({unit.Soldiers.Count} soldiers).");
+            Debug.Log($"[Eldoria] Spawned enemy unit '{unit.DisplayName}' ({unit.Soldiers.Count} soldiers).");
             return unit;
         }
 
@@ -698,7 +698,7 @@ namespace Eldoira.EditorTools
                     new Vector3(0f, h - 0.02f, 0.02f), new Vector3(0.3f, 0.03f, 0.32f));
             }
 
-            Eldoira.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoira.Terrain.TerrainLayers.Soldier);
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
 
             string path = $"{PrefabDir}/{name}.prefab";
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, path);

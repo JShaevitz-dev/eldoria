@@ -1,12 +1,14 @@
 {
-    "name": "Eldoira.Tests.PlayMode",
-    "rootNamespace": "Eldoira.Tests",
+    "name": "Eldoria.Tests.EditMode",
+    "rootNamespace": "Eldoria.Tests",
     "references": [
-        "Eldoira",
+        "Eldoria",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,

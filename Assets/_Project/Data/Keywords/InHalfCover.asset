@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: acfb139d20d848147a999647b1e7934f, type: 3}
   m_Name: InHalfCover
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Keyword
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Keyword
   displayName: In half-cover
   category: 2
   description: "Within 5 m of half-cover. Attacks against this soldier take \u221225%

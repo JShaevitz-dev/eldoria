@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d19a61d1a0328e040abadba0dd86f72a, type: 3}
   m_Name: FragGrenade
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Ability
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
   displayName: Frag Grenade
   description: 'Active, once per battle per unit. Throw at a spot within 10 m of
     the unit leader: everyone within 2.5 m takes 2 damage (penetration 0), unless

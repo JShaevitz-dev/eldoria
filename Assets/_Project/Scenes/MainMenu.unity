@@ -147,7 +147,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 018aafa3230054c41be387184ec3a5f7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Gameplay.MainMenu
+  m_EditorClassIdentifier: Eldoria::Eldoria.Gameplay.MainMenu
 --- !u!4 &1602701798
 Transform:
   m_ObjectHideFlags: 0

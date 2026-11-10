@@ -1,8 +1,8 @@
-using Eldoira.Units;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEditor;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>The weapon templates as designed (Docs/Rules.md, weapon table).</summary>
     public class WeaponStatsTests

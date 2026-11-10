@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Eldoira.CameraControl
+namespace Eldoria.CameraControl
 {
     /// <summary>
     /// XCOM-style tactical camera. Put this on a "rig" object at ground level;

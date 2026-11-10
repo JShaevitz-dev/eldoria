@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Rules
+namespace Eldoria.Rules
 {
     public enum BattleOutcome
     {
@@ -45,7 +45,7 @@ namespace Eldoira.Rules
             else if (playerOut) Outcome = BattleOutcome.AIWins;
             else return Outcome;
 
-            Debug.Log($"[Eldoira] Battle over: {Describe(Outcome)}");
+            Debug.Log($"[Eldoria] Battle over: {Describe(Outcome)}");
             BattleEnded?.Invoke(Outcome);
             return Outcome;
         }

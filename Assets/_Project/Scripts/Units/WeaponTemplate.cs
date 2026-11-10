@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     /// <summary>
     /// Template for a class of weapon (e.g. "Assault Rifle"): its stats and keywords.
     /// Soldier templates list the weapon templates their soldiers carry.
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoira/Weapon Template", fileName = "NewWeapon", order = 2)]
+    [CreateAssetMenu(menuName = "Eldoria/Weapon Template", fileName = "NewWeapon", order = 2)]
     public class WeaponTemplate : ScriptableObject
     {
         public string displayName = "Weapon";

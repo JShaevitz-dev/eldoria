@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     /// <summary>
     /// Template for a class of soldier (e.g. "Trooper", "Sergeant"): their stats, keywords and the weapons they carry.
     /// Unit templates say which soldier templates a unit is made of.
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoira/Soldier Template", fileName = "NewSoldier", order = 1)]
+    [CreateAssetMenu(menuName = "Eldoria/Soldier Template", fileName = "NewSoldier", order = 1)]
     public class SoldierTemplate : ScriptableObject
     {
         public string displayName = "Soldier";

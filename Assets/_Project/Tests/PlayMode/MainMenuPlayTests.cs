@@ -1,12 +1,12 @@
 using System.Collections;
-using Eldoira.Gameplay;
-using Eldoira.Rules;
+using Eldoria.Gameplay;
+using Eldoria.Rules;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>The main menu: the first scene, Play starts a game, and the game can come back to it.</summary>
     public class MainMenuPlayTests

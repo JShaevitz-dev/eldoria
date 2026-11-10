@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Rules;
-using Eldoira.Units;
+using Eldoria.Rules;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>The keyword list shown for a selected unit: every keyword on its soldiers, and who has it.</summary>
     public class UnitKeywordSummaryTests

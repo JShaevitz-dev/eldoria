@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Eldoira.Terrain
+namespace Eldoria.Terrain
 {
     /// <summary>Physics layers used by the rules (defined in Project Settings > Tags and Layers).</summary>
     public static class TerrainLayers

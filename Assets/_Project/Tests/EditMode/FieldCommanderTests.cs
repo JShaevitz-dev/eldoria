@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Gameplay;
-using Eldoira.Rules;
-using Eldoira.Terrain;
-using Eldoira.Units;
+using Eldoria.Gameplay;
+using Eldoria.Rules;
+using Eldoria.Terrain;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     public class FieldCommanderTests
     {

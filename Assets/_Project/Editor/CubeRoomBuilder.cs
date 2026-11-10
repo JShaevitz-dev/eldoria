@@ -1,17 +1,17 @@
-using Eldoira.CameraControl;
-using Eldoira.Core;
+using Eldoria.CameraControl;
+using Eldoria.Core;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Eldoira.EditorTools
+namespace Eldoria.EditorTools
 {
     /// <summary>
     /// Generates the "cube room" test scene: a 60m x 44m battlefield (with test terrain) enclosed by
     /// four walls (open top so the tactical camera can see in), lighting and a camera rig.
-    /// Menu: Eldoira > Build Cube Room. Also callable from the command line via
-    /// -executeMethod Eldoira.EditorTools.CubeRoomBuilder.Build
+    /// Menu: Eldoria > Build Cube Room. Also callable from the command line via
+    /// -executeMethod Eldoria.EditorTools.CubeRoomBuilder.Build
     /// </summary>
     public static class CubeRoomBuilder
     {
@@ -22,7 +22,7 @@ namespace Eldoira.EditorTools
         private const float WallHeight = 4f;
         private const float WallThickness = 0.5f;
 
-        [MenuItem("Eldoira/Build Cube Room")]
+        [MenuItem("Eldoria/Build Cube Room")]
         public static void Build()
         {
             EnsureFolder(Root, "Scenes");
@@ -52,7 +52,7 @@ namespace Eldoira.EditorTools
 
             // Walkable-area map, built when the scene starts.
             room.AddComponent<Unity.AI.Navigation.NavMeshSurface>();
-            room.AddComponent<Eldoira.Terrain.BattlefieldNavigation>();
+            room.AddComponent<Eldoria.Terrain.BattlefieldNavigation>();
 
             // --- Lighting ---
             var sun = new GameObject("Directional Light");
@@ -96,7 +96,7 @@ namespace Eldoira.EditorTools
 
             // --- Game controller (player movement orders for the test squad) ---
             var gameController = new GameObject("GameController");
-            var mover = gameController.AddComponent<Eldoira.Gameplay.MovementController>();
+            var mover = gameController.AddComponent<Eldoria.Gameplay.MovementController>();
             var mso = new SerializedObject(mover);
             mso.FindProperty("cam").objectReferenceValue = cam;
             mso.ApplyModifiedPropertiesWithoutUndo();
@@ -104,7 +104,7 @@ namespace Eldoira.EditorTools
             EditorSceneManager.SaveScene(scene, ScenePath);
             SetAsOnlyBuildScene(ScenePath);
             AssetDatabase.SaveAssets();
-            Debug.Log($"[Eldoira] Cube room built at {ScenePath}");
+            Debug.Log($"[Eldoria] Cube room built at {ScenePath}");
         }
 
         private static void CreateWall(Transform parent, string name, Vector3 pos, Vector3 scale, Material mat)
@@ -115,8 +115,8 @@ namespace Eldoira.EditorTools
             wall.transform.localPosition = pos;
             wall.transform.localScale = scale;
             wall.GetComponent<Renderer>().sharedMaterial = mat;
-            wall.layer = Eldoira.Terrain.TerrainLayers.Structure;
-            wall.AddComponent<Eldoira.Terrain.StructureTerrain>().Configure(Eldoira.Terrain.StructureKind.Building);
+            wall.layer = Eldoria.Terrain.TerrainLayers.Structure;
+            wall.AddComponent<Eldoria.Terrain.StructureTerrain>().Configure(Eldoria.Terrain.StructureKind.Building);
             GameObjectUtility.SetStaticEditorFlags(wall, StaticEditorFlags.BatchingStatic | StaticEditorFlags.ContributeGI);
         }
 

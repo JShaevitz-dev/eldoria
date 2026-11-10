@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Eldoira.Units
+namespace Eldoria.Units
 {
     /// <summary>Floating, spinning gold diamond above whichever soldier currently leads the squad.</summary>
     [RequireComponent(typeof(Unit))]

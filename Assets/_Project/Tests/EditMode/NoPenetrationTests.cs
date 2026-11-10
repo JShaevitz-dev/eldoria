@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using Eldoira.Rules;
-using Eldoira.Units;
+using Eldoria.Rules;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>An attack with no penetration value always does 100% damage, regardless of armor.</summary>
     public class NoPenetrationTests

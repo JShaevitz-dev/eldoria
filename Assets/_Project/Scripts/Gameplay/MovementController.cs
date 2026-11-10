@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Core;
-using Eldoira.Rules;
-using Eldoira.Terrain;
-using Eldoira.Units;
+using Eldoria.Core;
+using Eldoria.Rules;
+using Eldoria.Terrain;
+using Eldoria.Units;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>
     /// Player control of one squad's movement (test harness for the movement rules).
@@ -104,7 +104,7 @@ namespace Eldoira.Gameplay
                 if (u.Side == playerSide) playerUnits.Add(u);
             if (playerUnits.Count == 0)
             {
-                Debug.LogError("[Eldoira] MovementController needs at least one player unit.");
+                Debug.LogError("[Eldoria] MovementController needs at least one player unit.");
                 enabled = false;
                 return;
             }

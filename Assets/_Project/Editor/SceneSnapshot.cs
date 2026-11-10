@@ -2,11 +2,11 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace Eldoira.EditorTools
+namespace Eldoria.EditorTools
 {
     /// <summary>
     /// Renders the main camera of a scene to a PNG (handy for quick visual checks from the command line):
-    /// -executeMethod Eldoira.EditorTools.SceneSnapshot.Capture -snapshotOut path.png
+    /// -executeMethod Eldoria.EditorTools.SceneSnapshot.Capture -snapshotOut path.png
     /// Options: -snapshotScene Assets/.../Scene.unity (default CubeRoom), -snapshotTop size (straight-down map view
     /// showing size meters top to bottom), -snapshotLookAt x,y,z -snapshotDistance d (close-up).
     /// </summary>
@@ -60,7 +60,7 @@ namespace Eldoira.EditorTools
             System.IO.File.WriteAllBytes(outPath, tex.EncodeToPNG());
             cam.targetTexture = null;
             RenderTexture.active = null;
-            Debug.Log($"[Eldoira] Snapshot written to {outPath}");
+            Debug.Log($"[Eldoria] Snapshot written to {outPath}");
         }
     }
 }

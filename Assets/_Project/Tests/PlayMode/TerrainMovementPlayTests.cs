@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Linq;
-using Eldoira.Gameplay;
-using Eldoira.Rules;
-using Eldoira.Terrain;
+using Eldoria.Gameplay;
+using Eldoria.Rules;
+using Eldoria.Terrain;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>
     /// Movement measuring over the CubeRoom test terrain:

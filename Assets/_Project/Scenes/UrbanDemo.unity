@@ -204,7 +204,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Field Commander
   template: {fileID: 11400000, guid: ad6fdfc6580514f4492b6ae9829ce807, type: 2}
   side: 0
@@ -257,7 +257,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &14857354
 MeshRenderer:
@@ -391,7 +391,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 613f47ae93f045e44a82b6a93d2ff966, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.LeaderMarker
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.LeaderMarker
   material: {fileID: 2100000, guid: 4727a367c15b3324caf89d459f73536e, type: 2}
   heightAboveHead: 0.45
   size: 0.22
@@ -406,7 +406,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Infantry Squad 1 (Enemy)
   template: {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
   side: 1
@@ -468,7 +468,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -730,7 +730,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &64133833
 GameObject:
   m_ObjectHideFlags: 0
@@ -777,7 +777,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &64133836
 MeshRenderer:
@@ -903,7 +903,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &71920007
 MeshRenderer:
@@ -1071,7 +1071,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &77224804
 GameObject:
   m_ObjectHideFlags: 0
@@ -1118,7 +1118,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Shipping Container
   providesCover: 1
   canMantle: 0
@@ -1252,7 +1252,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Planter
   providesCover: 1
   canMantle: 1
@@ -1424,7 +1424,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &83913069
 GameObject:
   m_ObjectHideFlags: 0
@@ -1471,7 +1471,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -1628,7 +1628,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!1 &125099786
 GameObject:
@@ -1676,7 +1676,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Fountain
   providesCover: 1
   canMantle: 0
@@ -1901,7 +1901,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &134413796
 MeshRenderer:
@@ -2119,7 +2119,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -2253,7 +2253,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Planter
   providesCover: 1
   canMantle: 1
@@ -2519,7 +2519,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &177683648
 GameObject:
   m_ObjectHideFlags: 0
@@ -2566,7 +2566,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &177683651
 MeshRenderer:
@@ -2692,7 +2692,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &183147935
 MeshRenderer:
@@ -2818,7 +2818,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &202140920
 MeshRenderer:
@@ -2944,7 +2944,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &207103641
 MeshRenderer:
@@ -3160,7 +3160,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &218949301
 MeshRenderer:
@@ -3361,7 +3361,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &232148342
 GameObject:
   m_ObjectHideFlags: 0
@@ -3416,7 +3416,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!1 &238467378
 GameObject:
@@ -3464,7 +3464,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -3640,7 +3640,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &259279120
 GameObject:
   m_ObjectHideFlags: 0
@@ -3687,7 +3687,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &259279123
 MeshRenderer:
@@ -3851,7 +3851,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &268873485
 GameObject:
   m_ObjectHideFlags: 0
@@ -3898,7 +3898,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &268873488
 MeshRenderer:
@@ -4024,7 +4024,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &277765682
 MeshRenderer:
@@ -4185,7 +4185,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &287572500
 MeshRenderer:
@@ -4311,7 +4311,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &322523688
 MeshRenderer:
@@ -4437,7 +4437,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -4571,7 +4571,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 4
 --- !u!23 &331741829
 MeshRenderer:
@@ -4697,7 +4697,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &333614012
 MeshRenderer:
@@ -4823,7 +4823,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &333917198
 MeshRenderer:
@@ -4932,7 +4932,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 49e65ae8da747d643a39f4105a85cdab, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.BattlefieldNavigation
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.BattlefieldNavigation
   boardSize: {x: 80, y: 60}
 --- !u!114 &334202152
 MonoBehaviour:
@@ -5033,7 +5033,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &343187991
 MeshRenderer:
@@ -5159,7 +5159,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -5293,7 +5293,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &364304287
 MeshRenderer:
@@ -5516,7 +5516,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Counter
   providesCover: 1
   canMantle: 1
@@ -5650,7 +5650,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &432090489
 MeshRenderer:
@@ -5776,7 +5776,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &437645047
 MeshRenderer:
@@ -5944,7 +5944,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &449803239
 GameObject:
   m_ObjectHideFlags: 0
@@ -5991,7 +5991,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -6163,7 +6163,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &474650109
 GameObject:
   m_ObjectHideFlags: 0
@@ -6210,7 +6210,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Planter
   providesCover: 1
   canMantle: 1
@@ -6344,7 +6344,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &483214750
 MeshRenderer:
@@ -6470,7 +6470,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &487974346
 MeshRenderer:
@@ -6596,7 +6596,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Low Wall
   providesCover: 1
   canMantle: 1
@@ -6730,7 +6730,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -6864,7 +6864,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &529263702
 MeshRenderer:
@@ -6990,7 +6990,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &569153856
 MeshRenderer:
@@ -7114,7 +7114,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Field Commander (Enemy)
   template: {fileID: 11400000, guid: ad6fdfc6580514f4492b6ae9829ce807, type: 2}
   side: 1
@@ -7167,7 +7167,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &588830175
 MeshRenderer:
@@ -7326,7 +7326,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 0
 --- !u!64 &598354111
 MeshCollider:
@@ -7495,7 +7495,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &610208530
 GameObject:
   m_ObjectHideFlags: 0
@@ -7542,7 +7542,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -7714,7 +7714,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &629750036
 GameObject:
   m_ObjectHideFlags: 0
@@ -7761,7 +7761,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &629750039
 MeshRenderer:
@@ -7933,7 +7933,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &633815208
 GameObject:
   m_ObjectHideFlags: 0
@@ -7980,7 +7980,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -8114,7 +8114,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -8286,7 +8286,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &656407998
 GameObject:
   m_ObjectHideFlags: 0
@@ -8333,7 +8333,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Car
   providesCover: 1
   canMantle: 0
@@ -8505,7 +8505,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &666444756
 GameObject:
   m_ObjectHideFlags: 0
@@ -8552,7 +8552,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &666444759
 MeshRenderer:
@@ -8768,7 +8768,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 4
 --- !u!23 &675791330
 MeshRenderer:
@@ -8894,7 +8894,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &702916345
 MeshRenderer:
@@ -9062,7 +9062,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &730878765
 GameObject:
   m_ObjectHideFlags: 0
@@ -9117,7 +9117,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!1 &735110574
 GameObject:
@@ -9165,7 +9165,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &735110577
 MeshRenderer:
@@ -9291,7 +9291,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &736519781
 MeshRenderer:
@@ -9417,7 +9417,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Counter
   providesCover: 1
   canMantle: 1
@@ -9551,7 +9551,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &742835984
 MeshRenderer:
@@ -9715,7 +9715,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &744986957
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9808,7 +9808,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &753911710
 GameObject:
   m_ObjectHideFlags: 0
@@ -9855,7 +9855,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Car
   providesCover: 1
   canMantle: 0
@@ -10027,7 +10027,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &765972785
 GameObject:
   m_ObjectHideFlags: 0
@@ -10074,7 +10074,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &765972788
 MeshRenderer:
@@ -10200,7 +10200,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -10376,7 +10376,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &787260640
 GameObject:
   m_ObjectHideFlags: 0
@@ -10423,7 +10423,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &787260643
 MeshRenderer:
@@ -10591,7 +10591,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &789433826
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10680,7 +10680,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &789628966
 GameObject:
   m_ObjectHideFlags: 0
@@ -10727,7 +10727,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &789628969
 MeshRenderer:
@@ -10891,7 +10891,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &791721982
 GameObject:
   m_ObjectHideFlags: 0
@@ -10956,7 +10956,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!1 &799150768
 GameObject:
@@ -11004,7 +11004,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -11138,7 +11138,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Low Wall
   providesCover: 1
   canMantle: 1
@@ -11272,7 +11272,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -11406,7 +11406,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Rubble
   providesCover: 1
   canMantle: 1
@@ -11540,7 +11540,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &828453263
 MeshRenderer:
@@ -11666,7 +11666,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &852751497
 MeshRenderer:
@@ -11774,7 +11774,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b76888e7d9b6b284784d9175d944d8df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Gameplay.MovementController
+  m_EditorClassIdentifier: Eldoria::Eldoria.Gameplay.MovementController
   playerSide: 0
   cam: {fileID: 154334705}
   walkSpeed: 4
@@ -11840,7 +11840,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &887570226
 MeshRenderer:
@@ -11966,7 +11966,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &889367808
 MeshRenderer:
@@ -12092,7 +12092,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Table
   providesCover: 1
   canMantle: 1
@@ -12234,7 +12234,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!1 &929519130
 GameObject:
@@ -12282,7 +12282,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &929519133
 MeshRenderer:
@@ -12408,7 +12408,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -12542,7 +12542,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &950534919
 MeshRenderer:
@@ -12668,7 +12668,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &956674251
 MeshRenderer:
@@ -12794,7 +12794,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &961476596
 MeshRenderer:
@@ -12920,7 +12920,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -13054,7 +13054,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &964564182
 MeshRenderer:
@@ -13180,7 +13180,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &970286554
 MeshRenderer:
@@ -13306,7 +13306,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &974434786
 MeshRenderer:
@@ -13432,7 +13432,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -13608,7 +13608,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &997894122
 GameObject:
   m_ObjectHideFlags: 0
@@ -13678,7 +13678,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!1 &1008538057
 GameObject:
@@ -13726,7 +13726,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1008538060
 MeshRenderer:
@@ -13980,7 +13980,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1025152712
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14069,7 +14069,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1032117512
 GameObject:
   m_ObjectHideFlags: 0
@@ -14116,7 +14116,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -14258,7 +14258,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 613f47ae93f045e44a82b6a93d2ff966, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.LeaderMarker
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.LeaderMarker
   material: {fileID: 2100000, guid: 4727a367c15b3324caf89d459f73536e, type: 2}
   heightAboveHead: 0.45
   size: 0.22
@@ -14273,7 +14273,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Infantry Squad 3 (Enemy)
   template: {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
   side: 1
@@ -14335,7 +14335,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1034543469
 MeshRenderer:
@@ -14461,7 +14461,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1038091058
 MeshRenderer:
@@ -14629,7 +14629,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1059001578
 GameObject:
   m_ObjectHideFlags: 0
@@ -14676,7 +14676,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Shipping Container
   providesCover: 1
   canMantle: 0
@@ -14810,7 +14810,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Table
   providesCover: 1
   canMantle: 1
@@ -15034,7 +15034,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Car
   providesCover: 1
   canMantle: 0
@@ -15168,7 +15168,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Rubble
   providesCover: 1
   canMantle: 1
@@ -15392,7 +15392,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1106673720
 MeshRenderer:
@@ -15518,7 +15518,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1107101529
 MeshRenderer:
@@ -15644,7 +15644,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -15776,7 +15776,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95550de98b01ad240bd2c74fec226559, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Gameplay.DeploymentZone
+  m_EditorClassIdentifier: Eldoria::Eldoria.Gameplay.DeploymentZone
   side: 1
   size: {x: 80, y: 8}
 --- !u!1 &1134892602
@@ -15825,7 +15825,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Sandbags
   providesCover: 1
   canMantle: 1
@@ -15959,7 +15959,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Car
   providesCover: 1
   canMantle: 0
@@ -16135,7 +16135,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1144747879
 GameObject:
   m_ObjectHideFlags: 0
@@ -16182,7 +16182,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1144747882
 MeshRenderer:
@@ -16306,7 +16306,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 020875d1ff2baa84bb2ffd3c963af7b4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.CameraControl.TacticalCameraController
+  m_EditorClassIdentifier: Eldoria::Eldoria.CameraControl.TacticalCameraController
   cam: {fileID: 154334705}
   panSpeed: 20
   dragPanSpeed: 0.05
@@ -16412,7 +16412,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1155264209
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16501,7 +16501,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1158632580
 GameObject:
   m_ObjectHideFlags: 0
@@ -16548,7 +16548,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1158632583
 MeshRenderer:
@@ -16764,7 +16764,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -16936,7 +16936,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1168305127
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17025,7 +17025,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1169437029
 GameObject:
   m_ObjectHideFlags: 0
@@ -17072,7 +17072,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1169437032
 MeshRenderer:
@@ -17198,7 +17198,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Sandbags
   providesCover: 1
   canMantle: 1
@@ -17332,7 +17332,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Car
   providesCover: 1
   canMantle: 0
@@ -17466,7 +17466,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1194703558
 MeshRenderer:
@@ -17592,7 +17592,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1201763471
 MeshRenderer:
@@ -17718,7 +17718,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1204461861
 MeshRenderer:
@@ -17844,7 +17844,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -18024,7 +18024,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1214982915
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18113,7 +18113,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1219443731
 GameObject:
   m_ObjectHideFlags: 0
@@ -18160,7 +18160,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1219443734
 MeshRenderer:
@@ -18286,7 +18286,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Car
   providesCover: 1
   canMantle: 0
@@ -18462,7 +18462,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1231254722
 GameObject:
   m_ObjectHideFlags: 0
@@ -18509,7 +18509,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -18681,7 +18681,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1249328106
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18766,7 +18766,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1270414152
 GameObject:
   m_ObjectHideFlags: 0
@@ -18813,7 +18813,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1270414155
 MeshRenderer:
@@ -18939,7 +18939,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Sandbags
   providesCover: 1
   canMantle: 1
@@ -19073,7 +19073,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1276335714
 MeshRenderer:
@@ -19199,7 +19199,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -19333,7 +19333,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1302306432
 MeshRenderer:
@@ -19459,7 +19459,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1322520572
 MeshRenderer:
@@ -19585,7 +19585,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1323411978
 MeshRenderer:
@@ -19711,7 +19711,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Low Wall
   providesCover: 1
   canMantle: 1
@@ -19845,7 +19845,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1351344827
 MeshRenderer:
@@ -19971,7 +19971,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1353338364
 MeshRenderer:
@@ -20097,7 +20097,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1366517127
 MeshRenderer:
@@ -20223,7 +20223,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Low Wall
   providesCover: 1
   canMantle: 1
@@ -20357,7 +20357,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -20489,7 +20489,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Battlefield Priest (Enemy)
   template: {fileID: 11400000, guid: e0db57d542db0444a995c947b3a426e7, type: 2}
   side: 1
@@ -20542,7 +20542,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1401744347
 MeshRenderer:
@@ -20744,7 +20744,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1441799915
 GameObject:
   m_ObjectHideFlags: 0
@@ -20791,7 +20791,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1441799918
 MeshRenderer:
@@ -20917,7 +20917,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Sandbags
   providesCover: 1
   canMantle: 1
@@ -21049,7 +21049,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Battlefield Priest
   template: {fileID: 11400000, guid: e0db57d542db0444a995c947b3a426e7, type: 2}
   side: 0
@@ -21144,7 +21144,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1498930955
 GameObject:
   m_ObjectHideFlags: 0
@@ -21191,7 +21191,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Low Wall
   providesCover: 1
   canMantle: 1
@@ -21325,7 +21325,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -21459,7 +21459,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1534368980
 MeshRenderer:
@@ -21675,7 +21675,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1547326378
 MeshRenderer:
@@ -21801,7 +21801,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1565738975
 MeshRenderer:
@@ -21927,7 +21927,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1571119700
 MeshRenderer:
@@ -22091,7 +22091,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1600986158
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22180,7 +22180,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1607044003
 GameObject:
   m_ObjectHideFlags: 0
@@ -22227,7 +22227,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1607044006
 MeshRenderer:
@@ -22533,7 +22533,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -22675,7 +22675,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 613f47ae93f045e44a82b6a93d2ff966, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.LeaderMarker
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.LeaderMarker
   material: {fileID: 2100000, guid: 4727a367c15b3324caf89d459f73536e, type: 2}
   heightAboveHead: 0.45
   size: 0.22
@@ -22690,7 +22690,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Infantry Squad 1
   template: {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
   side: 0
@@ -22794,7 +22794,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1637304499
 GameObject:
   m_ObjectHideFlags: 0
@@ -22841,7 +22841,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1637304502
 MeshRenderer:
@@ -22967,7 +22967,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1664712242
 MeshRenderer:
@@ -23183,7 +23183,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1680683460
 MeshRenderer:
@@ -23309,7 +23309,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1691889585
 MeshRenderer:
@@ -23473,7 +23473,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1702554976
 GameObject:
   m_ObjectHideFlags: 0
@@ -23520,7 +23520,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Car
   providesCover: 1
   canMantle: 0
@@ -23662,7 +23662,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!1 &1703991546
 GameObject:
@@ -23710,7 +23710,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1703991549
 MeshRenderer:
@@ -23836,7 +23836,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1725446428
 MeshRenderer:
@@ -24014,7 +24014,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -24186,7 +24186,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1745112814
 GameObject:
   m_ObjectHideFlags: 0
@@ -24233,7 +24233,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Rubble
   providesCover: 1
   canMantle: 1
@@ -24405,7 +24405,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1750069627
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24490,7 +24490,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1751451707
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24579,7 +24579,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1758823680
 GameObject:
   m_ObjectHideFlags: 0
@@ -24624,7 +24624,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95550de98b01ad240bd2c74fec226559, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Gameplay.DeploymentZone
+  m_EditorClassIdentifier: Eldoria::Eldoria.Gameplay.DeploymentZone
   side: 0
   size: {x: 80, y: 8}
 --- !u!1 &1760673717
@@ -24725,7 +24725,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1764069692
 MeshRenderer:
@@ -24924,7 +24924,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1779091194
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25013,7 +25013,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1781307446
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25102,7 +25102,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1786379143
 GameObject:
   m_ObjectHideFlags: 0
@@ -25149,7 +25149,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -25283,7 +25283,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1792756741
 MeshRenderer:
@@ -25409,7 +25409,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -25581,7 +25581,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1825556800
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25670,7 +25670,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1833182206
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25759,7 +25759,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1855359434
 GameObject:
   m_ObjectHideFlags: 0
@@ -25806,7 +25806,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1855359437
 MeshRenderer:
@@ -25932,7 +25932,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Low Wall
   providesCover: 1
   canMantle: 1
@@ -26104,7 +26104,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1888863769
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26189,7 +26189,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1889785293
 GameObject:
   m_ObjectHideFlags: 0
@@ -26236,7 +26236,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1889785296
 MeshRenderer:
@@ -26362,7 +26362,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1892523071
 MeshRenderer:
@@ -26530,7 +26530,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1903851390
 GameObject:
   m_ObjectHideFlags: 0
@@ -26577,7 +26577,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1903851393
 MeshRenderer:
@@ -26703,7 +26703,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Fountain Statue
   providesCover: 1
   canMantle: 0
@@ -26880,7 +26880,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1922061233
 GameObject:
   m_ObjectHideFlags: 0
@@ -26927,7 +26927,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1922061236
 MeshRenderer:
@@ -27053,7 +27053,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1926139807
 MeshRenderer:
@@ -27179,7 +27179,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1926599998
 MeshRenderer:
@@ -27343,7 +27343,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1933127485
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27428,7 +27428,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1001 &1935835933
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27517,7 +27517,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &1946118224
 GameObject:
   m_ObjectHideFlags: 0
@@ -27564,7 +27564,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -27698,7 +27698,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1958392503
 MeshRenderer:
@@ -27832,7 +27832,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 613f47ae93f045e44a82b6a93d2ff966, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.LeaderMarker
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.LeaderMarker
   material: {fileID: 2100000, guid: 4727a367c15b3324caf89d459f73536e, type: 2}
   heightAboveHead: 0.45
   size: 0.22
@@ -27847,7 +27847,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Infantry Squad 2 (Enemy)
   template: {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
   side: 1
@@ -27909,7 +27909,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1960459276
 MeshRenderer:
@@ -28035,7 +28035,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1961994133
 MeshRenderer:
@@ -28169,7 +28169,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 613f47ae93f045e44a82b6a93d2ff966, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.LeaderMarker
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.LeaderMarker
   material: {fileID: 2100000, guid: 4727a367c15b3324caf89d459f73536e, type: 2}
   heightAboveHead: 0.45
   size: 0.22
@@ -28184,7 +28184,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Infantry Squad 3
   template: {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
   side: 0
@@ -28246,7 +28246,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &1972426579
 MeshRenderer:
@@ -28372,7 +28372,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Sandbags
   providesCover: 1
   canMantle: 1
@@ -28524,7 +28524,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!1 &2005204631
 GameObject:
@@ -28572,7 +28572,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2005204634
 MeshRenderer:
@@ -28698,7 +28698,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Crate
   providesCover: 1
   canMantle: 1
@@ -28832,7 +28832,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2018150856
 MeshRenderer:
@@ -28996,7 +28996,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &2020916998
 GameObject:
   m_ObjectHideFlags: 0
@@ -29043,7 +29043,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Car
   providesCover: 1
   canMantle: 0
@@ -29219,7 +29219,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &2041556950
 GameObject:
   m_ObjectHideFlags: 0
@@ -29274,7 +29274,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 613f47ae93f045e44a82b6a93d2ff966, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.LeaderMarker
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.LeaderMarker
   material: {fileID: 2100000, guid: 4727a367c15b3324caf89d459f73536e, type: 2}
   heightAboveHead: 0.45
   size: 0.22
@@ -29289,7 +29289,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b5c15802009f643ad82f2cbe719602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Unit
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Unit
   displayName: Infantry Squad 2
   template: {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
   side: 0
@@ -29389,7 +29389,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &2060384980
 GameObject:
   m_ObjectHideFlags: 0
@@ -29436,7 +29436,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Sandbags
   providesCover: 1
   canMantle: 1
@@ -29570,7 +29570,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Rubble
   providesCover: 1
   canMantle: 1
@@ -29746,7 +29746,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &2083816296
 GameObject:
   m_ObjectHideFlags: 0
@@ -29793,7 +29793,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2083816299
 MeshRenderer:
@@ -29919,7 +29919,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2095871384
 MeshRenderer:
@@ -30045,7 +30045,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Window Sill
   providesCover: 1
   canMantle: 1
@@ -30179,7 +30179,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2099405765
 MeshRenderer:
@@ -30305,7 +30305,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2099766782
 MeshRenderer:
@@ -30431,7 +30431,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2106204103
 MeshRenderer:
@@ -30557,7 +30557,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8985bc774fb86f24a894824e06b822b7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.TerrainObject
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.TerrainObject
   displayName: Planter
   providesCover: 1
   canMantle: 1
@@ -30691,7 +30691,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2123511561
 MeshRenderer:
@@ -30855,7 +30855,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba830f8a6276f3b46afdb6f59cfc54f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Units.Soldier
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Soldier
 --- !u!1 &2134687723
 GameObject:
   m_ObjectHideFlags: 0
@@ -30902,7 +30902,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2134687726
 MeshRenderer:
@@ -31028,7 +31028,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2135653578
 MeshRenderer:
@@ -31154,7 +31154,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 60a12affc64b1474e9c4ee3af8674dc6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Eldoira::Eldoira.Terrain.StructureTerrain
+  m_EditorClassIdentifier: Eldoria::Eldoria.Terrain.StructureTerrain
   kind: 3
 --- !u!23 &2142398116
 MeshRenderer:

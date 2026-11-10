@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Rules;
-using Eldoira.Terrain;
-using Eldoira.Units;
+using Eldoria.Rules;
+using Eldoria.Terrain;
+using Eldoria.Units;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 
-namespace Eldoira.Tests
+namespace Eldoria.Tests
 {
     /// <summary>
     /// Close range: a Biological soldier with a Biological enemy less than 2 m away can only use Pistol weapons;

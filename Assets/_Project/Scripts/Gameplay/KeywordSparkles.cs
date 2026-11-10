@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Eldoira.Units;
+using Eldoria.Units;
 using UnityEngine;
 
-namespace Eldoira.Gameplay
+namespace Eldoria.Gameplay
 {
     /// <summary>
     /// Visual only: soldiers who have a keyword marked "sparkles" (e.g. Divine Sanctuary) glitter with sparkles of that
