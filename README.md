@@ -58,8 +58,8 @@ At a glance:
 
 - **Units, not individual soldiers.** A unit's leader moves first (normal move, or sprint for double), and everyone else
   must end within 5 m of them. If the leader dies, another soldier *in the same unit* takes over.
-- **Shooting is the unit's action** and ends its turn. Every soldier picks the closest enemy it can hit in the target
-  unit. The dead are removed when the volley ends.
+- **Shooting is the unit's action** and ends its turn. Soldiers spread their fire across the target unit: each picks
+  an enemy nobody else is aiming at if it can (the closest first), and only doubles up once every target is covered. The dead are removed when the volley ends.
 - **Cover matters.** Half-cover costs the shooter 25% accuracy. A Full-cover object between shooter and target blocks the
   shot entirely.
 - **Keywords drive the interactions**, such as Biological, Toxic, Incendiary, Deployed, Solo, Spell and Sniper Precision.

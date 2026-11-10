@@ -98,14 +98,55 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void SeveralSoldiersCanPickTheSameTarget()
+        public void SeveralSoldiersPickTheSameTargetWhenItsTheOnlyOne()
         {
             var us = MakeUnit("Us", Side.Player, shooterT, new Vector3(-1, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 0, 0));
-            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(0, 0, 30));
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10));
 
             var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
             Assert.That(r.Shots.All(s => s.Target == them.Soldiers[0]), Is.True);
             Assert.That(them.Soldiers[0].Health, Is.EqualTo(10 - 3 * 2));
+        }
+
+        // ---- Spreading fire: a target nobody is aiming at first, then one with 1 shooter, then 2... ----
+
+        [Test]
+        public void SoldiersPickATargetNobodyElseIsAimingAt()
+        {
+            // All three shooters are closest to the same enemy, but each picks a different one.
+            var us = MakeUnit("Us", Side.Player, shooterT, new Vector3(-1, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 0, 0));
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(0, 0, 20), new Vector3(0, 0, 30));
+
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(r.Shots.Select(s => s.Target), Is.EquivalentTo(them.Soldiers), "one shooter on each enemy");
+            Assert.That(r.Shots[0].Target, Is.EqualTo(them.Soldiers[0]), "the first picks the closest");
+            Assert.That(r.Shots[1].Target, Is.EqualTo(them.Soldiers[1]), "the next picks the closest nobody is aiming at");
+            Assert.That(r.Shots[2].Target, Is.EqualTo(them.Soldiers[2]));
+        }
+
+        [Test]
+        public void WhenEveryTargetIsTakenTheyPickOneWithTheFewestShooters()
+        {
+            // 5 shooters, 2 enemies: 1st → near, 2nd → far, 3rd → near (both have 1; near is closer), 4th → far, 5th → near.
+            var us = MakeUnit("Us", Side.Player, shooterT, new Vector3(-2, 0, 0), new Vector3(-1, 0, 0), new Vector3(0, 0, 0),
+                new Vector3(1, 0, 0), new Vector3(2, 0, 0));
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(0, 0, 30));
+
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(r.Shots.Select(s => s.Target), Is.EqualTo(new[]
+                { them.Soldiers[0], them.Soldiers[1], them.Soldiers[0], them.Soldiers[1], them.Soldiers[0] }));
+        }
+
+        [Test]
+        public void OnlyValidTargetsCountWhenSpreadingFire()
+        {
+            // The far enemy is out of the rifle's range, so both shooters pick the near one.
+            rifleT.range = 20f;
+            var us = MakeUnit("Us", Side.Player, shooterT, new Vector3(-1, 0, 0), new Vector3(1, 0, 0));
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(0, 0, 40));
+
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(r.Shots.All(s => s.Target == them.Soldiers[0]), Is.True);
         }
 
         [Test]
@@ -284,12 +325,13 @@ namespace Eldoria.Tests
         public void SoldiersShootTheTargetTheyPickedEvenIfItDiedFirst()
         {
             targetT.health = 2; // one rifle hit kills
+            rifleT.range = 20f; // the far soldier is out of range, so both pick the near one
             var us = MakeUnit("Us", Side.Player, shooterT, new Vector3(-0.5f, 0, 0), new Vector3(0.5f, 0, 0));
             var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(0, 0, 40));
 
             var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
             Assert.That(r.Kills, Is.EqualTo(1));
-            Assert.That(r.Shots.All(s => s.Target == them.Soldiers[0]), Is.True, "both picked the closest soldier");
+            Assert.That(r.Shots.All(s => s.Target == them.Soldiers[0]), Is.True, "both picked the only soldier in range");
             var second = r.Shots[1];
             Assert.That(second.TargetAlreadyDown, Is.True);
             Assert.That(second.Attack, Is.Not.Null, "the shot is still made");

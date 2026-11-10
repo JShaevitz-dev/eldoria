@@ -162,14 +162,18 @@ namespace Eldoria.Rules
             if (result.ObjectsInLineOfSight.Count > 0)
                 result.Log.Add("In the line of sight: " + string.Join(", ", result.ObjectsInLineOfSight.Select(o => o.DisplayName).Distinct()));
 
-            // 6–7. Each soldier picks the closest enemy it can shoot. Picking fires "when targeted" triggers (an interrupt).
-            // If keywords would prevent the attack (step 7), it goes back to step 6 and tries the next closest,
-            // until it finds a target it can shoot or runs out — then it doesn't shoot this turn.
+            // 6–7. Each soldier picks, among the enemies it can shoot, the one the fewest of its unit's soldiers are already
+            // aiming at (nobody, then 1, then 2...), the closest of those first. Picking fires "when targeted" triggers
+            // (an interrupt). If keywords would prevent the attack (step 7), it goes back to step 6 and tries the next in
+            // that order, until it finds a target it can shoot or runs out — then it doesn't shoot this turn.
             var candidates = defenders.Soldiers.Where(t => t != null && t.CanBeTargeted).ToList();
             // "When targeted" fires whenever a soldier is picked — even if no attack follows — but only once per volley
             // (one attacking unit's sequence of shooting), however many of that unit's soldiers pick them.
             // Another attacking unit's volley later in the turn can trigger it again.
             var alreadyTargeted = new HashSet<Soldier>();
+            // How many of this unit's soldiers have settled on each target so far (spreading the fire).
+            var aimedAt = new Dictionary<Soldier, int>();
+            int AimedAt(Soldier t) => aimedAt.TryGetValue(t, out var n) ? n : 0;
             foreach (var shooter in shooters)
             {
                 var shot = new SoldierShot { Shooter = shooter, Weapon = shooter.WeaponFor(null) };
@@ -182,12 +186,12 @@ namespace Eldoria.Rules
                     continue;
                 }
 
-                // Normally the closest first. Sniper Precision: only the soldier the player picked - the soldier makes no
+                // Normally the least-aimed-at first, then the closest. Sniper Precision: only the soldier the player picked - the soldier makes no
                 // decision of their own (no pick, or a pick they can't shoot: no shot).
                 bool precise = shooter.HasKeyword(SniperPrecisionKeyword);
                 var order = precise
                     ? (chosenTarget != null && candidates.Contains(chosenTarget) ? new List<Soldier> { chosenTarget } : new List<Soldier>())
-                    : candidates.OrderBy(t => Measure.Between(shooter, t)).ToList();
+                    : candidates.OrderBy(AimedAt).ThenBy(t => Measure.Between(shooter, t)).ToList();
 
                 foreach (var t in order)
                 {
@@ -225,6 +229,7 @@ namespace Eldoria.Rules
                     result.Log.Add($"{shooter.name} has {shot.Note} and won't shoot this turn.");
                     continue;
                 }
+                aimedAt[shot.Target] = AimedAt(shot.Target) + 1;
                 shot.ObjectsInLine = ShotGeometry.ObjectsBetween(shooter.Position, shot.Target.Position);
             }
 

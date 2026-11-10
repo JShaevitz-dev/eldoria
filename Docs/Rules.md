@@ -340,7 +340,7 @@ Example: 6 damage, penetration beats armor → 9, crit → +9 = **18**. If armor
 ### Weapon range — *implemented*
 
 - A soldier can only target an enemy **within their weapon's range**, measured horizontally (exactly at the range counts). Assault Rifle **20 m**, Pistol **10 m**, SMG **10 m**, Machine Gun **20 m**, Flamethrower **10 m**, Sniper Rifle **50 m**.
-- In step 6 each soldier picks the closest enemy they can target, so enemies out of range are passed over; a soldier with no enemy in range doesn't shoot.
+- In step 6 soldiers only pick enemies they can target, so enemies out of range are passed over; a soldier with no enemy in range doesn't shoot.
 - **Indirect fire** ignores line of sight but **not** range.
 - If **none** of a unit's soldiers can target any soldier of the chosen enemy unit (out of range or out of sight), the shoot order is **refused** (error sound) and the unit's action isn't used.
 - **If no range is defined for a weapon, it has unlimited range.** (So far only the blast weapons — the Frag Grenade's and the Unstable explosion — have none; how far the grenade can be thrown is the ability's own 10 m.)
@@ -374,8 +374,8 @@ Under normal circumstances, shooting follows this order:
 3. The player **declares** the unit will shoot.
 4. The player **selects an enemy unit**.
 5. **Line of sight:** the attacking unit must be able to see the defending unit (at least one attacking soldier can see at least one defending soldier). Any **objects in the lines of sight** are noted.
-6. **Targets:** every attacking soldier picks the **closest** defending soldier they can target. Several soldiers may pick the same target. If the target has keywords **triggered by being targeted**, shooting pauses, the trigger is resolved, and shooting resumes (so its effects apply to that attack).
-7. **Prevented?** If keywords prevent the attack (e.g. a **Toxic** weapon against a target without **Biological**), the soldier **goes back to step 6** with the next-closest soldier, and repeats steps 6–7 through **every enemy soldier** it can shoot until it finds a valid target. If there is none, it **doesn't shoot this turn**. The target picked at the end of step 7 is final.
+6. **Targets:** the attacking soldiers pick one at a time, and **spread their fire**: each picks a valid target (one they can target) that **no other soldier of their unit is aiming at yet**. If every valid target is already taken, they pick one that **only 1** soldier is aiming at; if there's none, one with **2**, and so on. Among equally-aimed-at targets they pick the **closest**. So several soldiers only share a target once every valid target has someone on it. If the target has keywords **triggered by being targeted**, shooting pauses, the trigger is resolved, and shooting resumes (so its effects apply to that attack).
+7. **Prevented?** If keywords prevent the attack (e.g. a **Toxic** weapon against a target without **Biological**), the soldier **goes back to step 6** with the next soldier in that order, and repeats steps 6–7 through **every enemy soldier** it can shoot until it finds a valid target. If there is none, it **doesn't shoot this turn**. The target picked at the end of step 7 is final.
 8. **Damage** is calculated: Base Damage − keyword penalties (not below 0) + keyword bonuses.
 9. **Armor penetration** modifies that damage (×1.5 / ×1 / ×0.5 / ×0, rounded down).
 10. **Accuracy** is calculated, then the **hit roll**.
