@@ -87,8 +87,8 @@ namespace Eldoria.Rules
             if (ability.IsSpell && user.Unit != null && user.Unit.SprintedThisTurn)
                 return $"{ability.displayName} is a Spell and can't be cast after sprinting";
             // Abilities that use a weapon (e.g. Frag Grenade) follow the close range rule; magic and others don't.
-            if (ability.areaWeapon != null && !CloseRange.CanUseWeapon(user, ability.areaWeapon))
-                return $"{user.name} is in close range and can only use a pistol";
+            if (ability.areaWeapon != null && WeaponUse.WhyCannotUse(user, ability.areaWeapon) is string why)
+                return $"{user.name} can't use {ability.displayName}: {why}";
             return null;
         }
 

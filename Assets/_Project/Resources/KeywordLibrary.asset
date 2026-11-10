@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.KeywordLibrary
   keywords:
   - {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
+  - {fileID: 11400000, guid: 974b0fb37469b794db045219a44c799c, type: 2}
   - {fileID: 11400000, guid: 485f19f6957fbe6489d2fd051029a0bf, type: 2}
   - {fileID: 11400000, guid: 2cf48a8db478eeb4bbab2528702e5a8f, type: 2}
   - {fileID: 11400000, guid: 21782917989458d479c8d56a040e6877, type: 2}

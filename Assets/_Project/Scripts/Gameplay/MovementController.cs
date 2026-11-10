@@ -80,6 +80,39 @@ namespace Eldoria.Gameplay
         /// <summary>The AI is taking its turn: the player can only watch (or skip).</summary>
         public bool IsAITurn => aiTurn;
 
+        // Turn timer (optional, set on the main menu): time left in the player's current turn.
+        private float turnTimeLeft;
+        private bool timerRunning;
+
+        /// <summary>Seconds left in the player's turn, or null if the turn timer is off.</summary>
+        public float? TurnTimeLeft => timerRunning ? turnTimeLeft : (float?)null;
+
+        /// <summary>Starts the player's turn timer from the full length (if the turn timer is on).</summary>
+        public void ResetTurnTimer()
+        {
+            timerRunning = TurnTimerSettings.Enabled;
+            turnTimeLeft = TurnTimerSettings.Seconds;
+        }
+
+        /// <summary>
+        /// The player's time is up: their turn ends as if they'd pressed End turn. A unit half-way through its move
+        /// gathers its stragglers into cohesion and finishes; if it can't, its move is undone.
+        /// </summary>
+        public void TurnTimeUp()
+        {
+            timerRunning = false;
+            shootMode = false;
+            abilityMode = null;
+            if (activation != null && activation.Phase == MovePhase.MoveFollowers)
+            {
+                OrderGather();
+                if (!activation.Complete()) OrderReset();
+            }
+            Flash("Time's up! Your turn is over.");
+            CombatAudio.PlayError();
+            EndTurn();
+        }
+
         public ShootingResult LastShooting => lastShooting;
         /// <summary>The active unit has taken its action this turn (shot, or used an ability).</summary>
         public bool HasTakenAction => actionTaken;
@@ -272,6 +305,7 @@ namespace Eldoria.Gameplay
         {
             if (Victory.IsOver) return;
             Turns.StartNextTurn(); // removes keywords that wear off now, e.g. "Moved"
+            ResetTurnTimer();      // the player's turn starts now
             actionTaken = false;
             shootMode = false;
             abilityMode = null;
@@ -455,6 +489,18 @@ namespace Eldoria.Gameplay
                 if (kb != null && kb.spaceKey.wasPressedThisFrame) ai.Skip();
                 UpdateTimedVisuals();
                 return;
+            }
+
+            // The turn timer only runs during the player's turn.
+            if (timerRunning)
+            {
+                turnTimeLeft -= Time.deltaTime;
+                if (turnTimeLeft <= 0f)
+                {
+                    turnTimeLeft = 0f;
+                    TurnTimeUp();
+                    return;
+                }
             }
 
             UpdateHover(mouse);
@@ -680,10 +726,14 @@ namespace Eldoria.Gameplay
 
         private void WalkTo(Soldier m, MovePath path, bool fast)
         {
-            if (path == null) return;
+            if (path == null || path.Points.Count == 0) return;
             if (walking.TryGetValue(m, out var running) && running != null) StopCoroutine(running);
+            walkTargets[m] = path.Points[path.Points.Count - 1];
             walking[m] = StartCoroutine(WalkRoutine(m, path.Points, fast ? sprintSpeed : walkSpeed));
         }
+
+        /// <summary>Where each walking soldier is headed (they're placed there if their walk is cut short).</summary>
+        private readonly Dictionary<Soldier, Vector3> walkTargets = new Dictionary<Soldier, Vector3>();
 
         /// <summary>Walks the soldier along the route, over hills and onto objects.</summary>
         private IEnumerator WalkRoutine(Soldier m, List<Vector3> points, float speed)
@@ -703,13 +753,18 @@ namespace Eldoria.Gameplay
                 }
             }
             walking.Remove(m);
+            walkTargets.Remove(m);
         }
 
+        /// <summary>Stops every walk animation, placing each soldier at the spot their move ends (where the rules have them).</summary>
         private void StopAllWalking()
         {
             foreach (var c in walking.Values)
                 if (c != null) StopCoroutine(c);
             walking.Clear();
+            foreach (var kv in walkTargets)
+                if (kv.Key != null) kv.Key.transform.position = kv.Value;
+            walkTargets.Clear();
         }
 
         // ------------------------------------------------------------------ Showing the AI's turn
@@ -799,6 +854,12 @@ namespace Eldoria.Gameplay
             }
 
             GUILayout.Label($"{(squad != null ? squad.DisplayName : "No unit selected")}  —  Turn {Turns.Current}", title);
+            if (timerRunning)
+            {
+                var timerStyle = new GUIStyle(title);
+                timerStyle.normal.textColor = turnTimeLeft <= 60f ? new Color(1f, 0.35f, 0.3f) : Color.white;
+                GUILayout.Label($"Time left: {TurnTimerSettings.Format(turnTimeLeft)}", timerStyle);
+            }
             if (playerUnits.Count > 1 || squad == null)
             {
                 var units = playerUnits.Where(u => u != null).Select(u =>

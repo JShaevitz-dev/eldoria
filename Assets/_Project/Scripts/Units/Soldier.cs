@@ -144,16 +144,18 @@ namespace Eldoria.Units
         }
 
         /// <summary>
-        /// The weapon to shoot <paramref name="target"/> with. Normally the primary weapon. In close range only a weapon
-        /// with the Pistol keyword can be used: the primary if it is one, otherwise the soldier's first pistol, otherwise
-        /// none (null: the soldier can't shoot). Other circumstances that change weapons will hook in here too.
+        /// The weapon to shoot <paramref name="target"/> with. Normally the primary weapon; if it can't be used right now
+        /// (see <see cref="Rules.WeaponUse"/>: close range, Deployed after moving), another weapon the soldier can use;
+        /// otherwise none (null: the soldier can't shoot).
         /// </summary>
         public Weapon WeaponFor(Soldier target)
         {
+            // The primary weapon if it can be used right now; otherwise the first other weapon that can (e.g. a pistol in
+            // close range, or anything but a Deployed weapon after moving); otherwise none.
             var primary = PrimaryWeapon;
-            if (Rules.CloseRange.CanUseWeapon(this, primary)) return primary;
+            if (primary != null && Rules.WeaponUse.CanUse(this, primary)) return primary;
             foreach (var w in Weapons)
-                if (w.HasKeyword(Rules.CloseRange.PistolKeyword)) return w;
+                if (w != primary && Rules.WeaponUse.CanUse(this, w)) return w;
             return null;
         }
 

@@ -229,8 +229,28 @@ namespace Eldoria.EditorTools
             });
         }
 
-        /// <summary>Weapon ranges (meters): Assault Rifle 20, Pistol 10, SMG 10. Applied to the existing weapon assets.</summary>
-        public static readonly (string file, float range)[] WeaponRanges = { ("AssaultRifle", 20f), ("Pistol", 10f), ("SMG", 10f) };
+        /// <summary>
+        /// Machine Gun: Base Damage 6, Penetration 1, Accuracy Bonus +0, range 20 m, keyword Deployed (can't be used in a
+        /// volley if the soldier holding it has moved this turn). Not carried by anyone yet.
+        /// </summary>
+        public static WeaponTemplate EnsureMachineGun(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/MachineGun.asset", w =>
+            {
+                w.displayName = "Machine Gun";
+                w.baseDamage = 6;
+                w.hasPenetration = true;
+                w.penetration = 1;
+                w.accuracyBonus = 0;
+                w.range = 20f;
+                w.keywords = new List<Keyword> { keywords["Deployed"] };
+            });
+        }
+
+        /// <summary>Weapon ranges (meters): Assault Rifle 20, Pistol 10, SMG 10, Machine Gun 20. Applied to the existing weapon assets.</summary>
+        public static readonly (string file, float range)[] WeaponRanges =
+            { ("AssaultRifle", 20f), ("Pistol", 10f), ("SMG", 10f), ("MachineGun", 20f) };
 
         private static void ApplyWeaponRanges()
         {
@@ -269,6 +289,7 @@ namespace Eldoria.EditorTools
             var keywords = EnsureKeywords();
             var frag = EnsureFragGrenade(keywords);
             EnsureSmg();
+            EnsureMachineGun(keywords);
             ApplyWeaponRanges();
             var pistolWeapon = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
             if (pistolWeapon != null)
@@ -494,6 +515,7 @@ namespace Eldoria.EditorTools
             Kw("Magic", "Magic", KeywordTarget.Soldier, "Wields magic. No effect on its own; some weapons and abilities check for it.");
             Kw("Spell", "Spell", KeywordTarget.Ability, "A magical ability. Can't be cast by a soldier whose unit sprinted this turn.");
             Kw("Pistol", "Pistol", KeywordTarget.Weapon, "A sidearm: the only kind of weapon a soldier in close range can use.");
+            Kw("Deployed", "Deployed", KeywordTarget.Weapon, "This weapon can't be used in a volley if the soldier holding it has moved this turn.");
             Kw("InCloseRange", "In close range", KeywordTarget.Soldier,
                 "A Biological enemy is less than 2 m away: can only use weapons with the Pistol keyword (spells and other abilities still work).");
             GetOrCreate<Keyword>($"{DataDir}/Keywords/DivineSanctuary.asset", k =>
@@ -535,7 +557,7 @@ namespace Eldoria.EditorTools
             {
                 ["Biological"] = KeywordCategory.Trait, ["Robotic"] = KeywordCategory.Trait, ["Sniper"] = KeywordCategory.Trait,
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
-                ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,

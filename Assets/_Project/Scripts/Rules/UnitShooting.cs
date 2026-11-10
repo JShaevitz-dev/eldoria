@@ -143,12 +143,9 @@ namespace Eldoria.Rules
                 result.Shots.Add(shot);
                 if (shot.Weapon == null)
                 {
-                    if (CloseRange.IsInCloseRange(shooter))
-                    {
-                        shot.Note = "in close range without a pistol";
-                        result.Log.Add($"{shooter.name} is in close range and has no pistol: can't shoot.");
-                    }
-                    else shot.Note = "no weapon";
+                    var primary = shooter.PrimaryWeapon;
+                    shot.Note = primary == null ? "no weapon" : WeaponUse.WhyCannotUse(shooter, primary) ?? "no usable weapon";
+                    if (primary != null) result.Log.Add($"{shooter.name} can't shoot: {shot.Note}.");
                     continue;
                 }
 

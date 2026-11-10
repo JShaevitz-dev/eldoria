@@ -59,8 +59,11 @@ Living record of the rules decided so far. **Status** shows what the code does t
 | Assault Rifle | 4 | 1 | +0 | — | 20 m |
 | Pistol | 2 | 0 | +0 | Pistol | 10 m |
 | SMG | 4 (as the Assault Rifle) | 0 | +0 | — | 10 m (as the Pistol) |
+| Machine Gun | 6 | 1 | +0 | Deployed | 20 m |
 
-- **SMG** is defined but no soldier carries it yet.
+- **SMG** and **Machine Gun** are defined but no soldier carries them yet.
+- **Deployed** (weapon keyword, Trait): the weapon **can't be used in a volley if the soldier holding it has moved this turn** (they have the Moved status: any move this turn, even 0 m; a leader holding position and soldiers left where they stood haven't moved). Each soldier is checked on their own.
+- **Using another weapon:** a soldier who can't use their primary weapon right now (Deployed after moving, or close range without a pistol) uses another weapon they carry that they can use; if none, they don't shoot in that volley. The same goes for abilities that use a weapon.
 
 ### Field Commander
 
@@ -224,6 +227,12 @@ Test room terrain:
   - **Order:** the Field Commander first (so its aura is in place), then the infantry squads, then the other support units.
   - **Moving:** squads push toward the enemy, preferring spots in cover from which they can see enemies; they avoid close range, and avoid sprinting when it isn't worth the accuracy penalty. Support units (Field Commander, Battlefield Priest) stay about 5 m behind their squads, in cover where they can; the priest never sprints, so it can still cast. The rest of a squad gathers into cohesion around its leader.
   - **Acting:** heal a friendly soldier missing 2+ health if it can; otherwise cast Divine Sanctuary on the friendly unit the most enemies can see; otherwise shoot the enemy unit the most of its soldiers can target; otherwise throw a grenade (once per battle) at the spot hitting the most enemies — never if it would hit its own soldiers.
+
+### Turn timer — *implemented (option)*
+
+- An optional **turn timer** limits how long the player has for each of their turns. It's set on the main menu: **off by default**, **10 minutes** by default (1–30 minutes), and remembered between sessions.
+- It counts down only during the player's turn (it pauses while the AI plays) and starts again from the full length at the start of each of their turns. The HUD shows the time left (red in the last minute).
+- **When time runs out, the player's turn ends** as if they'd pressed End turn. A unit half-way through its move gathers its stragglers into cohesion and finishes the move; if it can't, its move is undone.
 
 ## Winning — *implemented*
 
