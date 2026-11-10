@@ -20,6 +20,8 @@ namespace Eldoria.AI
     {
         public AIActionKind Kind;
         public Unit ShootAt;
+        /// <summary>For units with Sniper Precision soldiers: the enemy soldier they shoot.</summary>
+        public Soldier ShootAtSoldier;
         public Ability Ability;
         public Soldier User;
         public Soldier TargetSoldier;
@@ -40,7 +42,8 @@ namespace Eldoria.AI
     ///     priest never sprints, so it can still cast.
     ///  2. Acts: heals a wounded friendly soldier (2+ health missing) if it can; otherwise blesses a friendly unit that
     ///     enemies can see with a unit buff (Divine Sanctuary: it lasts until the AI's next turn, so through the player's);
-    ///     otherwise shoots the enemy unit the most of its soldiers can target; otherwise throws a grenade (once per
+    ///     otherwise shoots the enemy unit the most of its soldiers can target (a sniper picks a soldier: Solo soldiers and
+    ///     sergeants first, otherwise the closest); otherwise throws a grenade (once per
     ///     battle) at a spot hitting enemies but no friends.
     /// </summary>
     public static class AIPlanner
@@ -156,7 +159,7 @@ namespace Eldoria.AI
                 foreach (var k in obj.Keywords)
                 {
                     if (k == null || k.grantsNearby == null) continue;
-                    if (obj.HorizontalDistanceTo(at) > k.grantRadius) continue;
+                    if (!k.grantsWhenBetween && obj.HorizontalDistanceTo(at) > k.grantRadius) continue;
                     if (!ShotGeometry.Crosses(enemy.Position, at, obj)) continue;
                     best = Mathf.Max(best, k.grantsNearby.Is("In full cover") ? 2 : 1);
                 }
@@ -189,9 +192,27 @@ namespace Eldoria.AI
             var buff = ChooseUnitBuff(unit);
             if (buff != null) return buff;
 
+            // A unit that only has Sniper Precision soldiers (e.g. the Sniper) shoots a soldier, not a unit: pick the
+            // soldier from every enemy unit, then shoot at their unit.
+            if (unit.LivingSoldiers.All(s => s.HasKeyword(UnitShooting.SniperPrecisionKeyword)))
+            {
+                var pick = ChooseSniperTarget(unit, null);
+                return pick == null
+                    ? new AIAction { Kind = AIActionKind.None, Reason = "no valid target for its sniper" }
+                    : new AIAction
+                    {
+                        Kind = AIActionKind.Shoot, ShootAt = pick.Unit, ShootAtSoldier = pick,
+                        Reason = $"sniper picks {pick.name}{(IsValuableTarget(pick) ? " (a valuable target)" : "")}"
+                    };
+            }
+
             var shoot = ChooseShootTarget(unit, out int shooters);
             if (shoot != null)
-                return new AIAction { Kind = AIActionKind.Shoot, ShootAt = shoot, Reason = $"{shooters} soldier(s) can target {shoot.DisplayName}" };
+                return new AIAction
+                {
+                    Kind = AIActionKind.Shoot, ShootAt = shoot, ShootAtSoldier = ChooseSniperTarget(unit, shoot),
+                    Reason = $"{shooters} soldier(s) can target {shoot.DisplayName}"
+                };
 
             var grenade = ChooseAreaAttack(unit);
             if (grenade != null) return grenade;
@@ -254,6 +275,34 @@ namespace Eldoria.AI
             return null;
         }
 
+        /// <summary>
+        /// The enemy soldier the unit's Sniper Precision soldiers shoot (null if it has none, or nothing to shoot).
+        /// Valuable targets first - soldiers with the Solo keyword, or sergeants - the closest of them; otherwise the
+        /// closest soldier the sniper can target. <paramref name="enemy"/>: only soldiers of that unit (a mixed unit shooting
+        /// at it); null: any enemy soldier (a unit of snipers).
+        /// </summary>
+        public static Soldier ChooseSniperTarget(Unit unit, Unit enemy)
+        {
+            var sniper = unit.LivingSoldiers.FirstOrDefault(s => s.HasKeyword(UnitShooting.SniperPrecisionKeyword) && s.WeaponFor(null) != null);
+            if (sniper == null) return null;
+            var weapon = sniper.WeaponFor(null);
+            var pool = enemy != null
+                ? enemy.LivingSoldiers
+                : Object.FindObjectsByType<Soldier>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                    .Where(t => t.IsAlive && t.Unit != null && t.Unit.Side != unit.Side);
+            return pool.Where(t => UnitShooting.IsValidTarget(sniper, weapon, t))
+                .OrderBy(t => IsValuableTarget(t) ? 0 : 1)
+                .ThenBy(t => Measure.Between(sniper, t))
+                .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// A target the AI's snipers prefer: a soldier with the Solo keyword, or a sergeant (a sergeant soldier type, e.g.
+        /// "Sergeant" or "Sergeant in Powered Armor"; a trooper who has taken over command doesn't count).
+        /// </summary>
+        public static bool IsValuableTarget(Soldier s) =>
+            s.HasKeyword("Solo") || (s.Template != null && s.Template.displayName.Contains("Sergeant"));
+
         /// <summary>The enemy unit the most of this unit's soldiers can target (ties: the nearest). Null if none.</summary>
         public static Unit ChooseShootTarget(Unit unit, out int shooters)
         {
@@ -269,7 +318,7 @@ namespace Eldoria.AI
                 {
                     var weapon = s.WeaponFor(null);
                     if (weapon == null) continue;
-                    if (enemy.LivingSoldiers.Any(t => Attack.CanTarget(s, weapon, t) && !KeywordRules.Evaluate(s, weapon, t).NoEffect)) count++;
+                    if (enemy.LivingSoldiers.Any(t => UnitShooting.IsValidTarget(s, weapon, t))) count++;
                 }
                 if (count == 0) continue;
                 float dist = enemy.LivingSoldiers.Min(t => Measure.Horizontal(t.Position, unit.Leader != null ? unit.Leader.Position : t.Position));

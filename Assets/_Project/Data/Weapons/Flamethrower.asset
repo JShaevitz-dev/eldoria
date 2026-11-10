@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dbfc63585eb20f49a138553c8d769aa, type: 3}
+  m_Name: Flamethrower
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.WeaponTemplate
+  displayName: Flamethrower
+  baseDamage: 10
+  hasPenetration: 0
+  penetration: 0
+  range: 10
+  accuracyBonus: 0
+  keywords:
+  - {fileID: 11400000, guid: f2ced8a947c9740489e0ef319d5333cf, type: 2}
+  - {fileID: 11400000, guid: 2ab6be3cef3ec9b4eafa9ab24e5f4c93, type: 2}

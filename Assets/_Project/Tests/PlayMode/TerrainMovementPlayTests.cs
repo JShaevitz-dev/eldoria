@@ -235,7 +235,7 @@ namespace Eldoria.Tests
 
             // Enemies right behind the container (from the squad's side) are in full cover and aren't picked.
             foreach (var shot in r.Shots.Where(s => s.Target != null))
-                Assert.That(shot.Target.HasKeyword("In full cover") && ShotGeometry.Crosses(shot.Shooter.Position, shot.Target.Position,
+                Assert.That(ShotGeometry.Crosses(shot.Shooter.Position, shot.Target.Position,
                     Object.FindObjectsByType<TerrainObject>(FindObjectsSortMode.None).First(o => o.DisplayName == "Shipping Container")), Is.False);
         }
 

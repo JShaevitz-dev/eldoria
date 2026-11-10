@@ -55,6 +55,7 @@ namespace Eldoria.Tests
             });
             fullCover = Kw("Full-cover");
             fullCover.grantsNearby = inFullCover;
+            fullCover.grantsWhenBetween = true;
 
             mortarT = Make<WeaponTemplate>();
             mortarT.displayName = "Mortar";

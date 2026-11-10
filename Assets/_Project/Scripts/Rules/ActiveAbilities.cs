@@ -193,56 +193,13 @@ namespace Eldoria.Rules
         /// </summary>
         private static void AreaAttack(Soldier user, Ability ability, Vector3 point, AbilityResult result)
         {
-            var weapon = new Weapon(ability.areaWeapon);
-            var inRadius = Object.FindObjectsByType<Soldier>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
-                .Where(s => s.IsAlive && Measure.ToPoint(s, point) <= ability.areaRadius + Epsilon)
-                .OrderBy(s => Measure.ToPoint(s, point))
-                .ToList();
-            // The blast can't go through terrain: soldiers with an object or structure between them and it are untouched.
-            var caught = new List<Soldier>();
-            foreach (var s in inRadius)
-            {
-                if (BlastCheck.Reaches(point, s)) caught.Add(s);
-                else
-                {
-                    result.Shielded.Add(s);
-                    result.Log.Add($"  {s.name} is shielded from the blast by terrain.");
-                }
-            }
+            var blast = AreaAttacks.Resolve(user, ability.areaWeapon, point, ability.areaRadius);
+            int caught = blast.Hits.Count;
             result.Log.Add($"{user.name}'s {ability.displayName} lands {Measure.ToPoint(user, point):0.0} m away: " +
-                           (caught.Count == 0 ? "no one is caught in the blast." : $"{caught.Count} caught in the blast."));
-
-            Casualties.BeginVolley();
-            try
-            {
-                foreach (var s in caught)
-                {
-                    var keywords = KeywordRules.Evaluate(user, weapon, s);
-                    if (keywords.NoEffect)
-                    {
-                        result.AreaHits.Add((s, 0));
-                        result.Log.Add($"  {s.name}: no effect ({string.Join("; ", keywords.Applied)}).");
-                        continue;
-                    }
-                    int finalDamage = Attack.FinalDamage(weapon.BaseDamage, keywords);
-                    int armor = Attack.ArmorAgainst(s, keywords);
-                    var pen = ArmorPenetration.Resolve(finalDamage, weapon.PenetrationValue, armor);
-                    result.AreaHits.Add((s, pen.Damage));
-                    if (pen.Damage > 0)
-                    {
-                        s.TakeDamage(pen.Damage);
-                        result.Log.Add($"  {s.name} takes {pen.Damage} ({finalDamage} vs armor {armor}){(s.IsAlive ? "" : " and is down")}.");
-                        result.Log.AddRange(KeywordTriggers.Fire(TriggerEvent.Damaged, s, user));
-                    }
-                    else result.Log.Add($"  {s.name}: armor stops it.");
-                }
-            }
-            finally
-            {
-                var removed = Casualties.EndVolley();
-                if (removed.Count > 0)
-                    result.Log.Add("Removed from the battlefield: " + string.Join(", ", removed.Where(r => r != null).Select(r => r.name)) + ".");
-            }
+                           (caught == 0 ? "no one is caught in the blast." : $"{caught} caught in the blast."));
+            result.Log.AddRange(blast.Log);
+            result.AreaHits.AddRange(blast.Hits);
+            result.Shielded.AddRange(blast.Shielded);
         }
     }
 }

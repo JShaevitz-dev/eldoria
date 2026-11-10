@@ -13,8 +13,14 @@ MonoBehaviour:
   m_Name: FullCover
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Keyword
   displayName: Full-cover
-  description: Soldiers within range gain In full cover. (Range is a placeholder.)
+  category: 0
+  description: A soldier is In full cover against any attacker this object is between,
+    however far either is from it.
   appliesTo: 3
   interactions: []
+  triggers: []
   grantsNearby: {fileID: 11400000, guid: b97acd89e47dbf9409a4cc27cd9604f6, type: 2}
   grantRadius: 5
+  grantsWhenBetween: 1
+  sparkles: 0
+  sparkleColor: {r: 1, g: 0.82, b: 0.25, a: 1}

@@ -31,7 +31,7 @@ Living record of the rules decided so far. **Status** shows what the code does t
 | Armor Level | Protection, compared against a weapon's Penetration. |
 | Accuracy | Base chance to hit, in percent. |
 | Movement range | Normal move in meters. Sprinting doubles it. |
-| Keywords | Extra properties, e.g. Sniper, Robotic. |
+| Keywords | Extra properties, e.g. Biological, Robotic. |
 
 | Weapon stat | Meaning |
 |---|---|
@@ -60,10 +60,46 @@ Living record of the rules decided so far. **Status** shows what the code does t
 | Pistol | 2 | 0 | +0 | Pistol | 10 m |
 | SMG | 4 (as the Assault Rifle) | 0 | +0 | — | 10 m (as the Pistol) |
 | Machine Gun | 6 | 1 | +0 | Deployed | 20 m |
+| Flamethrower | 10 | X (none: always 100%) | +0 | Incendiary, Unstable | 10 m |
+| Sniper Rifle | 5 | 1 | +50 | Deployed | 50 m |
 
-- **SMG** and **Machine Gun** are defined but no soldier carries them yet.
+- **SMG** and **Machine Gun** are carried by the Machine Gun Team.
+- **Flamethrower** is defined but no soldier carries it yet. The **Sniper Rifle** is carried by the Sniper.
+- **Incendiary** (weapon keyword): the weapon **only does damage to targets with the Biological keyword**. Against anything else the attack has no effect, so the soldier picks another target.
+- **Unstable** (weapon keyword): when the holder of this weapon dies, they have a **10% chance to explode**: **5 damage** (no penetration value, so always 5) to **ANY** soldier within **5 m** of the holder — friend or foe. As an explosion it can't go through object or structure terrain.
 - **Deployed** (weapon keyword, Trait): the weapon **can't be used in a volley if the soldier holding it has moved this turn** (they have the Moved status: any move this turn, even 0 m; a leader holding position and soldiers left where they stood haven't moved). Each soldier is checked on their own.
 - **Using another weapon:** a soldier who can't use their primary weapon right now (Deployed after moving, or close range without a pistol) uses another weapon they carry that they can use; if none, they don't shoot in that volley. The same goes for abilities that use a weapon.
+
+### Machine Gun Team
+
+1 **Sergeant** (leader) + 3 **Troopers** + 1 **Machine Gunner**. All soldiers are **Biological**, with the Infantry Squad's stats. **No Frag Grenade.** *(Not in the demo armies yet.)*
+
+| Soldier | Health | Armor Level | Accuracy | Movement | Weapons (primary first) |
+|---|---|---|---|---|---|
+| Sergeant | 5 | 1 | 75% | 10 m | Pistol |
+| Trooper (×3) | 5 | 1 | 75% | 10 m | SMG, Pistol |
+| Machine Gunner | 5 | 1 | 75% | 10 m | Machine Gun |
+
+- The Machine Gun is **Deployed**: the gunner can't fire it in a turn they've moved (and carries no other weapon).
+
+### Powered Armor Squad
+
+1 **Sergeant in Powered Armor** (leader) + 4 **Troopers in Powered Armor**, all with an **Assault Rifle**. All **Biological**. **No Frag Grenade.** *(Not in the demo armies yet.)*
+
+| Soldier | Health | Armor Level | Accuracy | Movement | Weapons |
+|---|---|---|---|---|---|
+| Sergeant in Powered Armor | 10 | 2 | 75% | 6 m (sprint 12 m) | Assault Rifle |
+| Trooper in Powered Armor (×4) | 10 | 2 | 75% | 6 m (sprint 12 m) | Assault Rifle |
+
+### Sniper
+
+1 **Sniper**, armed with a **Sniper Rifle** — a **solo** unit (a unit of one). *(Not in the demo armies yet.)*
+
+- With Accuracy 100% and the rifle's +50, the Sniper's shots are at **150%**: they always hit, with a **50% crit** chance. The rifle is **Deployed**: no shooting in a turn the Sniper has moved.
+
+- **Sniper Precision** (soldier keyword, Trait): when shooting with this soldier, the player picks a **specific enemy soldier** to shoot instead of an enemy unit. **The sniper makes no decision on who to shoot:** if they can't target the picked soldier (out of range or sight, in full cover, or keywords prevent it) the order is refused (error sound, no action used) and the player picks again. In a unit with other soldiers, the others shoot at the picked soldier's unit as usual.
+- **No valid targets:** if, when the unit finishes moving, none of its soldiers has a valid target anywhere, it can't shoot (the Shoot button is greyed out): it can use an ability if it has one, or do nothing. *(This applies to every unit.)*
+- **The AI's sniper** prioritizes **valuable targets**: soldiers with the **Solo** keyword or **sergeants** (a sergeant soldier type; a trooper who has taken over command doesn't count) — the closest of those it can target. Otherwise it picks the **closest** soldier it can target. A unit of snipers looks across every enemy unit; a sniper in a mixed unit picks within the unit being shot at.
 
 ### Field Commander
 
@@ -98,11 +134,11 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 
 - Weapon keywords apply whenever the weapon attacks. A soldier's keyword interactions are marked as applying **when attacking** or **when defending**.
 - Example: every living soldier has **Biological**. **Toxic** (weapon): *if the target lacks Biological → no effect*. So a Toxic weapon harms soldiers but does nothing to a tank.
-- Defined so far: **Biological**, **Toxic** (with the interaction above), **Moved**, **Half-cover**, **In half-cover** (below). **Explosive, Incendiary, Sniper, Robotic** exist with no interactions yet.
+- **Explosive** (weapon) and **Robotic** (soldier) are **trait keywords**: they do nothing by themselves and exist for other rules and keywords to check (e.g. Toxic and Incendiary check for Biological the same way).
 
 #### Keyword categories
 
-Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Sniper, Officer, Solo, Spell) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front).
+Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front).
 
 - Some traits **do nothing on their own**: **Officer** and **Solo** only matter because other weapons and abilities check for them (e.g. something that only affects Officers, or has no effect on Solo soldiers) — done with keyword interactions such as *"if the target has / lacks Officer → …"*.
 
@@ -149,15 +185,15 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - **A soldier, weapon or object can only have each keyword once.** Gaining a keyword it already has adds nothing (it can only make it last longer). Keywords with the same name count as the same keyword, and repeats are removed from templates. So a soldier near two Half-cover objects is In half-cover once, and takes the −25% once.
 - **Moved:** a soldier who moves (including a 0 m move such as climbing down) gains **Moved**; it is removed at the **start of the next turn**. Undoing a move removes it. A leader who holds position doesn't gain it.
 
-#### Terrain keywords and cover — *implemented (except the "between" check)*
+#### Terrain keywords and cover — *implemented*
 
 - **Object terrain can have keywords** too, and can gain and lose them like soldiers and weapons.
 - A keyword on an object can **grant a keyword to soldiers nearby**: every soldier within its radius (measured **horizontally from the nearest part of the object**, ignoring height) has the granted keyword. This is updated whenever a soldier moves, a move is undone, and at the start of every turn.
 - **Half-cover** (object keyword): soldiers within **5 m** gain **In half-cover**.
-- **In half-cover** (soldier keyword): an attack against this soldier takes **−25% accuracy** — **only if the object granting it is between the attacker and the target**. *Checking for obstacles between them comes later with line of sight; until then that check always passes.*
-- **Full-cover** (object keyword): soldiers within **5 m** gain **In full cover**. *(5 m is a placeholder — see open questions.)*
-- **In full cover** (soldier keyword): the soldier is fully concealed behind the cover and **cannot be targeted by a shooting attack** — again **only if the object granting it is between the attacker and the target** (same placeholder check as half-cover).
-- **Indirect fire** (weapon keyword): the attack **ignores line of sight** — so it can target soldiers **in full cover**, and cover being "between" doesn't matter — and **ignores accuracy modifiers**: it uses the soldier's Accuracy stat with no penalties or bonuses (no sprint penalty, no cover penalty, not even its own Accuracy Bonus). *Accuracy overrides (always hits / always misses) still apply — assumed, see open questions.*
+- **In half-cover** (soldier keyword): an attack against this soldier takes **−25% accuracy** — **only if the object granting it is between the attacker and the target** (see "Between" under line of sight).
+- **Full-cover** (object keyword): a soldier is **In full cover** against an attacker whenever a Full-cover object is **between the attacker and them**. **Distance doesn't matter**: how far the cover is from the shooter or from the target is irrelevant. (So it isn't a standing status on the soldier; it's worked out for each attacker.)
+- **In full cover**: the soldier is fully concealed and **cannot be targeted by a shooting attack**.
+- **Indirect fire** (weapon keyword): the attack **ignores line of sight** — so it can target soldiers **in full cover**, and cover being "between" doesn't matter — and **ignores accuracy modifiers**: it uses the soldier's Accuracy stat with no penalties or bonuses (no sprint penalty, no cover penalty, not even its own Accuracy Bonus). **Accuracy overrides (always hits / always misses) still apply.**
 - Interactions can now use the condition **Always** (apply whenever the keyword is involved), e.g. In half-cover's penalty.
 - Test room: a **Barricade** (wood, mantleable) with Half-cover sits near the squad's right flank.
 
@@ -226,7 +262,7 @@ Test room terrain:
 - **How the AI plays** (it uses the same rules as the player):
   - **Order:** the Field Commander first (so its aura is in place), then the infantry squads, then the other support units.
   - **Moving:** squads push toward the enemy, preferring spots in cover from which they can see enemies; they avoid close range, and avoid sprinting when it isn't worth the accuracy penalty. Support units (Field Commander, Battlefield Priest) stay about 5 m behind their squads, in cover where they can; the priest never sprints, so it can still cast. The rest of a squad gathers into cohesion around its leader.
-  - **Acting:** heal a friendly soldier missing 2+ health if it can; otherwise cast Divine Sanctuary on the friendly unit the most enemies can see; otherwise shoot the enemy unit the most of its soldiers can target; otherwise throw a grenade (once per battle) at the spot hitting the most enemies — never if it would hit its own soldiers.
+  - **Acting:** heal a friendly soldier missing 2+ health if it can; otherwise cast Divine Sanctuary on the friendly unit the most enemies can see; otherwise shoot the enemy unit the most of its soldiers can target (a sniper picks a soldier: Solo soldiers and sergeants first, otherwise the closest); otherwise throw a grenade (once per battle) at the spot hitting the most enemies — never if it would hit its own soldiers.
 
 ### Turn timer — *implemented (option)*
 
@@ -301,17 +337,13 @@ A miss can never crit.
 
 Example: 6 damage, penetration beats armor → 9, crit → +9 = **18**. If armor blocks the attack (0 damage), a crit adds nothing.
 
-### Other shooting rules — *not yet implemented*
-
-- *(Cover, line of sight and range are now implemented — see above.)*
-
 ### Weapon range — *implemented*
 
-- A soldier can only target an enemy **within their weapon's range**, measured horizontally (exactly at the range counts). Assault Rifle **20 m**, Pistol **10 m**, SMG **10 m**.
+- A soldier can only target an enemy **within their weapon's range**, measured horizontally (exactly at the range counts). Assault Rifle **20 m**, Pistol **10 m**, SMG **10 m**, Machine Gun **20 m**, Flamethrower **10 m**, Sniper Rifle **50 m**.
 - In step 6 each soldier picks the closest enemy they can target, so enemies out of range are passed over; a soldier with no enemy in range doesn't shoot.
 - **Indirect fire** ignores line of sight but **not** range.
 - If **none** of a unit's soldiers can target any soldier of the chosen enemy unit (out of range or out of sight), the shoot order is **refused** (error sound) and the unit's action isn't used.
-- **If no range is defined for a weapon, it has unlimited range.** (So far only the Frag Grenade's blast weapon has none; how far the grenade can be thrown is the ability's own 10 m.)
+- **If no range is defined for a weapon, it has unlimited range.** (So far only the blast weapons — the Frag Grenade's and the Unstable explosion — have none; how far the grenade can be thrown is the ability's own 10 m.)
 - In shoot mode a red ring shows the unit leader's weapon range.
 
 ### Close range — *implemented*
@@ -355,8 +387,9 @@ Details:
 
 - **Line of sight:** a soldier can see a target if no **structure** (building walls, hill crests, platforms) blocks the line from their eyes to the target's chest or head. **Objects don't block sight** — they give cover through their keywords.
 - **"Between"** for cover: an object is between attacker and target if the line between them, seen from above, passes through the object. (This now drives Half-cover and Full cover.)
-- A target **can't be picked** if it's out of sight or in full cover behind its cover — unless the weapon ignores line of sight (Indirect fire).
-- **Keyword triggers** (on keyword assets): *when Targeted / when Damaged → Self / Attacker gains / loses keyword X* (optionally until the next turn). Coded abilities can hook the same moments.
+- A target **can't be picked** if it's out of sight or a Full-cover object is between it and the shooter (at any distance) — unless the weapon ignores line of sight (Indirect fire).
+- **Keyword triggers** (on keyword assets): *when Targeted / when Damaged / when Killed → Self / Attacker gains / loses keyword X* (optionally until the next turn), or *→ explode* (an area attack centred on the soldier). A trigger can have a **chance** (e.g. 10%), rolled each time. The keywords checked are the soldier's own **and those of the weapons they carry**. Coded abilities can hook the same moments.
+- **On death:** whenever a soldier is killed — by shooting, a grenade, an explosion or anything else — their "on death" triggers are checked at once. Anyone killed by them (e.g. by an explosion) is removed afterwards, and their own on-death triggers are checked too (chain reactions).
 - **Shooting is the unit's action** and ends its turn. A unit may shoot without moving (its leader then counts as holding position).
 - **Primary weapon:** every soldier template designates one weapon as its **primary weapon**, used to shoot under normal conditions (the demo squad's is the Assault Rifle). Circumstances can make a soldier use an alternative weapon: so far, **close range** (a Pistol only).
 - **The dead:** a soldier killed during a round of shooting (one attacking unit's volley) stays on the battlefield **until that round of shooting ends** — so soldiers of that unit who already picked them still shoot at them (step 12). When the round ends, the dead are **removed from their unit and the battlefield**: a **second attacking unit can't target them**, even in the same turn. A soldier killed outside shooting is removed at once.
@@ -364,6 +397,4 @@ Details:
 
 ## Open questions
 
-- Full cover: how close to the cover must a soldier be to count as concealed (currently 5 m, like half-cover)? Or is it purely a line-of-sight question?
-- Indirect fire: do accuracy **overrides** (e.g. "always misses" from being blinded) still apply? (Currently yes.)
-- Next to design: what Explosive, Incendiary, Sniper and Robotic do.
+- *(None right now.)*

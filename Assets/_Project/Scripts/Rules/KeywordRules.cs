@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Eldoria.Units;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Eldoria.Rules
 {
@@ -51,8 +52,29 @@ namespace Eldoria.Rules
     {
         public static KeywordOutcome Evaluate(Soldier attacker, Weapon weapon, Soldier target)
         {
-            return Evaluate(attacker != null ? attacker.Keywords : null, weapon?.Keywords, target != null ? target.Keywords : null,
-                attacker, target);
+            IReadOnlyList<Keyword> targetKeywords = target != null ? target.Keywords : null;
+            var between = GrantedByObjectsBetween(attacker, target);
+            if (between.Count > 0)
+                targetKeywords = targetKeywords.Concat(between.Where(k => !Keyword.Contains(targetKeywords, k.displayName))).ToList();
+            return Evaluate(attacker != null ? attacker.Keywords : null, weapon?.Keywords, targetKeywords, attacker, target);
+        }
+
+        /// <summary>
+        /// Keywords the target has for this attack only, from terrain objects between the attacker and the target whose keyword
+        /// grants "when between" (e.g. Full-cover gives In full cover), however far the object is from either of them.
+        /// </summary>
+        public static List<Keyword> GrantedByObjectsBetween(Soldier attacker, Soldier target)
+        {
+            var granted = new List<Keyword>();
+            if (attacker == null || target == null) return granted;
+            foreach (var obj in Object.FindObjectsByType<Terrain.TerrainObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            foreach (var k in obj.Keywords)
+            {
+                if (k == null || !k.grantsWhenBetween || k.grantsNearby == null) continue;
+                if (Keyword.Contains(granted, k.grantsNearby.displayName)) continue;
+                if (CoverCheck.IsBetween(attacker.Position, target.Position, obj)) granted.Add(k.grantsNearby);
+            }
+            return granted;
         }
 
         /// <param name="attacker">Optional: used to check "only if its source is between attacker and target".</param>

@@ -23,6 +23,43 @@ namespace Eldoria.Tests
         }
 
         [Test]
+        public void TheSniperRifleIsAsDesigned()
+        {
+            var sniper = Load("SniperRifle");
+            Assert.That(sniper.displayName, Is.EqualTo("Sniper Rifle"));
+            Assert.That((sniper.baseDamage, sniper.PenetrationValue, sniper.accuracyBonus, sniper.range), Is.EqualTo((5, (int?)1, 50, 50f)));
+            Assert.That(sniper.keywords.Count, Is.EqualTo(1));
+            Assert.That(sniper.HasKeyword("Deployed"), Is.True);
+        }
+
+        [Test]
+        public void ASoldierWith75AccuracyHas125PercentWithTheSniperRifleSoA25PercentCrit()
+        {
+            var sniper = Load("SniperRifle");
+            var template = UnityEngine.ScriptableObject.CreateInstance<SoldierTemplate>();
+            var go = new UnityEngine.GameObject("Sniper");
+            try
+            {
+                template.accuracy = 75;
+                template.weapons.Add(sniper);
+                var soldier = go.AddComponent<Soldier>();
+                soldier.Configure(template, false);
+                var acc = Rules.Accuracy.ForAttack(soldier, soldier.Weapons[0], sprinted: false);
+                Assert.That(acc.Final, Is.EqualTo(125));
+                Assert.That((acc.HitChance, acc.CritChance), Is.EqualTo((100, 25)));
+
+                // Deployed: not after moving.
+                soldier.GainKeyword(KeywordLibrary.Get(KeywordLibrary.Moved), Rules.Turns.NextTurn);
+                Assert.That(soldier.WeaponFor(null), Is.Null);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(go);
+                UnityEngine.Object.DestroyImmediate(template);
+            }
+        }
+
+        [Test]
         public void ThePistolAndAssaultRifleAreAsDesigned()
         {
             var pistol = Load("Pistol");

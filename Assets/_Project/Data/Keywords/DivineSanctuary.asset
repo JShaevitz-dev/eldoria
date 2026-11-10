@@ -27,5 +27,6 @@ MonoBehaviour:
   triggers: []
   grantsNearby: {fileID: 0}
   grantRadius: 5
+  grantsWhenBetween: 0
   sparkles: 1
   sparkleColor: {r: 1, g: 0.82, b: 0.25, a: 1}

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c831d2daf4333a42b1b9b15f92f56c6, type: 3}
+  m_Name: SMGTrooper
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
+  displayName: Trooper
+  prefab: {fileID: 7150015451203675062, guid: 47024cb1e0c0b624abf0d43734147943, type: 3}
+  health: 5
+  armorLevel: 1
+  accuracy: 75
+  movementRange: 10
+  keywords:
+  - {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
+  abilities: []
+  weapons:
+  - {fileID: 11400000, guid: 6b3b656a59e5b5246b0b07b7d9e42b1e, type: 2}
+  - {fileID: 11400000, guid: 91a661bd5ba10cb459f504ddde841782, type: 2}
+  primaryWeapon: {fileID: 11400000, guid: 6b3b656a59e5b5246b0b07b7d9e42b1e, type: 2}
+  radius: 0.35
+  height: 1.8

@@ -10,13 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: acfb139d20d848147a999647b1e7934f, type: 3}
-  m_Name: Sniper
+  m_Name: Unstable
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Keyword
-  displayName: Sniper
+  displayName: Unstable
   category: 1
-  description: A trained marksman. (Effect not designed yet.)
-  appliesTo: 1
+  description: 'When the holder of this weapon dies, 10% chance they explode: 5 damage
+    to ANY soldier within 5 m.'
+  appliesTo: 0
   interactions: []
-  triggers: []
+  triggers:
+  - when: 2
+    action: 2
+    subject: 0
+    keyword: {fileID: 0}
+    untilNextTurn: 1
+    chancePercent: 10
+    explosionWeapon: {fileID: 11400000, guid: 45f08306a5dc6984eb1dd13788679706, type: 2}
+    explosionRadius: 5
   grantsNearby: {fileID: 0}
   grantRadius: 5
+  sparkles: 0
+  sparkleColor: {r: 1, g: 0.82, b: 0.25, a: 1}

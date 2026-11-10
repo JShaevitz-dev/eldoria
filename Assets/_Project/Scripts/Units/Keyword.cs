@@ -129,13 +129,18 @@ namespace Eldoria.Units
         /// <summary>The soldier has just been picked as the target of an attack (shooting step 6).</summary>
         Targeted,
         /// <summary>The soldier has just taken damage (shooting step 13).</summary>
-        Damaged
+        Damaged,
+        /// <summary>The soldier has just been killed (any cause). Their weapons' keywords trigger too.</summary>
+        Died
     }
 
     public enum TriggerAction
     {
         GainKeyword,
-        LoseKeyword
+        LoseKeyword,
+        /// <summary>An explosion centred on the soldier: an area attack with Explosion Weapon on every soldier within
+        /// Explosion Radius (friend or foe) that the blast can reach (terrain in between stops it).</summary>
+        Explode
     }
 
     /// <summary>Who a trigger's action applies to.</summary>
@@ -161,6 +166,14 @@ namespace Eldoria.Units
         public Keyword keyword;
         [Tooltip("For Gain Keyword: the keyword wears off at the start of the next turn (otherwise it lasts until removed).")]
         public bool untilNextTurn = true;
+        [Tooltip("Chance (percent) that the trigger happens each time its event does. 100 = always.")]
+        [Range(0, 100)] public int chancePercent = 100;
+
+        [Header("Explode")]
+        [Tooltip("The explosion's damage, penetration and keywords (as a weapon).")]
+        public WeaponTemplate explosionWeapon;
+        [Tooltip("Meters (horizontal) from the soldier: everyone this close is caught, friend or foe.")]
+        [Min(0f)] public float explosionRadius = 5f;
     }
 
     /// <summary>
@@ -189,6 +202,9 @@ namespace Eldoria.Units
         public Keyword grantsNearby;
         [Tooltip("Meters, measured horizontally from the nearest part of the object.")]
         [Min(0f)] public float grantRadius = 5f;
+        [Tooltip("On terrain objects: instead of granting to soldiers within Grant Radius, the granted keyword applies to the target of an attack " +
+                 "whenever this object is between the attacker and the target, at any distance from either (e.g. Full-cover -> In full cover).")]
+        public bool grantsWhenBetween;
 
         [Header("Visuals")]
         [Tooltip("Soldiers with this keyword glitter with sparkles for as long as they have it (e.g. Divine Sanctuary).")]

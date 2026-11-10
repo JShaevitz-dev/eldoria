@@ -13,5 +13,20 @@ MonoBehaviour:
   m_Name: Incendiary
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Keyword
   displayName: Incendiary
-  description: Sets targets or terrain on fire. (Effect not designed yet.)
+  category: 0
+  description: Only damages targets with the Biological keyword.
   appliesTo: 0
+  interactions:
+  - role: 0
+    party: 2
+    condition: 1
+    keyword: {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
+    effect: 0
+    amount: 0
+    onlyIfSourceIsBetween: 0
+  triggers: []
+  grantsNearby: {fileID: 0}
+  grantRadius: 5
+  grantsWhenBetween: 0
+  sparkles: 0
+  sparkleColor: {r: 1, g: 0.82, b: 0.25, a: 1}

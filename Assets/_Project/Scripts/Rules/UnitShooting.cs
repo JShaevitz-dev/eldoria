@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Eldoria.Terrain;
 using Eldoria.Units;
+using UnityEngine;
 
 namespace Eldoria.Rules
 {
@@ -70,25 +71,56 @@ namespace Eldoria.Rules
 
         /// <summary>How many of the attacking unit's soldiers have at least one soldier of the defending unit they can
         /// target (in range, in sight, not prevented by keywords). 0 means the unit can't usefully shoot at it.</summary>
-        public static int SoldiersAbleToShoot(Unit attackers, Unit defenders)
+        /// <param name="chosenTarget">The enemy soldier the player picked: Sniper Precision soldiers can only shoot them.</param>
+        public static int SoldiersAbleToShoot(Unit attackers, Unit defenders, Soldier chosenTarget = null)
         {
             int count = 0;
             foreach (var s in attackers.LivingSoldiers)
             {
                 var weapon = s.WeaponFor(null);
                 if (weapon == null) continue;
-                if (defenders.Soldiers.Any(t => t != null && Attack.CanTarget(s, weapon, t) && !KeywordRules.Evaluate(s, weapon, t).NoEffect)) count++;
+                bool able = s.HasKeyword(SniperPrecisionKeyword)
+                    ? chosenTarget != null && defenders.Soldiers.Contains(chosenTarget) && IsValidTarget(s, weapon, chosenTarget)
+                    : defenders.Soldiers.Any(t => IsValidTarget(s, weapon, t));
+                if (able) count++;
             }
             return count;
         }
 
-        public static ShootingResult Resolve(Unit attackers, Unit defenders, bool attackersSprinted, System.Random rng)
+        /// <summary>Can this soldier shoot this target with this weapon (in range and sight, not in full cover, not prevented by keywords)?</summary>
+        public static bool IsValidTarget(Soldier shooter, Weapon weapon, Soldier target) =>
+            target != null && weapon != null && Attack.CanTarget(shooter, weapon, target) && !KeywordRules.Evaluate(shooter, weapon, target).NoEffect;
+
+        /// <summary>
+        /// Does the unit have anything to shoot at, anywhere (any of its soldiers, any enemy soldier)? If not, it can't
+        /// shoot this turn: it can use an ability, if it has one, or do nothing.
+        /// </summary>
+        public static bool HasAnyTarget(Unit attackers)
+        {
+            var enemies = Object.FindObjectsByType<Soldier>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                .Where(t => t.CanBeTargeted && t.Unit != null && t.Unit.Side != attackers.Side).ToList();
+            foreach (var s in attackers.LivingSoldiers)
+            {
+                var weapon = s.WeaponFor(null);
+                if (weapon != null && enemies.Any(t => IsValidTarget(s, weapon, t))) return true;
+            }
+            return false;
+        }
+
+        /// <summary>Soldier keyword: when this soldier shoots, the player picks the specific enemy soldier they target.</summary>
+        public const string SniperPrecisionKeyword = "Sniper Precision";
+
+        /// <param name="chosenTarget">The enemy soldier the player picked (by clicking them). Soldiers with Sniper Precision
+        /// shoot only this soldier (they make no choice of their own: with no pick, or one they can't target, they don't
+        /// shoot). Everyone else picks the closest soldier they can target, as usual.</param>
+        public static ShootingResult Resolve(Unit attackers, Unit defenders, bool attackersSprinted, System.Random rng,
+            Soldier chosenTarget = null)
         {
             var result = new ShootingResult { Attackers = attackers, Defenders = defenders };
             Casualties.BeginVolley();
             try
             {
-                ResolveVolley(result, attackers, defenders, attackersSprinted, rng);
+                ResolveVolley(result, attackers, defenders, attackersSprinted, rng, chosenTarget);
             }
             finally
             {
@@ -101,7 +133,8 @@ namespace Eldoria.Rules
             return result;
         }
 
-        private static void ResolveVolley(ShootingResult result, Unit attackers, Unit defenders, bool attackersSprinted, System.Random rng)
+        private static void ResolveVolley(ShootingResult result, Unit attackers, Unit defenders, bool attackersSprinted, System.Random rng,
+            Soldier chosenTarget)
         {
             var shooters = attackers.LivingSoldiers.ToList();
             var targets = defenders.Soldiers.Where(t => t != null && t.CanBeTargeted).ToList();
@@ -149,7 +182,14 @@ namespace Eldoria.Rules
                     continue;
                 }
 
-                foreach (var t in candidates.OrderBy(t => Measure.Between(shooter, t)))
+                // Normally the closest first. Sniper Precision: only the soldier the player picked - the soldier makes no
+                // decision of their own (no pick, or a pick they can't shoot: no shot).
+                bool precise = shooter.HasKeyword(SniperPrecisionKeyword);
+                var order = precise
+                    ? (chosenTarget != null && candidates.Contains(chosenTarget) ? new List<Soldier> { chosenTarget } : new List<Soldier>())
+                    : candidates.OrderBy(t => Measure.Between(shooter, t)).ToList();
+
+                foreach (var t in order)
                 {
                     if (!Attack.CanTarget(shooter, shot.Weapon, t)) continue;            // out of sight / in full cover
 
@@ -170,6 +210,14 @@ namespace Eldoria.Rules
                     break;
                 }
 
+                if (shot.Target == null && precise)
+                {
+                    shot.Note = chosenTarget == null || !candidates.Contains(chosenTarget)
+                        ? "Sniper Precision: no soldier picked in this unit"
+                        : $"Sniper Precision: can't target {chosenTarget.name}";
+                    result.Log.Add($"{shooter.name}: {shot.Note}; doesn't shoot.");
+                    continue;
+                }
                 if (shot.Target == null)
                 {
                     bool anyInRange = candidates.Any(t => Attack.InRange(shooter, shot.Weapon, t));

@@ -9,7 +9,7 @@ namespace Eldoria.EditorTools
 {
     /// <summary>
     /// Creates the template assets for the test unit and spawns it in the open scene:
-    ///   Keywords: Biological, Toxic, Moved, Explosive, Incendiary, Sniper, Robotic (Data/Keywords)
+    ///   Keywords: Biological, Toxic, Moved, Explosive, Incendiary, Robotic (Data/Keywords)
     ///             + the keyword library (Resources/KeywordLibrary)
     ///   Weapons:  Assault Rifle, Pistol                      (Data/Weapons)
     ///   Soldiers: Trooper (rifle), Sergeant (rifle + pistol), both Biological (Data/Soldiers)
@@ -248,9 +248,280 @@ namespace Eldoria.EditorTools
             });
         }
 
+        /// <summary>
+        /// Machine Gun Team (not fielded in the demo yet):
+        ///   1 Sergeant (leader) with a Pistol,
+        ///   3 Troopers with an SMG (primary) and a Pistol,
+        ///   1 Machine Gunner with a Machine Gun.
+        /// Same soldier stats as the Infantry Squad (Health 5, Armor Level 1, Accuracy 75%, 10 m, Biological); no Frag Grenade.
+        /// </summary>
+        public static UnitTemplate EnsureMachineGunTeam(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
+            var smg = EnsureSmg();
+            var mg = EnsureMachineGun(keywords);
+            var biological = keywords["Biological"];
+
+            void Stats(SoldierTemplate s)
+            {
+                s.health = 5; s.armorLevel = 1; s.accuracy = 75; s.movementRange = 10f;
+                s.keywords = new List<Keyword> { biological };
+                s.abilities = new List<Ability>();
+            }
+
+            var sergeant = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/MGTeamSergeant.asset", s =>
+            {
+                s.displayName = "Sergeant";
+                Stats(s);
+                s.weapons = new List<WeaponTemplate> { pistol };
+                s.primaryWeapon = pistol;
+            });
+            var smgTrooper = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/SMGTrooper.asset", s =>
+            {
+                s.displayName = "Trooper";
+                Stats(s);
+                s.weapons = new List<WeaponTemplate> { smg, pistol };
+                s.primaryWeapon = smg;
+            });
+            var gunner = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/MachineGunner.asset", s =>
+            {
+                s.displayName = "Machine Gunner";
+                Stats(s);
+                s.weapons = new List<WeaponTemplate> { mg };
+                s.primaryWeapon = mg;
+            });
+
+            // Models: the squad's sergeant and trooper bodies; the gunner gets a heavier gun.
+            sergeant.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/Sergeant.prefab");
+            smgTrooper.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/Trooper.prefab");
+            if (gunner.prefab == null)
+                gunner.prefab = BuildSoldierPrefab("MachineGunner", gunner, false,
+                    GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f)),
+                    GetOrCreateMaterial("Skin", new Color(0.85f, 0.68f, 0.55f)),
+                    GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f)),
+                    GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                    heavyWeapon: true);
+            foreach (var t in new[] { sergeant, smgTrooper, gunner }) EditorUtility.SetDirty(t);
+
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/MachineGunTeam.asset", u =>
+            {
+                u.displayName = "Machine Gun Team";
+                u.leader = sergeant;
+                u.members = new List<UnitTemplate.Member>
+                {
+                    new UnitTemplate.Member { soldier = smgTrooper, count = 3 },
+                    new UnitTemplate.Member { soldier = gunner, count = 1 },
+                };
+                u.deploymentSpacing = 2f;
+            });
+            AssetDatabase.SaveAssets();
+            return unit;
+        }
+
+        /// <summary>
+        /// Flamethrower: Base Damage 10, no penetration value ("X": always 100% damage), Accuracy Bonus +0, range 10 m,
+        /// keywords Incendiary (only damages Biological targets) and Unstable (when the holder dies: 10% chance to explode,
+        /// 5 damage - no penetration value - to every soldier within 5 m). Not carried by anyone yet.
+        /// </summary>
+        public static WeaponTemplate EnsureFlamethrower(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+
+            // Incendiary: the attack has no effect on a target that isn't Biological.
+            var incendiary = keywords["Incendiary"];
+            incendiary.description = "Only damages targets with the Biological keyword.";
+            incendiary.interactions = new List<KeywordInteraction>
+            {
+                new KeywordInteraction { party = KeywordParty.Target, condition = KeywordCondition.Lacks, keyword = keywords["Biological"], effect = KeywordEffect.NoEffect }
+            };
+            EditorUtility.SetDirty(incendiary);
+
+            var explosion = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/UnstableExplosion.asset", w =>
+            {
+                w.displayName = "Unstable Explosion";
+                w.baseDamage = 5;
+                w.hasPenetration = false;   // always 5
+                w.accuracyBonus = 0;
+                w.keywords = new List<Keyword> { keywords["Explosive"] };
+            });
+
+            var unstable = GetOrCreate<Keyword>($"{DataDir}/Keywords/Unstable.asset", k =>
+            {
+                k.displayName = "Unstable";
+                k.appliesTo = KeywordTarget.Weapon;
+                k.category = KeywordCategory.Trait;
+                k.description = "When the holder of this weapon dies, 10% chance they explode: 5 damage to ANY soldier within 5 m.";
+                k.triggers = new List<KeywordTrigger>
+                {
+                    new KeywordTrigger
+                    {
+                        when = TriggerEvent.Died, action = TriggerAction.Explode, chancePercent = 10,
+                        explosionWeapon = explosion, explosionRadius = 5f
+                    }
+                };
+            });
+            var library = AssetDatabase.LoadAssetAtPath<KeywordLibrary>($"{Root}/Resources/{KeywordLibrary.ResourcePath}.asset");
+            if (library != null && !library.keywords.Contains(unstable))
+            {
+                library.keywords.Add(unstable);
+                EditorUtility.SetDirty(library);
+            }
+
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/Flamethrower.asset", w =>
+            {
+                w.displayName = "Flamethrower";
+                w.baseDamage = 10;
+                w.hasPenetration = false;   // "X": always 100% damage
+                w.accuracyBonus = 0;
+                w.range = 10f;
+                w.keywords = new List<Keyword> { incendiary, unstable };
+            });
+        }
+
+        /// <summary>
+        /// Powered Armor Squad (not in the demo armies yet): 1 Sergeant in Powered Armor + 4 Troopers in Powered Armor,
+        /// all with an Assault Rifle. No Frag Grenade.
+        /// </summary>
+        public static UnitTemplate EnsurePoweredArmorSquad(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Units");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            var sergeant = EnsurePoweredArmorSergeant(keywords);
+            var trooper = EnsurePoweredArmorTrooper(keywords);
+            foreach (var s in new[] { sergeant, trooper })
+            {
+                s.weapons = new List<WeaponTemplate> { rifle };   // armed now they're in a unit
+                s.primaryWeapon = rifle;
+                EditorUtility.SetDirty(s);
+            }
+            return GetOrCreate<UnitTemplate>($"{DataDir}/Units/PoweredArmorSquad.asset", u =>
+            {
+                u.displayName = "Powered Armor Squad";
+                u.leader = sergeant;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = trooper, count = 4 } };
+                u.deploymentSpacing = 2f;
+            });
+        }
+
+        /// <summary>
+        /// Sergeant in Powered Armor: the same stats as the Trooper in Powered Armor (Health 10, Armor Level 2, Accuracy 75%,
+        /// Movement 6 m; Biological). Assault Rifle (in the Powered Armor Squad). Model: powered armor with the sergeant's gold markings.
+        /// </summary>
+        public static SoldierTemplate EnsurePoweredArmorSergeant(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            var sergeant = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/PoweredArmorSergeant.asset", s =>
+            {
+                s.displayName = "Sergeant in Powered Armor";
+                s.health = 10; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 6f;
+                s.keywords = new List<Keyword> { keywords["Biological"] };
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate>();
+            });
+            if (sergeant.prefab == null)
+            {
+                sergeant.prefab = BuildSoldierPrefab("PoweredArmorSergeant", sergeant, true,
+                    GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f)),
+                    GetOrCreateMaterial("Skin", new Color(0.85f, 0.68f, 0.55f)),
+                    GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f)),
+                    GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                    poweredArmor: true);
+                EditorUtility.SetDirty(sergeant);
+            }
+            return sergeant;
+        }
+
+        /// <summary>
+        /// Trooper in Powered Armor: Health 10, Armor Level 2, Accuracy 75%, Movement 6 m; Biological. Assault Rifle (in the Powered Armor Squad).
+        /// </summary>
+        public static SoldierTemplate EnsurePoweredArmorTrooper(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            var trooper = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/PoweredArmorTrooper.asset", s =>
+            {
+                s.displayName = "Trooper in Powered Armor";
+                s.health = 10; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 6f;
+                s.keywords = new List<Keyword> { keywords["Biological"] };
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate>();
+            });
+            if (trooper.prefab == null)
+            {
+                trooper.prefab = BuildSoldierPrefab("PoweredArmorTrooper", trooper, false,
+                    GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f)),
+                    GetOrCreateMaterial("Skin", new Color(0.85f, 0.68f, 0.55f)),
+                    GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f)),
+                    GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                    poweredArmor: true);
+                EditorUtility.SetDirty(trooper);
+            }
+            return trooper;
+        }
+
+        /// <summary>
+        /// Sniper Rifle: Base Damage 5, Penetration 1, Accuracy Bonus +50, range 50 m, keyword Deployed (can't be used in a
+        /// volley if the soldier holding it has moved this turn). Not carried by anyone yet.
+        /// </summary>
+        public static WeaponTemplate EnsureSniperRifle(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/SniperRifle.asset", w =>
+            {
+                w.displayName = "Sniper Rifle";
+                w.baseDamage = 5;
+                w.hasPenetration = true;
+                w.penetration = 1;
+                w.accuracyBonus = 50;
+                w.range = 50f;
+                w.keywords = new List<Keyword> { keywords["Deployed"] };
+            });
+        }
+
+        /// <summary>
+        /// Sniper: Health 5, Armor Level 0, Accuracy 100%, Movement 15 m; Biological, Solo, Sniper Precision.
+        /// A unit of one (Data/Units/Sniper; not in the demo armies). Weapon: Sniper Rifle.
+        /// </summary>
+        public static SoldierTemplate EnsureSniper(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            var sniper = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/Sniper.asset", s =>
+            {
+                s.displayName = "Sniper";
+                s.health = 5; s.armorLevel = 0; s.accuracy = 100; s.movementRange = 15f;
+                s.keywords = new List<Keyword> { keywords["Biological"], keywords["Sniper Precision"] };
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate>();
+            });
+            Keyword.AddUnique(sniper.keywords, keywords["Solo"]);   // a solo unit
+            // Armed with the Sniper Rifle (5 damage, penetration 1, +50, 50 m, Deployed).
+            var rifle = EnsureSniperRifle(keywords);
+            sniper.weapons = new List<WeaponTemplate> { rifle };
+            sniper.primaryWeapon = rifle;
+            EditorUtility.SetDirty(sniper);
+            GetOrCreate<UnitTemplate>($"{DataDir}/Units/Sniper.asset", u =>
+            {
+                u.displayName = "Sniper";
+                u.leader = sniper;
+                u.members = new List<UnitTemplate.Member>();
+            });
+            if (sniper.prefab == null)
+            {
+                sniper.prefab = BuildSoldierPrefab("Sniper", sniper, false,
+                    GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f)),
+                    GetOrCreateMaterial("Skin", new Color(0.85f, 0.68f, 0.55f)),
+                    GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f)),
+                    GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                    sniperKit: true);
+                EditorUtility.SetDirty(sniper);
+            }
+            return sniper;
+        }
+
         /// <summary>Weapon ranges (meters): Assault Rifle 20, Pistol 10, SMG 10, Machine Gun 20. Applied to the existing weapon assets.</summary>
         public static readonly (string file, float range)[] WeaponRanges =
-            { ("AssaultRifle", 20f), ("Pistol", 10f), ("SMG", 10f), ("MachineGun", 20f) };
+            { ("AssaultRifle", 20f), ("Pistol", 10f), ("SMG", 10f), ("MachineGun", 20f), ("SniperRifle", 50f) };
 
         private static void ApplyWeaponRanges()
         {
@@ -291,6 +562,13 @@ namespace Eldoria.EditorTools
             EnsureSmg();
             EnsureMachineGun(keywords);
             ApplyWeaponRanges();
+            EnsureMachineGunTeam(keywords);
+            EnsureFlamethrower(keywords);
+            EnsurePoweredArmorTrooper(keywords);
+            EnsurePoweredArmorSergeant(keywords);
+            EnsurePoweredArmorSquad(keywords);
+            EnsureSniperRifle(keywords);
+            EnsureSniper(keywords);
             var pistolWeapon = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
             if (pistolWeapon != null)
             {
@@ -429,10 +707,9 @@ namespace Eldoria.EditorTools
                     k.appliesTo = target;
                     k.description = description;
                 });
-            Kw("Explosive", "Explosive", KeywordTarget.Weapon, "Hits affect an area. (Effect not designed yet.)");
-            Kw("Incendiary", "Incendiary", KeywordTarget.Weapon, "Sets targets or terrain on fire. (Effect not designed yet.)");
-            Kw("Sniper", "Sniper", KeywordTarget.Soldier, "A trained marksman. (Effect not designed yet.)");
-            Kw("Robotic", "Robotic", KeywordTarget.Soldier, "A machine rather than a person. (Effect not designed yet.)");
+            Kw("Explosive", "Explosive", KeywordTarget.Weapon, "An explosive weapon. A trait for other rules to check.");
+            Kw("Incendiary", "Incendiary", KeywordTarget.Weapon, "Only damages targets with the Biological keyword.");
+            Kw("Robotic", "Robotic", KeywordTarget.Soldier, "A machine rather than a person. A trait for other rules to check.");
             Kw("Biological", "Biological", KeywordTarget.Soldier, "A living being. Every living soldier has this keyword.");
             GetOrCreate<Keyword>($"{DataDir}/Keywords/Toxic.asset", k =>
             {
@@ -482,14 +759,18 @@ namespace Eldoria.EditorTools
                     }
                 };
             });
-            GetOrCreate<Keyword>($"{DataDir}/Keywords/FullCover.asset", k =>
+            var fullCover = GetOrCreate<Keyword>($"{DataDir}/Keywords/FullCover.asset", k =>
             {
                 k.displayName = "Full-cover";
                 k.appliesTo = KeywordTarget.TerrainObject;
-                k.description = "Soldiers within range gain In full cover. (Range is a placeholder.)";
                 k.grantsNearby = inFullCover;
-                k.grantRadius = 5f;
             });
+            // Full cover works at any distance: it only has to be between the shooter and the target.
+            fullCover.description = "A soldier is In full cover against any attacker this object is between, however far either is from it.";
+            fullCover.grantsWhenBetween = true;
+            EditorUtility.SetDirty(fullCover);
+            inFullCover.description = "Fully concealed behind cover: can't be targeted by a shooting attack. Applies whenever a Full-cover object is between the attacker and the soldier.";
+            EditorUtility.SetDirty(inFullCover);
             GetOrCreate<Keyword>($"{DataDir}/Keywords/IndirectFire.asset", k =>
             {
                 k.displayName = "Indirect fire";
@@ -515,6 +796,8 @@ namespace Eldoria.EditorTools
             Kw("Magic", "Magic", KeywordTarget.Soldier, "Wields magic. No effect on its own; some weapons and abilities check for it.");
             Kw("Spell", "Spell", KeywordTarget.Ability, "A magical ability. Can't be cast by a soldier whose unit sprinted this turn.");
             Kw("Pistol", "Pistol", KeywordTarget.Weapon, "A sidearm: the only kind of weapon a soldier in close range can use.");
+            Kw("SniperPrecision", "Sniper Precision", KeywordTarget.Soldier,
+                "When this soldier shoots, the player picks the specific enemy soldier they target instead of the closest one.");
             Kw("Deployed", "Deployed", KeywordTarget.Weapon, "This weapon can't be used in a volley if the soldier holding it has moved this turn.");
             Kw("InCloseRange", "In close range", KeywordTarget.Soldier,
                 "A Biological enemy is less than 2 m away: can only use weapons with the Pistol keyword (spells and other abilities still work).");
@@ -555,9 +838,9 @@ namespace Eldoria.EditorTools
             // Categories: Traits are what a soldier is; Statuses come and go during play.
             var categories = new Dictionary<string, KeywordCategory>
             {
-                ["Biological"] = KeywordCategory.Trait, ["Robotic"] = KeywordCategory.Trait, ["Sniper"] = KeywordCategory.Trait,
+                ["Biological"] = KeywordCategory.Trait, ["Robotic"] = KeywordCategory.Trait,
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
-                ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,
@@ -660,12 +943,13 @@ namespace Eldoria.EditorTools
         }
 
         private static GameObject BuildSoldierPrefab(string name, SoldierTemplate template, bool isSergeant,
-            Material armor, Material skin, Material weapon, Material gold, Material cape = null, bool priest = false)
+            Material armor, Material skin, Material weapon, Material gold, Material cape = null, bool priest = false,
+            bool heavyWeapon = false, bool poweredArmor = false, bool sniperKit = false)
         {
             float h = template.height;          // 1.8m
             float headSize = 0.26f;
             float bodyHeight = h - headSize;    // capsule from feet to neck
-            float bodyRadius = 0.25f;
+            float bodyRadius = poweredArmor ? 0.32f : 0.25f;
 
             var root = new GameObject(name);
             var soldier = root.AddComponent<Soldier>();
@@ -683,11 +967,46 @@ namespace Eldoria.EditorTools
             // Body (capsule primitive is 2 tall, 1 wide at scale 1).
             Part(root, "Body", PrimitiveType.Capsule, armor,
                 new Vector3(0f, bodyHeight / 2f, 0f), new Vector3(bodyRadius * 2f, bodyHeight / 2f, bodyRadius * 2f * 0.8f));
+            if (poweredArmor)
+            {
+                // Powered armor: a helmet over the head, big shoulder plates and a back pack.
+                var plate = GetOrCreateMaterial("Powered_Armor", new Color(0.38f, 0.42f, 0.48f));
+                Part(root, "Helmet", PrimitiveType.Sphere, plate,
+                    new Vector3(0f, bodyHeight + headSize / 2f, 0f), Vector3.one * (headSize * 1.35f));
+                Part(root, "Shoulder_L", PrimitiveType.Cube, plate,
+                    new Vector3(-0.34f, h * 0.76f, 0f), new Vector3(0.24f, 0.18f, 0.32f));
+                Part(root, "Shoulder_R", PrimitiveType.Cube, plate,
+                    new Vector3(0.34f, h * 0.76f, 0f), new Vector3(0.24f, 0.18f, 0.32f));
+                Part(root, "Power Pack", PrimitiveType.Cube, plate,
+                    new Vector3(0f, h * 0.62f, -0.3f), new Vector3(0.4f, 0.5f, 0.2f));
+            }
             Part(root, "Head", PrimitiveType.Sphere, skin,
                 new Vector3(0f, bodyHeight + headSize / 2f - 0.02f, 0f), Vector3.one * headSize);
             // Rifle held forward; also shows which way the soldier is facing.
-            Part(root, "Weapon", PrimitiveType.Cube, weapon,
-                new Vector3(0.18f, h * 0.68f, 0.32f), new Vector3(0.07f, 0.1f, 0.85f));
+            if (sniperKit)
+            {
+                // A sniper: a long, thin rifle with a scope, and a green hooded cloak.
+                Part(root, "Weapon", PrimitiveType.Cube, weapon,
+                    new Vector3(0.18f, h * 0.7f, 0.5f), new Vector3(0.05f, 0.07f, 1.35f));
+                Part(root, "Scope", PrimitiveType.Cube, weapon,
+                    new Vector3(0.18f, h * 0.7f + 0.07f, 0.35f), new Vector3(0.05f, 0.05f, 0.25f));
+                var cloak = GetOrCreateMaterial("Sniper_Cloak", new Color(0.28f, 0.36f, 0.22f));
+                Part(root, "Hood", PrimitiveType.Sphere, cloak,
+                    new Vector3(0f, bodyHeight + headSize / 2f + 0.02f, -0.03f), Vector3.one * (headSize * 1.3f));
+                Part(root, "Cloak", PrimitiveType.Cube, cloak,
+                    new Vector3(0f, h * 0.5f, -0.24f), new Vector3(0.52f, h * 0.7f, 0.05f));
+            }
+            else if (heavyWeapon)
+            {
+                // A machine gun: longer and bulkier, held lower, with an ammunition box.
+                Part(root, "Weapon", PrimitiveType.Cube, weapon,
+                    new Vector3(0.2f, h * 0.6f, 0.45f), new Vector3(0.12f, 0.16f, 1.25f));
+                Part(root, "Ammo Box", PrimitiveType.Cube, weapon,
+                    new Vector3(0.2f, h * 0.52f, 0.25f), new Vector3(0.16f, 0.14f, 0.2f));
+            }
+            else
+                Part(root, "Weapon", PrimitiveType.Cube, weapon,
+                    new Vector3(0.18f, h * 0.68f, 0.32f), new Vector3(0.07f, 0.1f, 0.85f));
 
             if (isSergeant)
             {

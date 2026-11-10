@@ -34,7 +34,7 @@ namespace Eldoria.Terrain
                 if (obj == null) continue;
                 foreach (var k in obj.Keywords)
                 {
-                    if (k == null || k.grantsNearby == null) continue;
+                    if (k == null || k.grantsNearby == null || k.grantsWhenBetween) continue;   // between-only grants are worked out per attack
                     if (obj.HorizontalDistanceTo(at) <= k.grantRadius + Epsilon)
                         granted.Add(new NearbyKeyword { keyword = k.grantsNearby, source = obj });
                 }

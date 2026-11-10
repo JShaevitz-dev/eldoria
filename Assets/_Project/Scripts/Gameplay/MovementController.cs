@@ -157,6 +157,8 @@ namespace Eldoria.Gameplay
 
             foreach (var u in playerUnits) u.LeaderChanged += OnLeaderChanged;
             Victory.BattleEnded += OnBattleEnded;
+            KeywordTriggers.Exploded += OnExploded;
+            KeywordTriggers.DeathTriggerLogged += AddLog;
             ai = GetComponent<AITurnController>();
             if (ai == null) ai = gameObject.AddComponent<AITurnController>();
 
@@ -169,6 +171,8 @@ namespace Eldoria.Gameplay
             foreach (var u in playerUnits)
                 if (u != null) u.LeaderChanged -= OnLeaderChanged;
             Victory.BattleEnded -= OnBattleEnded;
+            KeywordTriggers.Exploded -= OnExploded;
+            KeywordTriggers.DeathTriggerLogged -= AddLog;
         }
 
         // ------------------------------------------------------------------ End of the battle
@@ -562,7 +566,7 @@ namespace Eldoria.Gameplay
             if (shootMode)
             {
                 if (hoverSoldier != null && hoverSoldier.Unit != null && hoverSoldier.Unit.Side != squad.Side)
-                    OrderShoot(hoverSoldier.Unit);
+                    OrderShoot(hoverSoldier.Unit, hoverSoldier);   // the clicked soldier: Sniper Precision soldiers target them
                 else Flash("Click an enemy soldier to shoot at their unit (Esc to cancel).");
                 return;
             }
@@ -804,6 +808,16 @@ namespace Eldoria.Gameplay
             }
         }
 
+        /// <summary>A soldier exploded (e.g. Unstable on death): show the blast and say what happened.</summary>
+        private void OnExploded(Soldier who, AreaAttackResult blast)
+        {
+            if (blastRing == null) return;
+            blastRing.ShowCircle(blast.Point, blast.Radius, BlastColor);
+            blastUntil = Time.time + 2.5f;
+            int hurt = blast.Hits.Count(h => h.damage > 0), down = blast.Hits.Count(h => !h.soldier.IsAlive);
+            Flash($"{who.name} explodes! {hurt} hurt, {down} down.");
+        }
+
         /// <summary>Hides tracers and blast rings once their time is up.</summary>
         private void UpdateTimedVisuals()
         {
@@ -897,7 +911,9 @@ namespace Eldoria.Gameplay
                     GUILayout.Label(HoverReadout(), wrap);
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button("Hold position (H)")) OrderHold();
-                    if (GUILayout.Button("Shoot without moving (F)")) ToggleShootMode();
+                    GUI.enabled = HasTargets;
+                    if (GUILayout.Button(HasTargets ? "Shoot without moving (F)" : "Shoot — no valid targets")) ToggleShootMode();
+                    GUI.enabled = true;
                     GUILayout.EndHorizontal();
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button("Deselect (Esc)")) CancelSelection();
@@ -924,7 +940,12 @@ namespace Eldoria.Gameplay
                 case MovePhase.Complete:
                     GUILayout.Label(actionTaken ? "Unit has taken its action; its turn is over." : "Unit has finished moving. It may shoot OR use one ability.", wrap);
                     GUILayout.BeginHorizontal();
-                    if (!actionTaken && GUILayout.Button("Shoot (F)")) ToggleShootMode();
+                    if (!actionTaken)
+                    {
+                        GUI.enabled = HasTargets;
+                        if (GUILayout.Button(HasTargets ? "Shoot (F)" : "Shoot — no valid targets")) ToggleShootMode();
+                        GUI.enabled = true;
+                    }
                     if (GUILayout.Button("End turn (N)")) EndTurn();
                     if (GUILayout.Button("Kill leader (K, debug)")) DebugKillLeader();
                     GUILayout.EndHorizontal();
@@ -949,7 +970,11 @@ namespace Eldoria.Gameplay
                     ". Esc to cancel.", title);
 
             if (shootMode)
-                GUILayout.Label("SHOOTING: click an enemy soldier to shoot at their unit. Esc to cancel.", title);
+                GUILayout.Label(AllSniperPrecision(squad)
+                    ? "SHOOTING: click the enemy soldier to shoot. Esc to cancel."
+                    : squad.LivingSoldiers.Any(s => s.HasKeyword(UnitShooting.SniperPrecisionKeyword))
+                    ? "SHOOTING: click an enemy soldier: your Sniper Precision soldiers target that soldier, the rest shoot at their unit. Esc to cancel."
+                    : "SHOOTING: click an enemy soldier to shoot at their unit. Esc to cancel.", title);
 
             if (!string.IsNullOrEmpty(message) && Time.time < messageUntil)
                 GUILayout.Label(message, wrap);
@@ -1075,23 +1100,54 @@ namespace Eldoria.Gameplay
             if (activation == null) return;
             if (actionTaken) { Flash("This unit has already taken its action this turn."); return; }
             if (activation.Phase == MovePhase.MoveFollowers) { Flash("Finish the move before shooting."); return; }
+            if (!HasTargets)
+            {
+                Flash($"{squad.DisplayName} has no valid targets: it can use an ability, or do nothing.");
+                CombatAudio.PlayError();
+                return;
+            }
             shootMode = true;
         }
 
+        /// <summary>Every living soldier of the unit has Sniper Precision: it shoots at a soldier the player picks, never "a unit".</summary>
+        private static bool AllSniperPrecision(Unit unit) =>
+            unit != null && unit.LivingSoldiers.Any() && unit.LivingSoldiers.All(s => s.HasKeyword(UnitShooting.SniperPrecisionKeyword));
+
+        private bool hasTargetsCache;
+        private float hasTargetsUntil;
+
+        /// <summary>The active unit has at least one valid target anywhere (checked a few times a second for the HUD).</summary>
+        private bool HasTargets
+        {
+            get
+            {
+                if (squad == null) return false;
+                if (Time.unscaledTime >= hasTargetsUntil)
+                {
+                    hasTargetsCache = UnitShooting.HasAnyTarget(squad);
+                    hasTargetsUntil = Time.unscaledTime + 0.25f;
+                }
+                return hasTargetsCache;
+            }
+        }
+
         /// <summary>Steps 3–4 then the shooting sequence: this unit shoots at <paramref name="enemy"/>. Ends the unit's turn.</summary>
-        public ShootingResult OrderShoot(Unit enemy)
+        /// <param name="chosenTarget">The enemy soldier clicked: soldiers with Sniper Precision target them.</param>
+        public ShootingResult OrderShoot(Unit enemy, Soldier chosenTarget = null)
         {
             if (enemy == null || enemy == squad || actionTaken || activation == null || activation.Phase == MovePhase.MoveFollowers)
                 return null;
             // Nobody can target any of them (out of range or out of sight): refuse, so the action isn't wasted.
-            if (UnitShooting.SoldiersAbleToShoot(squad, enemy) == 0)
+            if (UnitShooting.SoldiersAbleToShoot(squad, enemy, chosenTarget) == 0)
             {
-                Flash($"None of {squad.DisplayName}'s soldiers can target {enemy.DisplayName}: out of range or out of sight.");
+                Flash(AllSniperPrecision(squad)
+                    ? $"{squad.DisplayName} can't target {(chosenTarget != null ? chosenTarget.name : "that")}: out of range, out of sight or in full cover. Pick another soldier."
+                    : $"None of {squad.DisplayName}'s soldiers can target {enemy.DisplayName}: out of range or out of sight.");
                 CombatAudio.PlayError();
                 return null;
             }
             bool sprinted = activation.LeaderMove == MoveKind.Sprint;
-            lastShooting = UnitShooting.Resolve(squad, enemy, sprinted, GameRandom.Shared);
+            lastShooting = UnitShooting.Resolve(squad, enemy, sprinted, GameRandom.Shared, chosenTarget);
             actionTaken = true;
             actedThisTurn.Add(squad);
             recentLog.Clear();
@@ -1127,7 +1183,10 @@ namespace Eldoria.Gameplay
         {
             var enemy = shootMode && hoverSoldier != null && hoverSoldier.Unit != null && hoverSoldier.Unit.Side != squad.Side
                 ? hoverSoldier.Unit : null;
-            var soldiers = enemy != null ? enemy.LivingSoldiers.ToList() : new List<Soldier>();
+            // A sniper shoots one soldier, not a unit: mark just the soldier under the cursor.
+            var soldiers = enemy == null ? new List<Soldier>()
+                : AllSniperPrecision(squad) ? new List<Soldier> { hoverSoldier }
+                : enemy.LivingSoldiers.ToList();
             while (targetRings.Count < soldiers.Count) targetRings.Add(RangeRing.Create("Ring_Target", transform, 0.06f));
             for (int i = 0; i < targetRings.Count; i++)
             {

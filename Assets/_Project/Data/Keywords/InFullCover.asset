@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Keyword
   displayName: In full cover
   category: 2
-  description: 'Fully concealed behind cover: can''t be targeted by a shooting attack
-    while the cover is between them.'
+  description: 'Fully concealed behind cover: can''t be targeted by a shooting attack.
+    Applies whenever a Full-cover object is between the attacker and the soldier.'
   appliesTo: 1
   interactions:
   - role: 1
@@ -28,3 +28,6 @@ MonoBehaviour:
   triggers: []
   grantsNearby: {fileID: 0}
   grantRadius: 5
+  grantsWhenBetween: 0
+  sparkles: 0
+  sparkleColor: {r: 1, g: 0.82, b: 0.25, a: 1}

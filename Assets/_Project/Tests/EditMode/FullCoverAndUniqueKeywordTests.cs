@@ -14,6 +14,7 @@ namespace Eldoria.Tests
         private Keyword halfCover, inHalfCover, fullCover, inFullCover, biological;
         private SoldierTemplate soldierT;
         private System.Func<Vector3, Vector3, Component, bool> originalCoverCheck;
+        private System.Func<Soldier, Soldier, bool> originalSight;
 
         private T Make<T>() where T : ScriptableObject
         {
@@ -33,6 +34,7 @@ namespace Eldoria.Tests
         public void SetUp()
         {
             originalCoverCheck = CoverCheck.IsBetween;
+            originalSight = LineOfSight.CanSee;
             Turns.ResetCounter();
 
             inHalfCover = Kw("In half-cover");
@@ -52,6 +54,7 @@ namespace Eldoria.Tests
             });
             fullCover = Kw("Full-cover");
             fullCover.grantsNearby = inFullCover;
+            fullCover.grantsWhenBetween = true;
 
             biological = Kw("Biological");
             soldierT = Make<SoldierTemplate>();
@@ -64,6 +67,7 @@ namespace Eldoria.Tests
         public void TearDown()
         {
             CoverCheck.IsBetween = originalCoverCheck;
+            LineOfSight.CanSee = originalSight;
             foreach (var o in created) if (o != null) Object.DestroyImmediate(o);
             created.Clear();
             Turns.ResetCounter();
@@ -160,11 +164,12 @@ namespace Eldoria.Tests
             var shooter = Spawn(new Vector3(0f, 0f, 20f));
             NearbyKeywords.RefreshAll();
 
-            Assert.That(target.HasKeyword("In full cover"), Is.True);
+            Assert.That(target.HasKeyword("In full cover"), Is.False, "not a standing status: it depends on who's shooting");
             Assert.That(Attack.CanTarget(shooter, shooter.Weapons[0], target), Is.False);
 
             var r = Attack.Resolve(shooter, shooter.Weapons[0], target, false, new System.Random(1));
             Assert.That(r.NotTargetable, Is.True);
+            Assert.That(r.NotTargetableReason, Does.Contain("full cover"));
             Assert.That(r.Hit, Is.False);
             Assert.That(r.DamageDealt, Is.EqualTo(0));
         }
@@ -176,18 +181,40 @@ namespace Eldoria.Tests
             var target = Spawn(new Vector3(0f, 0f, -1f));
             var flanker = Spawn(new Vector3(0f, 0f, -20f));
             NearbyKeywords.RefreshAll();
-            CoverCheck.IsBetween = (a, b, src) => false; // stand-in until line of sight is built
+            CoverCheck.IsBetween = (a, b, src) => false;
 
             Assert.That(Attack.CanTarget(flanker, flanker.Weapons[0], target), Is.True);
         }
 
         [Test]
-        public void ASoldierAwayFromFullCoverCanBeTargeted()
+        public void FullCoverWorksAtAnyDistanceFromTheTarget()
         {
             Cover("Container", new Vector3(0f, 0.5f, 0f), fullCover);
-            var target = Spawn(new Vector3(0f, 0f, -8f));
+            var target = Spawn(new Vector3(0f, 0f, -15f));
             var shooter = Spawn(new Vector3(0f, 0f, 20f));
+            LineOfSight.CanSee = (a, t) => true;   // the rule, not the geometry
             NearbyKeywords.RefreshAll();
+            var r = Attack.Resolve(shooter, shooter.Weapons[0], target, false, new System.Random(1), applyDamage: false);
+            Assert.That(r.NotTargetableReason, Does.Contain("full cover"));
+        }
+
+        [Test]
+        public void FullCoverWorksAtAnyDistanceFromTheShooter()
+        {
+            Cover("Container", new Vector3(0f, 0.5f, 0f), fullCover);
+            var shooter = Spawn(new Vector3(0f, 0f, 1f));      // right behind the cover...
+            var target = Spawn(new Vector3(0f, 0f, -25f));     // ...the target far beyond it
+            LineOfSight.CanSee = (a, t) => true;
+            Assert.That(Attack.CanTarget(shooter, shooter.Weapons[0], target), Is.False);
+        }
+
+        [Test]
+        public void ASoldierWithNoFullCoverBetweenCanBeTargeted()
+        {
+            Cover("Container", new Vector3(10f, 0.5f, 0f), fullCover);
+            var target = Spawn(new Vector3(0f, 0f, -15f));
+            var shooter = Spawn(new Vector3(0f, 0f, 20f));
+            LineOfSight.CanSee = (a, t) => true;
             Assert.That(Attack.CanTarget(shooter, shooter.Weapons[0], target), Is.True);
         }
     }

@@ -89,7 +89,8 @@ namespace Eldoria.Gameplay
                 {
                     case AIActionKind.Shoot:
                         Status = $"{unit.DisplayName} shoots at {action.ShootAt.DisplayName}.";
-                        var shooting = UnitShooting.Resolve(unit, action.ShootAt, activation.LeaderMove == MoveKind.Sprint, GameRandom.Shared);
+                        var shooting = UnitShooting.Resolve(unit, action.ShootAt, activation.LeaderMove == MoveKind.Sprint, GameRandom.Shared,
+                            action.ShootAtSoldier);
                         view.PresentShooting(unit, action.ShootAt, shooting);
                         break;
                     case AIActionKind.Ability:

@@ -212,6 +212,11 @@ namespace Eldoria.Units
             if (myUnit != null) myUnit.OnSoldierKilled(this);
             // Lie down where they fell.
             transform.rotation = Quaternion.Euler(-90f, transform.eulerAngles.y, 0f);
+            // "On death" triggers (their own keywords and their weapons', e.g. Unstable) - whatever killed them.
+            // Inside an ongoing volley or blast; anyone they take with them is removed when it ends.
+            Rules.Casualties.BeginVolley();
+            try { Rules.KeywordTriggers.Fire(TriggerEvent.Died, this, null); }
+            finally { Rules.Casualties.EndVolley(); }
             Rules.Casualties.OnKilled(this);
         }
 
