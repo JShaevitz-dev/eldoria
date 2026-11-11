@@ -7,7 +7,7 @@ namespace Eldoria.Rules
 {
     /// <summary>
     /// Close range: a Biological soldier is "in close range" if a Biological enemy soldier is less than 2 m away
-    /// (horizontally). Mechanical soldiers can never be in close range. A soldier in close range can't use any weapon unless it has the keyword "Pistol" - that goes for
+    /// (horizontally). Mechanical soldiers can never be in close range. A soldier in close range can't use any weapon unless it has the keyword "Pistol" or "Melee" - that goes for
     /// shooting and for abilities that use a weapon (e.g. Frag Grenade). Magic and other non-weapon abilities still work,
     /// and passive abilities are unaffected.
     /// </summary>
@@ -18,6 +18,12 @@ namespace Eldoria.Rules
 
         /// <summary>Weapons with this keyword can be used in close range.</summary>
         public const string PistolKeyword = "Pistol";
+
+        /// <summary>Melee weapons (e.g. the Iron Claw) can also be used in close range.</summary>
+        public const string MeleeKeyword = "Melee";
+
+        /// <summary>Can this weapon be used in close range? Pistols and melee weapons can.</summary>
+        public static bool UsableInCloseRange(System.Func<string, bool> weaponHas) => weaponHas(PistolKeyword) || weaponHas(MeleeKeyword);
 
         /// <summary>Status keyword shown on soldiers in close range.</summary>
         public const string StatusKeyword = "In close range";
@@ -47,11 +53,11 @@ namespace Eldoria.Rules
 
         public static bool IsInCloseRange(Soldier soldier) => EnemiesInCloseRange(soldier).Count > 0;
 
-        /// <summary>Can the soldier use this weapon right now? Always, unless in close range and it isn't a Pistol.</summary>
+        /// <summary>Can the soldier use this weapon right now? Always, unless in close range and it isn't a Pistol or Melee weapon.</summary>
         public static bool CanUseWeapon(Soldier soldier, WeaponTemplate weapon) =>
-            weapon != null && (weapon.HasKeyword(PistolKeyword) || !IsInCloseRange(soldier));
+            weapon != null && (UsableInCloseRange(weapon.HasKeyword) || !IsInCloseRange(soldier));
 
         public static bool CanUseWeapon(Soldier soldier, Weapon weapon) =>
-            weapon != null && (weapon.HasKeyword(PistolKeyword) || !IsInCloseRange(soldier));
+            weapon != null && (UsableInCloseRange(weapon.HasKeyword) || !IsInCloseRange(soldier));
     }
 }

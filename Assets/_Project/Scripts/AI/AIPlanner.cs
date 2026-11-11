@@ -38,7 +38,7 @@ namespace Eldoria.AI
     /// Each unit, in turn:
     ///  1. Moves (or holds). Fighting units (infantry squads) push toward the enemy, preferring spots in cover from which
     ///     enemies are in sight and within weapon range, avoiding close range and avoiding sprinting (it costs accuracy). Support units
-    ///     (Field Commander, Battlefield Priest) stay a few meters behind their own squads, in cover where they can; the
+    ///     (Field Commander, Battle Priest) stay a few meters behind their own squads, in cover where they can; the
     ///     priest never sprints, so it can still cast.
     ///  2. Acts: heals a wounded friendly soldier (2+ health missing) if it can; otherwise blesses a friendly unit that
     ///     enemies can see with a unit buff (Divine Sanctuary: it lasts until the AI's next turn, so through the player's);
@@ -68,7 +68,7 @@ namespace Eldoria.AI
 
         private static bool HasAura(Unit u) => u.LivingSoldiers.Any(s => s.Abilities.Any(a => a != null && a.IsAura));
 
-        /// <summary>A unit of one officer (Field Commander, Battlefield Priest) that supports the squads rather than leading the attack.</summary>
+        /// <summary>A unit of one officer (Field Commander, Battle Priest) that supports the squads rather than leading the attack.</summary>
         public static bool IsSupport(Unit u) => u.LivingSoldiers.Count() == 1 && u.LivingSoldiers.First().HasKeyword("Officer");
 
         private static bool HasSpells(Unit u) => u.LivingSoldiers.Any(s => s.Abilities.Any(a => a != null && a.IsSpell));
@@ -206,6 +206,9 @@ namespace Eldoria.AI
                     };
             }
 
+            var unitAttack = ChooseUnitAttack(unit);
+            if (unitAttack != null) return unitAttack;
+
             var aimed = ChooseAimedAttack(unit);
             if (aimed != null) return aimed;
 
@@ -224,21 +227,55 @@ namespace Eldoria.AI
         }
 
         /// <summary>
-        /// An aimed-attack ability (e.g. the Rocket Launcher) is saved for heavily armored targets (Armor Level 2 or more,
-        /// where rifles do little or nothing): tanks first, then the most heavily armored, then the closest. Otherwise the
-        /// unit shoots as usual. Null if there's no such target in reach.
+        /// A unit-attack ability (e.g. Firestorm) on the enemy unit in reach with the most soldiers it would affect, if that's
+        /// at least 2. Null otherwise.
+        /// </summary>
+        private static AIAction ChooseUnitAttack(Unit unit)
+        {
+            foreach (var (user, ability) in ActiveAbilities.UnitAbilities(unit))
+            {
+                if (user == null || !ability.IsUnitAttack || ActiveAbilities.WhyCannotCast(user, ability) != null) continue;
+                Unit best = null;
+                int bestCount = 1;
+                foreach (var enemy in Object.FindObjectsByType<Unit>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                {
+                    if (enemy.Side == unit.Side || enemy.IsDestroyed) continue;
+                    if (ActiveAbilities.WhyCannotUse(user, ability, targetUnit: enemy) != null) continue;
+                    int count = enemy.LivingSoldiers.Count(s => ability.targetMustHave == null || s.HasKeyword(ability.targetMustHave.displayName));
+                    if (count > bestCount) { best = enemy; bestCount = count; }
+                }
+                if (best != null)
+                    return new AIAction
+                    {
+                        Kind = AIActionKind.Ability, Ability = ability, User = user, TargetUnit = best,
+                        Reason = $"{ability.displayName} on {best.DisplayName} ({bestCount} soldiers)"
+                    };
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// An aimed-attack ability. With a weapon that armor stops (e.g. the Rocket Launcher) it's saved for heavily armored
+        /// targets (Armor Level 2 or more, where rifles do little or nothing): tanks first, then the most heavily armored,
+        /// then the closest. With one that ignores armor (no penetration value, e.g. Fireball) it's used on anyone: valuable
+        /// targets (Solo, sergeants) first, then the closest. Otherwise the unit shoots as usual. Null if there's no target.
         /// </summary>
         private static AIAction ChooseAimedAttack(Unit unit)
         {
             foreach (var (user, ability) in ActiveAbilities.UnitAbilities(unit))
             {
                 if (user == null || !ability.IsAimedAttack || ActiveAbilities.WhyCannotCast(user, ability) != null) continue;
-                var target = Enemies(unit)
-                    .Where(s => s.ArmorLevel >= 2 && ActiveAbilities.WhyCannotUse(user, ability, s) == null)
-                    .OrderByDescending(s => s.HasKeyword("Tank"))
-                    .ThenByDescending(s => s.ArmorLevel)
-                    .ThenBy(s => Measure.Between(user, s))
-                    .FirstOrDefault();
+                bool ignoresArmor = !ability.attackWeapon.PenetrationValue.HasValue;
+                var weapon = user.AbilityWeapon(ability.attackWeapon);
+                var valid = Enemies(unit).Where(s => ActiveAbilities.WhyCannotUse(user, ability, s) == null
+                    && ArmorPenetration.Resolve(weapon.BaseDamage, weapon.PenetrationValue, s.ArmorLevel).Damage > 0);   // it would hurt them
+                var target = ignoresArmor
+                    ? valid.OrderByDescending(IsValuableTarget).ThenBy(s => Measure.Between(user, s)).FirstOrDefault()
+                    : valid.Where(s => s.ArmorLevel >= 2)
+                        .OrderByDescending(s => s.HasKeyword("Tank"))
+                        .ThenByDescending(s => s.ArmorLevel)
+                        .ThenBy(s => Measure.Between(user, s))
+                        .FirstOrDefault();
                 if (target != null)
                     return new AIAction
                     {

@@ -110,10 +110,10 @@ namespace Eldoria.EditorTools
             return unit;
         }
 
-        private const string PriestName = "Battlefield Priest";
+        private const string PriestName = "Battle Priest";
 
         /// <summary>
-        /// Battlefield Priest unit: 1 Battlefield Priest (Health 5, Armor 0, Accuracy 50%, 10 m; Biological, Officer,
+        /// Battle Priest unit (Specialist): 1 Battle Priest (Health 5, Armor 0, Accuracy 50%, 10 m; Biological, Officer,
         /// Solo, Magic; Divine Healing, Divine Sanctuary; Pistol).
         /// </summary>
         public static UnitTemplate CreateBattlefieldPriest()
@@ -152,7 +152,7 @@ namespace Eldoria.EditorTools
 
             var priest = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/BattlefieldPriest.asset", s =>
             {
-                s.displayName = "Battlefield Priest";
+                s.displayName = PriestName;
                 s.health = 5; s.armorLevel = 0; s.accuracy = 50; s.movementRange = 10f;
                 s.keywords = new List<Keyword> { keywords["Biological"], keywords["Officer"], keywords["Solo"], keywords["Magic"] };
                 s.abilities = new List<Ability> { healing, sanctuary };
@@ -169,7 +169,7 @@ namespace Eldoria.EditorTools
 
             var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/BattlefieldPriest.asset", u =>
             {
-                u.displayName = "Battlefield Priest";
+                u.displayName = PriestName;
                 u.leader = priest;
                 u.members = new List<UnitTemplate.Member>();
             });
@@ -245,7 +245,7 @@ namespace Eldoria.EditorTools
             return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/MachineGun.asset", w =>
             {
                 w.displayName = "Machine Gun";
-                w.baseDamage = 6;
+                w.baseDamage = 5;
                 w.hasPenetration = true;
                 w.penetration = 1;
                 w.accuracyBonus = 0;
@@ -488,7 +488,7 @@ namespace Eldoria.EditorTools
             var trooper = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/PoweredArmorTrooper.asset", s =>
             {
                 s.displayName = "Trooper in Powered Armor";
-                s.health = 10; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 6f;
+                s.health = 5; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 6f;
                 s.keywords = new List<Keyword> { keywords["Biological"] };
                 s.abilities = new List<Ability>();
                 s.weapons = new List<WeaponTemplate>();
@@ -665,6 +665,263 @@ namespace Eldoria.EditorTools
             return unit;
         }
 
+        /// <summary>
+        /// Battle Mage (United States of Liberteria only; Specialist): a unit of one. Health 5, Armor 0, Accuracy 75%,
+        /// Movement 20 m; Biological, Solo, Officer, Magic; Pistol. Two spells (can't be cast after sprinting):
+        ///  - Firestorm: an enemy unit within 10 m; every Biological soldier in it takes 3 damage: it always hits (no roll)
+        ///    and ignores armor (no penetration value). No line of sight needed.
+        ///  - Fireball: an aimed attack on one enemy soldier: Damage 10, no penetration value, Range 20 m, Accuracy Bonus +0.
+        /// </summary>
+        public static UnitTemplate EnsureBattleMage(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            EnsureFolder(DataDir, "Abilities");
+            EnsureFolder(DataDir, "Weapons");
+            var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
+
+            WeaponTemplate SpellWeapon(string file, string name, int damage, float range)
+            {
+                var w = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/{file}.asset", x => x.displayName = name);
+                w.displayName = name;
+                w.baseDamage = damage;
+                w.hasPenetration = false;   // "X": ignores armor
+                w.penetration = 0;
+                w.accuracyBonus = 0;
+                w.range = range;
+                w.shots = 1;
+                w.keywords = new List<Keyword>();
+                EditorUtility.SetDirty(w);
+                return w;
+            }
+            var firestormWeapon = SpellWeapon("Firestorm", "Firestorm", 3, 10f);
+            var fireballWeapon = SpellWeapon("Fireball", "Fireball", 10, 20f);
+
+            Ability Spell(string file, string name, string description, AbilityTarget targets, float range, WeaponTemplate weapon, Keyword mustHave)
+            {
+                var a = GetOrCreate<Ability>($"{DataDir}/Abilities/{file}.asset", x => x.displayName = name);
+                a.displayName = name;
+                a.description = description;
+                a.kind = AbilityKind.Active;
+                a.targets = targets;
+                a.affects = AuraAffects.Enemies;
+                a.includeSelf = false;
+                a.range = range;
+                a.attackWeapon = weapon;
+                a.areaWeapon = null;
+                a.targetMustHave = mustHave;
+                a.heal = 0;
+                a.grantsKeyword = null;
+                a.usesPerTurn = 1;
+                a.usesPerBattle = 0;
+                a.keywords = new List<Keyword>();
+                Keyword.AddUnique(a.keywords, keywords["Spell"]);
+                EditorUtility.SetDirty(a);
+                return a;
+            }
+            var firestorm = Spell("Firestorm", "Firestorm",
+                "Spell. Choose an enemy unit within 10 m: every Biological soldier in it takes 3 damage. Always hits and ignores armor. " +
+                "No line of sight needed. Can't be cast after sprinting.",
+                AbilityTarget.Unit, 10f, firestormWeapon, keywords["Biological"]);
+            var fireball = Spell("Fireball", "Fireball",
+                "Spell. An aimed attack on one enemy soldier within 20 m and in sight: 10 damage that ignores armor, with a hit roll. " +
+                "Can't be cast after sprinting.",
+                AbilityTarget.Soldier, 20f, fireballWeapon, null);
+
+            var mage = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/BattleMage.asset", x => x.displayName = "Battle Mage");
+            mage.displayName = "Battle Mage";
+            mage.health = 5; mage.armorLevel = 0; mage.accuracy = 75; mage.movementRange = 20f;
+            mage.keywords = new List<Keyword> { keywords["Biological"], keywords["Solo"], keywords["Officer"], keywords["Magic"] };
+            mage.weapons = new List<WeaponTemplate> { pistol };
+            mage.primaryWeapon = pistol;
+            mage.abilities = new List<Ability> { firestorm, fireball };
+            if (mage.prefab == null)
+                mage.prefab = BuildSoldierPrefab("BattleMage", mage, false,
+                    GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f)),
+                    GetOrCreateMaterial("Skin", new Color(0.85f, 0.68f, 0.55f)),
+                    GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f)),
+                    GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                    mageKit: true);
+            EditorUtility.SetDirty(mage);
+
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/BattleMage.asset", u => u.displayName = "Battle Mage");
+            unit.displayName = "Battle Mage";
+            unit.leader = mage;
+            unit.members = new List<UnitTemplate.Member>();
+            EditorUtility.SetDirty(unit);
+            AssetDatabase.SaveAssets();
+            return unit;
+        }
+
+        /// <summary>
+        /// Stahl Colossus (Draksa Reich only; Heavy Support): a unit of one humanoid war robot twice a person's size. Health 15,
+        /// Armor Level 3, Accuracy 75%, Movement 15 m (Mechanical: no sprint); Solo, Mechanical. Machine Gun (primary) and
+        /// Iron Claw (Damage 10, Penetration 0, Range 2 m, Accuracy Bonus +25, Melee: usable in close range). Abilities:
+        /// Iron Claw (active: an aimed strike with the claw) and Stabilizers (passive: nullifies Deployed).
+        /// </summary>
+        public static UnitTemplate EnsureStahlColossus(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Keywords");
+            EnsureFolder(DataDir, "Weapons");
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var melee = GetOrCreate<Keyword>($"{DataDir}/Keywords/Melee.asset", k => { k.displayName = "Melee"; k.appliesTo = KeywordTarget.Weapon; });
+            melee.description = "This weapon can be used when the holder is in close range.";
+            melee.category = KeywordCategory.Trait;
+            EditorUtility.SetDirty(melee);
+
+            var claw = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/IronClaw.asset", w => w.displayName = "Iron Claw");
+            claw.displayName = "Iron Claw";
+            claw.baseDamage = 10;
+            claw.hasPenetration = true;
+            claw.penetration = 0;
+            claw.range = 2f;
+            claw.accuracyBonus = 25;
+            claw.shots = 1;
+            claw.keywords = new List<Keyword> { melee };
+            EditorUtility.SetDirty(claw);
+
+            var mg = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/MachineGun.asset");
+            var mechanical = AssetDatabase.LoadAssetAtPath<Keyword>($"{DataDir}/Keywords/Mechanical.asset");
+            var deployed = AssetDatabase.LoadAssetAtPath<Keyword>($"{DataDir}/Keywords/Deployed.asset");
+            EnsureFolder(DataDir, "Abilities");
+
+            // The Iron Claw as an active ability: an aimed strike at one enemy within 2 m, instead of the machine gun.
+            var strike = GetOrCreate<Ability>($"{DataDir}/Abilities/IronClaw.asset", a => a.displayName = "Iron Claw");
+            strike.displayName = "Iron Claw";
+            strike.description = "Active. An aimed strike at one enemy soldier within 2 m: Damage 10, Penetration 0, +25% accuracy, with a " +
+                                 "hit roll. Using it is the unit's action (no machine gun volley).";
+            strike.kind = AbilityKind.Active;
+            strike.targets = AbilityTarget.Soldier;
+            strike.affects = AuraAffects.Enemies;
+            strike.includeSelf = false;
+            strike.range = claw.range;
+            strike.attackWeapon = claw;
+            strike.usesPerTurn = 1;
+            strike.usesPerBattle = 0;
+            EditorUtility.SetDirty(strike);
+
+            // Stabilizers: the Colossus's weapons ignore Deployed, so its machine gun fires even after it moves.
+            var stabilizers = GetOrCreate<Ability>($"{DataDir}/Abilities/Stabilizers.asset", a => a.displayName = "Stabilizers");
+            stabilizers.displayName = "Stabilizers";
+            stabilizers.description = "Passive. Nullifies the Deployed keyword: the Stahl Colossus's weapons can fire after it moves.";
+            stabilizers.kind = AbilityKind.Passive;
+            stabilizers.grantsNearby = null;
+            stabilizers.nullifiesKeyword = deployed;
+            EditorUtility.SetDirty(stabilizers);
+            var c = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/StahlColossus.asset", s => s.displayName = "Stahl Colossus");
+            c.displayName = "Stahl Colossus";
+            c.health = 15; c.armorLevel = 3; c.accuracy = 75; c.movementRange = 15f;
+            c.keywords = new List<Keyword> { keywords["Solo"], mechanical };
+            c.weapons = new List<WeaponTemplate> { mg, claw };
+            c.primaryWeapon = mg;
+            c.abilities = new List<Ability> { strike, stabilizers };
+            c.height = 3.6f;   // twice a person
+            c.radius = 0.7f;
+            if (c.prefab == null) c.prefab = BuildColossusPrefab("StahlColossus", c);
+            EditorUtility.SetDirty(c);
+
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/StahlColossus.asset", u => u.displayName = "Stahl Colossus");
+            unit.displayName = "Stahl Colossus";
+            unit.leader = c;
+            unit.members = new List<UnitTemplate.Member>();
+            EditorUtility.SetDirty(unit);
+            AssetDatabase.SaveAssets();
+            return unit;
+        }
+
+        /// <summary>
+        /// The Stahl Colossus: a humanoid robot twice a person's height. Torso, shoulders and upper legs take the faction
+        /// colour (the primary-colour material); limbs, head and weapons are bare metal. Machine gun in the right hand, a
+        /// three-fingered iron claw on the left.
+        /// </summary>
+        private static GameObject BuildColossusPrefab(string name, SoldierTemplate template)
+        {
+            var armor = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var steel = GetOrCreateMaterial("Colossus_Steel", new Color(0.45f, 0.46f, 0.5f));
+            var eye = GetOrCreateMaterial("Colossus_Eye", new Color(1f, 0.15f, 0.1f));
+            float h = template.height;
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = false;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = h;
+            col.center = new Vector3(0f, h / 2f, 0f);
+
+            // Legs.
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(root, "Thigh", PrimitiveType.Cube, armor, new Vector3(side * 0.28f, h * 0.36f, 0f), new Vector3(0.36f, h * 0.22f, 0.42f));
+                Part(root, "Shin", PrimitiveType.Cube, steel, new Vector3(side * 0.28f, h * 0.13f, 0.02f), new Vector3(0.3f, h * 0.26f, 0.36f));
+                Part(root, "Foot", PrimitiveType.Cube, metal, new Vector3(side * 0.28f, 0.08f, 0.12f), new Vector3(0.36f, 0.16f, 0.6f));
+            }
+            // Torso, shoulders, head with a red eye.
+            Part(root, "Torso", PrimitiveType.Cube, armor, new Vector3(0f, h * 0.62f, 0f), new Vector3(1.0f, h * 0.3f, 0.6f));
+            Part(root, "Shoulder_L", PrimitiveType.Sphere, armor, new Vector3(-0.62f, h * 0.76f, 0f), Vector3.one * 0.42f);
+            Part(root, "Shoulder_R", PrimitiveType.Sphere, armor, new Vector3(0.62f, h * 0.76f, 0f), Vector3.one * 0.42f);
+            Part(root, "Head", PrimitiveType.Cube, steel, new Vector3(0f, h * 0.86f, 0.04f), new Vector3(0.42f, 0.38f, 0.44f));
+            Part(root, "Eye", PrimitiveType.Cube, eye, new Vector3(0f, h * 0.87f, 0.27f), new Vector3(0.3f, 0.07f, 0.03f));
+            // Right arm with the machine gun.
+            Part(root, "Arm_R", PrimitiveType.Cube, steel, new Vector3(0.66f, h * 0.6f, 0.15f), new Vector3(0.24f, h * 0.24f, 0.26f));
+            Part(root, "Weapon", PrimitiveType.Cube, metal, new Vector3(0.66f, h * 0.48f, 0.7f), new Vector3(0.18f, 0.22f, 1.4f));
+            // Left arm with the iron claw.
+            Part(root, "Arm_L", PrimitiveType.Cube, steel, new Vector3(-0.66f, h * 0.6f, 0.15f), new Vector3(0.24f, h * 0.24f, 0.26f));
+            Part(root, "Claw Hand", PrimitiveType.Cube, metal, new Vector3(-0.66f, h * 0.47f, 0.35f), new Vector3(0.3f, 0.26f, 0.3f));
+            foreach (float x in new[] { -0.1f, 0f, 0.1f })
+                Part(root, "Claw Finger", PrimitiveType.Cube, metal, new Vector3(-0.66f + x, h * 0.44f, 0.62f), new Vector3(0.06f, 0.08f, 0.4f));
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            string path = $"{PrefabDir}/{name}.prefab";
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        /// <summary>
+        /// Field Commander in Powered Armor (Commander, every faction): the Field Commander (Health 10, Accuracy 75%; Biological,
+        /// Officer, Solo; Lead from the front; Pistol) with Armor Level 2 and Movement 6 m. Copies the Field Commander's
+        /// soldier template, so changes to the Field Commander (keywords, abilities, weapons) carry over.
+        /// </summary>
+        public static UnitTemplate EnsureFieldCommanderInPoweredArmor()
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var original = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/FieldCommander.asset");
+            var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/FieldCommanderPoweredArmor.asset", x => x.displayName = "Field Commander in Powered Armor");
+            s.displayName = "Field Commander in Powered Armor";
+            s.health = original.health;
+            s.accuracy = original.accuracy;
+            s.armorLevel = 2;
+            s.movementRange = 6f;
+            s.keywords = new List<Keyword>(original.keywords);
+            s.abilities = new List<Ability>(original.abilities);
+            s.weapons = new List<WeaponTemplate>(original.weapons);
+            s.primaryWeapon = original.primaryWeapon;
+            if (s.prefab == null)
+                s.prefab = BuildSoldierPrefab("FieldCommanderPoweredArmor", s, true,
+                    GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f)),
+                    GetOrCreateMaterial("Skin", new Color(0.85f, 0.68f, 0.55f)),
+                    GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f)),
+                    GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                    GetOrCreateMaterial("Commander_Cape", new Color(0.45f, 0.08f, 0.1f)),
+                    poweredArmor: true);
+            EditorUtility.SetDirty(s);
+
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/FieldCommanderPoweredArmor.asset", u => u.displayName = "Field Commander in Powered Armor");
+            unit.displayName = "Field Commander in Powered Armor";
+            unit.leader = s;
+            unit.members = new List<UnitTemplate.Member>();
+            EditorUtility.SetDirty(unit);
+            AssetDatabase.SaveAssets();
+            return unit;
+        }
+
         public static WeaponTemplate EnsureRocketLauncher()
         {
             EnsureFolder(DataDir, "Weapons");
@@ -767,7 +1024,7 @@ namespace Eldoria.EditorTools
         public static readonly (string file, int shots)[] WeaponShots =
         {
             ("AssaultRifle", 1), ("Pistol", 1), ("SMG", 1), ("MachineGun", 5), ("Flamethrower", 3), ("SniperRifle", 1),
-            ("FragGrenade", 1), ("UnstableExplosion", 1), ("Cannon100mm", 1), ("RocketLauncher", 1),
+            ("FragGrenade", 1), ("UnstableExplosion", 1), ("Cannon100mm", 1), ("RocketLauncher", 1), ("IronClaw", 1),
         };
 
         private static void ApplyWeaponShots()
@@ -802,7 +1059,7 @@ namespace Eldoria.EditorTools
         private static void TagAsSpell(Ability ability, Dictionary<string, Keyword> keywords)
         {
             Keyword.AddUnique(ability.keywords, keywords["Spell"]);
-            // The Battlefield Priest's spells ring out with a hallelujah when cast.
+            // The Battle Priest's spells ring out with a hallelujah when cast.
             ability.castSound = AssetDatabase.LoadAssetAtPath<AudioClip>(PriestSpellSoundPath);
             if (ability.castSound == null) Debug.LogWarning($"[Eldoria] Missing priest spell sound at {PriestSpellSoundPath}.");
         }
@@ -818,10 +1075,12 @@ namespace Eldoria.EditorTools
         {
             ["InfantrySquad"] = UnitRole.Infantry,
             ["FieldCommander"] = UnitRole.Commander,
-            ["BattlefieldPriest"] = UnitRole.Commander,
+            ["FieldCommanderPoweredArmor"] = UnitRole.Commander,
+            ["BattlefieldPriest"] = UnitRole.Specialist,
             ["MachineGunTeam"] = UnitRole.HeavySupport,
             ["MediumTank"] = UnitRole.HeavySupport,
             ["TankHunterTeam"] = UnitRole.HeavySupport,
+            ["StahlColossus"] = UnitRole.HeavySupport,
         };
 
         /// <summary>How each unit plays and what it does in an army, shown in the army builder (by file name).</summary>
@@ -832,17 +1091,23 @@ namespace Eldoria.EditorTools
             ["FieldCommander"] =
                 "A lone officer who makes everyone nearby shoot straighter. Lead from the front gives friendly soldiers within 15 m +15% accuracy (the Commander doesn't get it), so keep the Commander just behind your main firing line. With 10 health but only a pistol, the Commander isn't a fighter, and as a Solo unit is a prime target for enemy snipers. A Commander: every army needs at least one.",
             ["BattlefieldPriest"] =
-                "A fragile support caster (5 health, no armor, 50% accuracy) with two spells. Divine Healing restores 5 health to a friendly soldier within 25 m; Divine Sanctuary gives a whole friendly unit +1 Armor Level until your next turn, blunting the fire on a squad that's about to be shot. Spells can't be cast after sprinting, so move the Priest with care. A Commander, so the Priest can fill your required Commander slot.",
+                "A fragile support caster (5 health, no armor, 50% accuracy) with two spells. Divine Healing restores 5 health to a friendly soldier within 25 m; Divine Sanctuary gives a whole friendly unit +1 Armor Level until your next turn, blunting the fire on a squad that's about to be shot. Spells can't be cast after sprinting, so move the Battle Priest with care, and keep it behind the squads it supports. A Specialist: one per army.",
             ["MachineGunTeam"] =
-                "A heavy fire base. The Machine Gunner fires 5 shots a volley (6 damage, penetration 1, 20 m each) but can't fire after moving, so set the team up covering a firing lane and let it hold there. Three SMG troopers add close-range firepower out to 10 m and protect the gun; the Sergeant carries only a pistol. With five soldiers and no grenade, it's best covering ground rather than leading an assault. Heavy Support can be taken more than once.",
+                "A heavy fire base. The Machine Gunner fires 5 shots a volley (5 damage, penetration 1, 20 m each) but can't fire after moving, so set the team up covering a firing lane and let it hold there. Three SMG troopers add close-range firepower out to 10 m and protect the gun; the Sergeant carries only a pistol. With five soldiers and no grenade, it's best covering ground rather than leading an assault. Heavy Support can be taken more than once.",
             ["PoweredArmorSquad"] =
-                "Five soldiers in powered armor with Assault Rifles. Health 10 and Armor Level 2 halve rifle damage and shrug off pistols and grenades entirely, so the squad can walk through fire that would shred an Infantry Squad. The trade-off is speed: only 6 m a move (12 m sprinting), so start advancing early or put them where the fight will come to them. A Specialist: one per army.",
+                "Five soldiers in powered armor with Assault Rifles. Armor Level 2 halves rifle damage and shrugs off pistols and grenades entirely, so the squad can walk through fire that would shred an Infantry Squad; the Sergeant has 10 health, the Troopers 5. The trade-off is speed: only 6 m a move (12 m sprinting), so start advancing early or put them where the fight will come to them. A Specialist: one per army.",
             ["FlamethrowerTeam"] =
                 "Two troopers with Flamethrowers for clearing buildings and cover at close quarters. Each Flamethrower fires 3 shots a volley, each doing 10 damage that ignores armor, but only against Biological targets and only out to 10 m, so the team has to get close. When a trooper dies there's a 10% chance their tank explodes, hurting everyone within 5 m: keep them away from your own squads. In close range they fall back on pistols. A Specialist: one per army.",
             ["MediumTank"] =
                 "A lone armored vehicle and the hardest target on the field: 20 health and Armor Level 4 shrug off rifles, machine guns, grenades and flamethrowers alike. Its 100mm Cannon (10 damage, penetration 4, 50 m) is the only weapon that hurts heavy armor, but it's Manual Load: one shot a turn. It moves a long way (30 m) but, being Mechanical, can't sprint. When destroyed it has a 10% chance to explode (Unstable), so keep your own soldiers clear of it. Heavy Support, so you can field more than one.",
             ["TankHunterTeam"] =
                 "Five riflemen built around one Rocket Trooper. Their rifles do the everyday work, but the Rocket Launcher is why you take them: an aimed shot at a single enemy soldier within 50 m, Damage 5 with Penetration 5, enough to beat a Medium Tank's armor for 7 damage a hit. Firing it is the team's action for the turn (no rifle volley), and it's Manual Load, so once a turn. Keep the Rocket Trooper alive and in sight of the enemy's armor. Heavy Support, so you can field more than one.",
+            ["BattleMage"] =
+                "A lone spellcaster of the United States of Liberteria. Firestorm engulfs an enemy unit within 10 m: every Biological soldier in it takes 3 damage, always hitting and ignoring armor, which can gut a whole squad. Fireball is an aimed shot at one soldier within 20 m and in sight: 10 damage that ignores armor, enough to kill most soldiers outright. Fast (20 m) but fragile (5 health, no armor), and both spells can't be cast after sprinting. A Specialist, and a Solo unit: one per army.",
+            ["StahlColossus"] =
+                "The Draksa Reich's war machine: a humanoid robot twice a man's height, with 15 health and Armor Level 3 that rifles, pistols and grenades can't dent. Its Stabilizers let its Machine Gun (5 shots) fire even after moving, and when an enemy is within 2 m it can strike with its Iron Claw instead (Damage 10, +25% accuracy). Mechanical: it moves 15 m but can't sprint. Rockets and tank cannons are its bane. Heavy Support, so you can field more than one.",
+            ["FieldCommanderPoweredArmor"] =
+                "The Field Commander sealed in powered armor. Lead from the front still gives friendly soldiers within 15 m +15% accuracy, and Armor Level 2 halves rifle fire and shrugs off pistols and grenades, so the Commander can stand much closer to the fight. The cost is speed: 6 m a move (12 m sprinting), so it has to plan ahead to keep the army inside its aura. A Commander: it fills your required Commander slot.",
             ["Sniper"] =
                 "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing sergeants and officers. The Sniper Rifle can't fire after moving, and with 5 health and no armor the Sniper must stay out of sight; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo unit: one per army.",
         };
@@ -882,8 +1147,32 @@ namespace Eldoria.EditorTools
         };
 
         /// <summary>
-        /// Creates the factions. For now every faction has access to every unit (<paramref name="allUnits"/>); when
-        /// factions get their own units, give each one its own list here.
+        /// Changes to existing data: Machine Gun Damage 5 (one weapon, so every holder: the Machine Gun Team's gunner and the
+        /// Stahl Colossus); Trooper in Powered Armor Health 5; the Battlefield Priest renamed the Battle Priest (its role,
+        /// Specialist, is set with the other roles).
+        /// </summary>
+        private static void ApplyBalanceChanges()
+        {
+            var mg = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/MachineGun.asset");
+            if (mg != null) { mg.baseDamage = 5; EditorUtility.SetDirty(mg); }
+            var paTrooper = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/PoweredArmorTrooper.asset");
+            if (paTrooper != null) { paTrooper.health = 5; EditorUtility.SetDirty(paTrooper); }
+            var priest = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/BattlefieldPriest.asset");
+            if (priest != null) { priest.displayName = PriestName; EditorUtility.SetDirty(priest); }
+            var priestUnit = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{DataDir}/Units/BattlefieldPriest.asset");
+            if (priestUnit != null) { priestUnit.displayName = PriestName; EditorUtility.SetDirty(priestUnit); }
+        }
+
+        /// <summary>Units only one faction can take (unit file name → faction file name). Every other unit is open to all.</summary>
+        public static readonly Dictionary<string, string> FactionOnlyUnits = new Dictionary<string, string>
+        {
+            ["BattleMage"] = "UnitedStatesOfLiberteria",
+            ["StahlColossus"] = "DraksaReich",
+        };
+
+        /// <summary>
+        /// Creates the factions. Each faction can take every unit except those belonging only to another faction
+        /// (<see cref="FactionOnlyUnits"/>).
         /// </summary>
         public static List<Faction> EnsureFactions(List<UnitTemplate> allUnits)
         {
@@ -899,7 +1188,9 @@ namespace Eldoria.EditorTools
                 var faction = GetOrCreate<Faction>($"{DataDir}/Factions/{file}.asset", f => f.displayName = name);
                 faction.displayName = name;
                 faction.color = color;
-                faction.units = new List<UnitTemplate>(allUnits);
+                faction.units = allUnits.Where(u =>
+                    !FactionOnlyUnits.TryGetValue(System.IO.Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(u)), out var only)
+                    || only == file).ToList();
                 ApplyFactionWeapons(faction, file);
                 EditorUtility.SetDirty(faction);
                 factions.Add(faction);
@@ -976,6 +1267,10 @@ namespace Eldoria.EditorTools
             EnsureMediumTank(keywords);
             EnsureRocketLauncher();
             EnsureTankHunterTeam(keywords);
+            EnsureBattleMage(keywords);
+            EnsureStahlColossus(keywords);
+            EnsureFieldCommanderInPoweredArmor();
+            ApplyBalanceChanges();
             ApplyWeaponShots();
             ApplyUnitRoles();
             ApplyUnitDescriptions();
@@ -1004,7 +1299,7 @@ namespace Eldoria.EditorTools
             Debug.Log("[Eldoria] Ability data updated.");
         }
 
-        /// <summary>Spawns the player's Battlefield Priest just behind the Infantry Squad's right side.</summary>
+        /// <summary>Spawns the player's Battle Priest just behind the Infantry Squad's right side.</summary>
         public static Unit SpawnBattlefieldPriest()
         {
             var template = CreateBattlefieldPriest();
@@ -1216,7 +1511,7 @@ namespace Eldoria.EditorTools
             {
                 k.displayName = "Divine Sanctuary";
                 k.appliesTo = KeywordTarget.Soldier;
-                k.description = "Blessed by a Battlefield Priest: +1 Armor Level.";
+                k.description = "Blessed by a Battle Priest: +1 Armor Level.";
                 k.interactions = new List<KeywordInteraction>
                 {
                     new KeywordInteraction
@@ -1252,7 +1547,7 @@ namespace Eldoria.EditorTools
                 ["Biological"] = KeywordCategory.Trait, ["Robotic"] = KeywordCategory.Trait,
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
                 ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait,
-                ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Melee"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,
@@ -1356,7 +1651,8 @@ namespace Eldoria.EditorTools
 
         private static GameObject BuildSoldierPrefab(string name, SoldierTemplate template, bool isSergeant,
             Material armor, Material skin, Material weapon, Material gold, Material cape = null, bool priest = false,
-            bool heavyWeapon = false, bool poweredArmor = false, bool sniperKit = false, bool flameKit = false, bool rocketKit = false)
+            bool heavyWeapon = false, bool poweredArmor = false, bool sniperKit = false, bool flameKit = false, bool rocketKit = false,
+            bool mageKit = false)
         {
             float h = template.height;          // 1.8m
             float headSize = 0.26f;
@@ -1432,6 +1728,17 @@ namespace Eldoria.EditorTools
             else
                 Part(root, "Weapon", PrimitiveType.Cube, weapon,
                     new Vector3(0.18f, h * 0.68f, 0.32f), new Vector3(0.07f, 0.1f, 0.85f));
+
+            if (mageKit)
+            {
+                // A battle mage: a tall pointed hat with a wide brim, and a glowing orb in the off hand.
+                var hat = GetOrCreateMaterial("Mage_Hat", new Color(0.24f, 0.14f, 0.36f));
+                Part(root, "Hat Brim", PrimitiveType.Cylinder, hat, new Vector3(0f, h - 0.02f, 0f), new Vector3(0.5f, 0.015f, 0.5f));
+                Part(root, "Hat", PrimitiveType.Capsule, hat, new Vector3(0f, h + 0.16f, -0.02f), new Vector3(0.2f, 0.22f, 0.2f));
+                Part(root, "Hat Tip", PrimitiveType.Capsule, hat, new Vector3(0f, h + 0.36f, -0.06f), new Vector3(0.1f, 0.12f, 0.1f));
+                Part(root, "Fire Orb", PrimitiveType.Sphere, GetOrCreateMaterial("Fire_Orb", new Color(1f, 0.5f, 0.1f)),
+                    new Vector3(-0.3f, h * 0.55f, 0.25f), Vector3.one * 0.16f);
+            }
 
             if (rocketKit)
             {

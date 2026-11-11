@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c831d2daf4333a42b1b9b15f92f56c6, type: 3}
+  m_Name: BattleMage
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
+  displayName: Battle Mage
+  prefab: {fileID: 8252082808790221312, guid: 419401f2aaef413479a7961acbc11647, type: 3}
+  health: 5
+  armorLevel: 0
+  accuracy: 75
+  movementRange: 20
+  keywords:
+  - {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
+  - {fileID: 11400000, guid: 22da05080ef4f7647937e5e7cc999c21, type: 2}
+  - {fileID: 11400000, guid: fd55723502b550f4cb05128c6ec70f27, type: 2}
+  - {fileID: 11400000, guid: 09ae0577a1d5cea4a8c3b07ce970adf1, type: 2}
+  abilities:
+  - {fileID: 11400000, guid: a7db438ce965e98459bef5660c8f70a8, type: 2}
+  - {fileID: 11400000, guid: 2c85cc0e415e4e14ca81d3746d825070, type: 2}
+  weapons:
+  - {fileID: 11400000, guid: 91a661bd5ba10cb459f504ddde841782, type: 2}
+  primaryWeapon: {fileID: 11400000, guid: 91a661bd5ba10cb459f504ddde841782, type: 2}
+  radius: 0.35
+  height: 1.8

@@ -4,9 +4,10 @@ namespace Eldoria.Rules
 {
     /// <summary>
     /// Whether a soldier can use a weapon right now (for shooting, or an ability that uses a weapon such as Frag Grenade):
-    ///  - Close range: only weapons with the Pistol keyword (see <see cref="CloseRange"/>).
+    ///  - Close range: only weapons with the Pistol or Melee keyword (see <see cref="CloseRange"/>).
     ///  - Deployed: a weapon with this keyword can't be used in a volley if the soldier holding it has moved this turn
-    ///    (they have the Moved status: any move this turn, even 0 m; holding position isn't moving).
+    ///    (they have the Moved status: any move this turn, even 0 m; holding position isn't moving) - unless one of the
+    ///    soldier's abilities nullifies Deployed (e.g. the Stahl Colossus's Stabilizers).
     ///  - Manual Load: a weapon with this keyword can't be fired more than once a turn (one volley; all of that volley's
     ///    shots count as the one firing), even if its soldier has a way to shoot more than one volley in a turn.
     /// A soldier who can't use their primary weapon uses another weapon they carry that they can use, if any.
@@ -41,10 +42,10 @@ namespace Eldoria.Rules
 
         private static string WhyCannotUse(Soldier soldier, System.Func<string, bool> weaponHas)
         {
-            if (weaponHas(DeployedKeyword) && soldier != null && soldier.HasKeyword(KeywordLibrary.Moved))
+            if (weaponHas(DeployedKeyword) && soldier != null && soldier.HasKeyword(KeywordLibrary.Moved) && !soldier.Nullifies(DeployedKeyword))
                 return "moved this turn with a Deployed weapon";
-            if (!weaponHas(CloseRange.PistolKeyword) && CloseRange.IsInCloseRange(soldier))
-                return "in close range without a pistol";
+            if (!CloseRange.UsableInCloseRange(weaponHas) && CloseRange.IsInCloseRange(soldier))
+                return "in close range without a pistol or melee weapon";
             return null;
         }
     }

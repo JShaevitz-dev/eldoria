@@ -188,7 +188,7 @@ namespace Eldoria.Tests
         public void AmongValuableTargetsTheClosest()
         {
             var ai = MakeUnit("AI Sniper", Side.AI, (sniperT, Vector3.zero));
-            var far = MakeUnit("Far", Side.Player, (Named("Battlefield Priest", solo: true), new Vector3(0, 0, 40))).Soldiers[0];
+            var far = MakeUnit("Far", Side.Player, (Named("Battle Priest", solo: true), new Vector3(0, 0, 40))).Soldiers[0];
             var near = MakeUnit("Near", Side.Player, (Named("Sergeant in Powered Armor"), new Vector3(0, 0, 20))).Soldiers[0];
             Assert.That(AI.AIPlanner.ChooseAction(ai).ShootAtSoldier, Is.EqualTo(near));
         }

@@ -16,7 +16,7 @@ getting the rules right.
 4. **Choose a battlefield:** the Urban Demo or the English Countryside.
 5. **Choose your faction:** the United States of Liberteria, the United Kingdom of Aelfland or the Draksa Reich. Your
    faction decides which units and commanders you can take.
-6. **Build your army:** up to 6 units, at least 1 Commander, and no duplicate Commander or Specialist units. Then
+6. **Build your army:** up to 6 units, exactly 1 Commander, and no duplicate Specialist units. Then
    press **Confirm army**.
 
 You play against the AI on one of two maps:
@@ -80,16 +80,19 @@ At a glance:
 | Unit | Role |
 |---|---|
 | Field Commander | Commander |
-| Battlefield Priest | Commander |
+| Field Commander in Powered Armor | Commander |
+| Battle Priest | Specialist |
 | Infantry Squad | Infantry |
 | Machine Gun Team | Heavy Support |
 | Flamethrower Team | Specialist |
 | Medium Tank | Heavy Support |
 | Tank Hunter Team | Heavy Support |
+| Battle Mage (United States of Liberteria only) | Specialist |
+| Stahl Colossus (Draksa Reich only) | Heavy Support |
 | Powered Armor Squad | Specialist |
 | Sniper | Specialist |
 
-For now every faction can take every unit. Commander and Specialist units are limited to one of each per army.
+Every faction can take every unit except another faction's own (so far, Liberteria's Battle Mage and the Draksa Reich's Stahl Colossus). An army has exactly 1 Commander, and Specialist units are limited to one of each.
 
 Weapons: Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, plus the Frag Grenade ability.
 

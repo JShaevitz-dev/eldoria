@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: BattleMage
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Battle Mage
+  role: 3
+  description: 'A lone spellcaster of the United States of Liberteria. Firestorm
+    engulfs an enemy unit within 10 m: every Biological soldier in it takes 3 damage,
+    always hitting and ignoring armor, which can gut a whole squad. Fireball is an
+    aimed shot at one soldier within 20 m and in sight: 10 damage that ignores armor,
+    enough to kill most soldiers outright. Fast (20 m) but fragile (5 health, no
+    armor), and both spells can''t be cast after sprinting. A Specialist, and a Solo
+    unit: one per army.'
+  leader: {fileID: 11400000, guid: 1926b1287b032e54e952656b62a420a6, type: 2}
+  members: []
+  deploymentSpacing: 2

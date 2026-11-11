@@ -132,7 +132,7 @@ namespace Eldoria.Tests
         {
             var mg = AssetDatabase.LoadAssetAtPath<WeaponTemplate>("Assets/_Project/Data/Weapons/MachineGun.asset");
             Assert.That(mg.displayName, Is.EqualTo("Machine Gun"));
-            Assert.That((mg.baseDamage, mg.PenetrationValue, mg.accuracyBonus, mg.range), Is.EqualTo((6, (int?)1, 0, 20f)));
+            Assert.That((mg.baseDamage, mg.PenetrationValue, mg.accuracyBonus, mg.range), Is.EqualTo((5, (int?)1, 0, 20f)), "Damage 5 (was 6)");
             Assert.That(mg.HasKeyword("Deployed"), Is.True);
             var deployed = AssetDatabase.LoadAssetAtPath<Keyword>("Assets/_Project/Data/Keywords/Deployed.asset");
             Assert.That((deployed.appliesTo, deployed.category), Is.EqualTo((KeywordTarget.Weapon, KeywordCategory.Trait)));

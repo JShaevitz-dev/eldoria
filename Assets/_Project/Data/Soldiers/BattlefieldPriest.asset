@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c831d2daf4333a42b1b9b15f92f56c6, type: 3}
   m_Name: BattlefieldPriest
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
-  displayName: Battlefield Priest
+  displayName: Battle Priest
   prefab: {fileID: 9054842628217443865, guid: 3e379f8ae3acfa846ae6e465b28103a1, type: 3}
   health: 5
   armorLevel: 0

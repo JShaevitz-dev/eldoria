@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
@@ -164,6 +165,10 @@ namespace Eldoria.Units
         /// <summary>Weapons this soldier uses through abilities (e.g. a Rocket Launcher), one instance each so they remember
         /// when they last fired (Manual Load) and take the soldier's faction changes. Not used in volleys.</summary>
         [System.NonSerialized] private Dictionary<WeaponTemplate, Weapon> abilityWeapons;
+
+        /// <summary>Does one of this soldier's passive abilities nullify this keyword (e.g. Stabilizers: Deployed)?</summary>
+        public bool Nullifies(string keyword) =>
+            Abilities.Any(a => a != null && a.kind == AbilityKind.Passive && a.nullifiesKeyword != null && a.nullifiesKeyword.Is(keyword));
 
         public Weapon AbilityWeapon(WeaponTemplate template)
         {

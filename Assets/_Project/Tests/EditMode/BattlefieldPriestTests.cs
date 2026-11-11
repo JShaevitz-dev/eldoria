@@ -111,7 +111,7 @@ namespace Eldoria.Tests
             var unit = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/BattlefieldPriest.asset");
             Assert.That(unit.Size, Is.EqualTo(1));
             var p = unit.leader;
-            Assert.That(p.displayName, Is.EqualTo("Battlefield Priest"));
+            Assert.That(p.displayName, Is.EqualTo("Battle Priest"));
             Assert.That((p.health, p.armorLevel, p.accuracy, p.movementRange), Is.EqualTo((5, 0, 50, 10f)));
             Assert.That(p.keywords.Select(k => k.displayName), Is.EquivalentTo(new[] { "Biological", "Officer", "Solo", "Magic" }));
             Assert.That(p.keywords.All(k => k.category == KeywordCategory.Trait), Is.True);

@@ -86,7 +86,7 @@ namespace Eldoria.Tests
             var controller = Object.FindFirstObjectByType<MovementController>();
             var units = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None);
             var squad = units.First(u => u.Side == Units.Side.Player && u.DisplayName == "Infantry Squad");
-            var priestUnit = units.First(u => u.DisplayName == "Battlefield Priest");
+            var priestUnit = units.First(u => u.DisplayName == "Battle Priest");
             var priest = priestUnit.Leader;
             var sanctuary = priest.Abilities.First(a => a.displayName == "Divine Sanctuary");
             var healing = priest.Abilities.First(a => a.displayName == "Divine Healing");
@@ -121,7 +121,7 @@ namespace Eldoria.Tests
             var controller = Object.FindFirstObjectByType<MovementController>();
             var units = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None);
             var squad = units.First(u => u.Side == Units.Side.Player && u.DisplayName == "Infantry Squad");
-            var priestUnit = units.First(u => u.DisplayName == "Battlefield Priest");
+            var priestUnit = units.First(u => u.DisplayName == "Battle Priest");
             var priest = priestUnit.Leader;
             var healing = priest.Abilities.First(a => a.displayName == "Divine Healing");
             var healthy = squad.Leader;
@@ -157,7 +157,7 @@ namespace Eldoria.Tests
             var controller = Object.FindFirstObjectByType<MovementController>();
             var units = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None);
             var squad = units.First(u => u.Side == Units.Side.Player && u.DisplayName == "Infantry Squad");
-            var priestUnit = units.First(u => u.DisplayName == "Battlefield Priest");
+            var priestUnit = units.First(u => u.DisplayName == "Battle Priest");
             var enemy = units.First(u => u.Side == Units.Side.AI);
             var priest = priestUnit.Leader;
             var sanctuary = priest.Abilities.First(a => a.displayName == "Divine Sanctuary");
@@ -188,7 +188,7 @@ namespace Eldoria.Tests
         {
             var controller = Object.FindFirstObjectByType<MovementController>();
             var units = Object.FindObjectsByType<Units.Unit>(FindObjectsSortMode.None);
-            var priestUnit = units.First(u => u.DisplayName == "Battlefield Priest");
+            var priestUnit = units.First(u => u.DisplayName == "Battle Priest");
             var priest = priestUnit.Leader;
             var enemy = units.First(u => u.Side == Units.Side.AI);
             priest.transform.position = new Vector3(-4f, 0f, -2f);   // within pistol range (10 m) of the enemy squad

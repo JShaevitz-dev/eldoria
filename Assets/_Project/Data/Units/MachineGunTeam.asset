@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Machine Gun Team
   role: 2
-  description: A heavy fire base. The Machine Gunner fires 5 shots a volley (6 damage,
+  description: A heavy fire base. The Machine Gunner fires 5 shots a volley (5 damage,
     penetration 1, 20 m each) but can't fire after moving, so set the team up covering
     a firing lane and let it hold there. Three SMG troopers add close-range firepower
     out to 10 m and protect the gun; the Sergeant carries only a pistol. With five

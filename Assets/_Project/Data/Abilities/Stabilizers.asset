@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d19a61d1a0328e040abadba0dd86f72a, type: 3}
+  m_Name: Stabilizers
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
+  displayName: Stabilizers
+  description: 'Passive. Nullifies the Deployed keyword: the Stahl Colossus''s weapons
+    can fire after it moves.'
+  kind: 0
+  keywords: []
+  affects: 0
+  includeSelf: 1
+  grantsNearby: {fileID: 0}
+  radius: 15
+  targets: 0
+  range: 25
+  targetMustHave: {fileID: 0}
+  heal: 0
+  grantsKeyword: {fileID: 0}
+  grantUntilNextTurn: 1
+  usesPerTurn: 1
+  usesPerBattle: 0
+  areaRadius: 2.5
+  areaWeapon: {fileID: 0}
+  castSound: {fileID: 0}
+  attackWeapon: {fileID: 0}
+  nullifiesKeyword: {fileID: 11400000, guid: 974b0fb37469b794db045219a44c799c, type: 2}

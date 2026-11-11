@@ -18,7 +18,7 @@ namespace Eldoria.Tests
         {
             var t = Template();
             Assert.That(t.displayName, Is.EqualTo("Trooper in Powered Armor"));
-            Assert.That((t.health, t.armorLevel, t.accuracy, t.movementRange), Is.EqualTo((10, 2, 75, 6f)));
+            Assert.That((t.health, t.armorLevel, t.accuracy, t.movementRange), Is.EqualTo((5, 2, 75, 6f)), "Health 5");
             Assert.That(t.HasKeyword("Biological"), Is.True);
             Assert.That(t.PrimaryWeapon.displayName, Is.EqualTo("Assault Rifle"), "armed in the Powered Armor Squad");
             Assert.That(t.abilities, Is.Empty);
@@ -31,8 +31,8 @@ namespace Eldoria.Tests
             var sgt = AssetDatabase.LoadAssetAtPath<SoldierTemplate>("Assets/_Project/Data/Soldiers/PoweredArmorSergeant.asset");
             var t = Template();
             Assert.That(sgt.displayName, Is.EqualTo("Sergeant in Powered Armor"));
-            Assert.That((sgt.health, sgt.armorLevel, sgt.accuracy, sgt.movementRange), Is.EqualTo((t.health, t.armorLevel, t.accuracy, t.movementRange)));
-            Assert.That((sgt.health, sgt.armorLevel, sgt.accuracy, sgt.movementRange), Is.EqualTo((10, 2, 75, 6f)));
+            Assert.That((sgt.armorLevel, sgt.accuracy, sgt.movementRange), Is.EqualTo((t.armorLevel, t.accuracy, t.movementRange)));
+            Assert.That((sgt.health, sgt.armorLevel, sgt.accuracy, sgt.movementRange), Is.EqualTo((10, 2, 75, 6f)), "the Sergeant keeps Health 10");
             Assert.That(sgt.HasKeyword("Biological"), Is.True);
             Assert.That(sgt.PrimaryWeapon.displayName, Is.EqualTo("Assault Rifle"));
             Assert.That(sgt.prefab, Is.Not.Null);

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: FieldCommanderPoweredArmor
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Field Commander in Powered Armor
+  role: 1
+  description: 'The Field Commander sealed in powered armor. Lead from the front
+    still gives friendly soldiers within 15 m +15% accuracy, and Armor Level 2 halves
+    rifle fire and shrugs off pistols and grenades, so the Commander can stand much
+    closer to the fight. The cost is speed: 6 m a move (12 m sprinting), so it has
+    to plan ahead to keep the army inside its aura. A Commander: it fills your required
+    Commander slot.'
+  leader: {fileID: 11400000, guid: 3067be0ab1e094d4aa696e51fcfb4a05, type: 2}
+  members: []
+  deploymentSpacing: 2

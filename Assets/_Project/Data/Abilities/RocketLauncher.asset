@@ -34,3 +34,4 @@ MonoBehaviour:
   areaWeapon: {fileID: 0}
   castSound: {fileID: 0}
   attackWeapon: {fileID: 11400000, guid: 93b7807a8644b95438f02745fa0e6cb1, type: 2}
+  nullifiesKeyword: {fileID: 0}

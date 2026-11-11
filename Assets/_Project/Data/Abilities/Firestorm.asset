@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d19a61d1a0328e040abadba0dd86f72a, type: 3}
+  m_Name: Firestorm
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
+  displayName: Firestorm
+  description: 'Spell. Choose an enemy unit within 10 m: every Biological soldier
+    in it takes 3 damage. Always hits and ignores armor. No line of sight needed.
+    Can''t be cast after sprinting.'
+  kind: 1
+  keywords:
+  - {fileID: 11400000, guid: 526a5a5836e0bc64dbee80b0583cc1dd, type: 2}
+  affects: 1
+  includeSelf: 0
+  grantsNearby: {fileID: 0}
+  radius: 15
+  targets: 1
+  range: 10
+  targetMustHave: {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
+  heal: 0
+  grantsKeyword: {fileID: 0}
+  grantUntilNextTurn: 1
+  usesPerTurn: 1
+  usesPerBattle: 0
+  areaRadius: 2.5
+  areaWeapon: {fileID: 0}
+  castSound: {fileID: 0}
+  attackWeapon: {fileID: 11400000, guid: eb635562e81d1ac4d935ca47189a49a1, type: 2}
+  nullifiesKeyword: {fileID: 0}

@@ -46,9 +46,9 @@ namespace Eldoria.Tests
 
             menu.Builder.ChooseFaction(menu.Builder.Factions[1]);
             Assert.That(menu.Builder.Faction.displayName, Is.EqualTo("United Kingdom of Aelfland"));
-            Assert.That(menu.Builder.Available.Count, Is.EqualTo(9), "for now every faction has every unit");
+            Assert.That(menu.Builder.Available.Count, Is.EqualTo(10), "every unit but Liberteria's Battle Mage and the Reich's Stahl Colossus");
             Assert.That(menu.Builder.Army.Select(u => u.displayName), Is.EqualTo(new[]
-                { "Infantry Squad", "Field Commander", "Infantry Squad", "Battlefield Priest", "Infantry Squad" }));
+                { "Infantry Squad", "Field Commander", "Infantry Squad", "Battle Priest", "Infantry Squad" }));
         }
 
         [UnityTest]

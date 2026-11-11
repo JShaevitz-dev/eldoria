@@ -50,9 +50,9 @@ Every unit has a **role**. It's shown in the HUD when the unit is selected.
 | Role | Units |
 |---|---|
 | **Infantry** | Infantry Squad |
-| **Commander** | Field Commander, Battlefield Priest |
-| **Heavy Support** | Machine Gun Team, Medium Tank, Tank Hunter Team |
-| **Specialist** | Powered Armor Squad, Sniper, Flamethrower Team (and any unit not given another role) |
+| **Commander** | Field Commander, Field Commander in Powered Armor |
+| **Heavy Support** | Machine Gun Team, Medium Tank, Tank Hunter Team, Stahl Colossus |
+| **Specialist** | Powered Armor Squad, Sniper, Flamethrower Team, Battle Mage, Battle Priest (and any unit not given another role) |
 
 ### Factions — *implemented*
 
@@ -60,9 +60,9 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 
 | Faction | Colour | Units |
 |---|---|---|
-| **United States of Liberteria** | dark green | every unit (for now) |
-| **United Kingdom of Aelfland** | light green | every unit (for now) |
-| **The Draksa Reich** | gray | every unit (for now) |
+| **United States of Liberteria** | dark green | every unit, plus its own **Battle Mage** |
+| **United Kingdom of Aelfland** | light green | every unit except other factions' own |
+| **The Draksa Reich** | gray | every unit except other factions' own, plus its own **Stahl Colossus** |
 
 **Faction colours:** a unit's **primary colour** (its soldiers' bodies and caps) is its faction's colour. Every faction uses the same models and materials: the primary-colour parts are tinted per unit when it deploys, so a new faction only needs a colour, not new textures. Other parts keep their own colours (skin, weapons, gold trim, the officer's cape, the priest's white robe, powered armor plates). Both sides can choose the same faction; the soldier labels (blue for yours, red for the enemy's) still tell them apart. The army builder shows each faction's colour.
 
@@ -87,12 +87,12 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 
 - Every unit must be one the army's **faction** has access to.
 - An army has **6 slots**: it can have **1 to 6 units** (empty slots are allowed).
-- It must contain **at least 1 Commander** unit.
-- It **can't have duplicates of a Commander or Specialist** unit (e.g. only one Sniper, only one Field Commander; the Field Commander and the Battlefield Priest together is fine). **Infantry** and **Heavy Support** units can be taken more than once.
+- It must contain **exactly 1 Commander** unit: at least one, and **only 1 Commander is allowed** in a list at a time.
+- It **can't have duplicates of a Commander or Specialist** unit (e.g. only one Sniper, only one Field Commander; the Field Commander and the Battle Priest together is fine). **Infantry** and **Heavy Support** units can be taken more than once.
 
-**Map choice, then army builder:** pressing **Play** first asks which **battlefield** to fight on (each with a short description); **Back** in the army builder returns to it. Choosing one opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the demo army (3 Infantry Squads, the Field Commander and the Battlefield Priest, keeping only units the faction has), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
+**Map choice, then army builder:** pressing **Play** first asks which **battlefield** to fight on (each with a short description); **Back** in the army builder returns to it. Choosing one opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the demo army (3 Infantry Squads, the Field Commander and the Battle Priest, keeping only units the faction has), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
 
-**The AI's army:** the AI picks a **random faction** and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 or 2 Commanders, then random units.
+**The AI's army:** the AI picks a **random faction** and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
 **Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). A unit taken more than once is numbered ("Infantry Squad 1", "Infantry Squad 2"). Restarting a battle replays the same armies.
 
@@ -112,18 +112,20 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 | Assault Rifle | 4 | 1 | 1 | +0 | — | 20 m |
 | Pistol | 2 | 1 | 0 | +0 | Pistol | 10 m |
 | SMG | 4 (as the Assault Rifle) | 1 | 0 | +0 | — | 10 m (as the Pistol) |
-| Machine Gun | 6 | 5 | 1 | +0 | Deployed | 20 m |
+| Machine Gun | 5 | 5 | 1 | +0 | Deployed | 20 m |
 | Flamethrower | 10 | 3 | X (none: always 100%) | +0 | Incendiary, Unstable | 10 m |
 | Sniper Rifle | 5 | 1 | 1 | +50 | Deployed | 50 m |
 | 100mm Cannon | 10 | 1 | 4 | +0 | Manual Load | 50 m |
 | Rocket Launcher | 5 | 1 | 5 | +0 | Manual Load | 50 m |
+| Iron Claw | 10 | 1 | 0 | +25 | Melee | 2 m |
 
 - **SMG** and **Machine Gun** are carried by the Machine Gun Team.
 - The **Flamethrower** is carried by the Flamethrower Team. The **Sniper Rifle** is carried by the Sniper. The **100mm Cannon** is carried by the Medium Tank. The **Rocket Launcher** is used by the Tank Hunter Team's Rocket Trooper, as an active ability (not in volleys).
 - **Incendiary** (weapon keyword): the weapon **only does damage to targets with the Biological keyword**. Against anything else the attack has no effect, so the soldier picks another target.
 - **Unstable** (weapon keyword): when the holder of this weapon dies, they have a **10% chance to explode**: **5 damage** (no penetration value, so always 5) to **ANY** soldier within **5 m** of the holder — friend or foe. As an explosion it can't go through object or structure terrain.
+- **Melee** (weapon keyword, Trait): the weapon **can be used when its holder is in close range** (like a Pistol).
 - **Manual Load** (weapon keyword, Trait): the weapon **can't be fired more than once a turn**, even if the soldier carrying it has a way to shoot more than one volley in a turn. All the shots of the volley it fires in count as that one firing. It's ready again on its holder's next turn.
-- **Deployed** (weapon keyword, Trait): the weapon **can't be used in a volley if the soldier holding it has moved this turn** (they have the Moved status: any move this turn, even 0 m; a leader holding position and soldiers left where they stood haven't moved). Each soldier is checked on their own.
+- **Deployed** (weapon keyword, Trait), unless the holder has an ability that nullifies it (the Stahl Colossus's Stabilizers): the weapon **can't be used in a volley if the soldier holding it has moved this turn** (they have the Moved status: any move this turn, even 0 m; a leader holding position and soldiers left where they stood haven't moved). Each soldier is checked on their own.
 - **Using another weapon:** a soldier who can't use their primary weapon right now (Deployed after moving, or close range without a pistol) uses another weapon they carry that they can use; if none, they don't shoot in that volley. The same goes for abilities that use a weapon.
 
 ### Machine Gun Team
@@ -145,7 +147,7 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 | Soldier | Health | Armor Level | Accuracy | Movement | Weapons |
 |---|---|---|---|---|---|
 | Sergeant in Powered Armor | 10 | 2 | 75% | 6 m (sprint 12 m) | Assault Rifle |
-| Trooper in Powered Armor (×4) | 10 | 2 | 75% | 6 m (sprint 12 m) | Assault Rifle |
+| Trooper in Powered Armor (×4) | 5 | 2 | 75% | 6 m (sprint 12 m) | Assault Rifle |
 
 ### Flamethrower Team
 
@@ -153,6 +155,34 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 
 - The Flamethrower only damages **Biological** targets (Incendiary), reaches **10 m**, and its holder has a **10%** chance to **explode** on death (Unstable: 5 damage to everyone within 5 m).
 - In **close range** they fall back on their **Pistols**.
+
+### Stahl Colossus
+
+1 **Stahl Colossus**, a unit of one: a humanoid war robot **twice the size of a person** (3.6 m tall). **The Draksa Reich only.** Role: **Heavy Support** (more than one can be taken).
+
+| Soldier | Health | Armor Level | Accuracy | Movement | Keywords | Weapons (primary first) |
+|---|---|---|---|---|---|---|
+| Stahl Colossus | 15 | 3 | 75% | 15 m (**can't sprint**) | Solo, Mechanical | Machine Gun, Iron Claw |
+
+- **Iron Claw:** Damage 10, Penetration 0, Range **2 m**, Accuracy Bonus **+25** (100% for the Colossus), Shots 1, keyword **Melee**.
+- **Passive ability — Stabilizers:** **nullifies the Deployed keyword** for its weapons, so its **Machine Gun** (5 shots) fires in its volleys **even after it moves**.
+- **Active ability — Iron Claw:** instead of a volley, the Colossus can make an **aimed strike** at one enemy soldier **within 2 m** with the Iron Claw (a hit roll at 100%; Damage 10, Penetration 0), **whether or not it moved**. It's the unit's action for the turn. The AI only uses it on targets it can hurt (Armor Level 1 or less).
+- **Mechanical:** it can't sprint and is never in close range. It isn't Biological (no healing; Flamethrowers and Firestorm don't affect it).
+- Armor Level 3 shrugs off rifles, SMGs, pistols, grenades and the Machine Gun (penetration 0–1). The Rocket Launcher (penetration 5: 150%) and the 100mm Cannon (penetration 4: 150%) hurt it, as do armor-ignoring weapons (Fireball).
+- It's wider than a person (0.7 m from its centre), so like the tank it moves on a walkable-area map sized to its body and needs room along its route.
+
+### Battle Mage
+
+1 **Battle Mage**, a unit of one. **United States of Liberteria only.** Role: **Specialist** (one per army).
+
+| Soldier | Health | Armor Level | Accuracy | Movement | Keywords | Weapons |
+|---|---|---|---|---|---|---|
+| Battle Mage | 5 | 0 | 75% | 20 m (sprint 40 m) | Biological, Solo, Officer, Magic | Pistol |
+
+- **Spell — Firestorm:** choose an **enemy unit within 10 m** (no line of sight needed): **every Biological soldier** in it takes **3 damage**. It **always hits** and **ignores armor**. A unit with no Biological soldiers (e.g. a tank) can't be chosen.
+- **Spell — Fireball:** a magic **aimed attack** on one enemy soldier within **20 m** and in sight, with a hit roll at the mage's accuracy: **Damage 10, Penetration X** (ignores armor), Accuracy Bonus +0, Shots 1.
+- Both are **Spells**: they **can't be cast after sprinting**, and close range doesn't stop them. Casting one is the unit's action for the turn.
+- **The AI** casts Firestorm on the enemy unit in reach with the most Biological soldiers (2 or more), otherwise Fireball at a valuable target (Solo soldiers, sergeants) or the closest, otherwise shoots its pistol.
 
 ### Tank Hunter Team
 
@@ -196,13 +226,25 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 - **Keywords:** Biological (Trait), Officer (Trait), Solo (Trait).
 - **Passive ability — Lead from the front:** **friendly** soldiers within **15 m** gain **+15% accuracy**. The **Field Commander does not benefit**. Each soldier is checked **on its own**: being in the same unit as a soldier who has the bonus doesn't give it — so one soldier of a unit might have it, or all but one.
 
-### Battlefield Priest
+### Field Commander in Powered Armor
 
-1 **Battlefield Priest** (a unit of one).
+1 **Field Commander in Powered Armor** (a unit of one). Every faction can take it. Role: **Commander**.
+
+The **Field Commander** in powered armor: the same soldier (Health 10, Accuracy 75%, Pistol; Biological, Officer, Solo; **Lead from the front**), with **Armor Level 2** and **Movement 6 m** (sprint 12 m).
+
+| Soldier | Health | Armor Level | Accuracy | Movement | Weapons |
+|---|---|---|---|---|---|
+| Field Commander in Powered Armor | 10 | 2 | 75% | 6 m | Pistol |
+
+- Only 1 Commander is allowed per army, so an army takes either this or the Field Commander, not both.
+
+### Battle Priest
+
+1 **Battle Priest** (a unit of one). Role: **Specialist** (one per army).
 
 | Soldier | Health | Armor Level | Accuracy | Movement | Weapons (primary first) |
 |---|---|---|---|---|---|
-| Battlefield Priest | 5 | 0 | 50% | 10 m | Pistol |
+| Battle Priest | 5 | 0 | 50% | 10 m | Pistol |
 
 - **Keywords:** Biological (Trait), Officer (Trait), Solo (Trait), Magic (Trait).
 - **Active ability (Spell) — Divine Healing:** choose a **friendly** soldier within **25 m** who is **Biological** (the priest can choose themself): they restore **5 health** (not above their starting health). The dead can't be healed. A soldier **already at full health can't be chosen** (nor one who isn't Biological): the error sound plays, nothing happens, and the player can pick another target or do something else — the ability isn't used up.
@@ -237,7 +279,10 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - **Abilities can target their user** (or the user's own unit) **unless they say otherwise** — this applies to passive and active abilities. (Lead from the front says otherwise.)
 - See **Unit actions** below for when an active ability can be used.
 - The target must be the right side (e.g. friendly), within range (horizontal; for a unit, to its closest soldier) and have any required keyword (e.g. Biological).
-- Effects so far: **restore health** (up to starting health) and **give a keyword** (to the soldier, or every soldier of the unit), optionally until the next turn; an **area attack** at a spot (Frag Grenade); and an **aimed attack** on one soldier (Rocket Launcher).
+- Effects so far: **restore health** (up to starting health) and **give a keyword** (to the soldier, or every soldier of the unit), optionally until the next turn; an **area attack** at a spot (Frag Grenade); an **aimed attack** on one soldier (Rocket Launcher, Fireball); and a **unit attack** on every soldier of a unit (Firestorm).
+- **Passive abilities can nullify a keyword** for the holder's weapons (e.g. **Stabilizers** nullify **Deployed**).
+- **Unit attack** (e.g. Firestorm): the user picks an **enemy unit** within the ability's range (measured to its closest soldier; **no line of sight needed**). Every soldier in it with the required keyword (Firestorm: Biological) is hit by the ability's weapon: it **always hits** (no hit roll) and does its damage after keywords and penetration vs armor (a weapon with no penetration value, like Firestorm's, ignores armor). "When targeted" and "when damaged" triggers fire for each soldier.
+- **Spells** (magic) aren't weapons: close range and Manual Load don't apply to them, even when they attack.
 - **Aimed attack** (e.g. the Tank Hunter Team's Rocket Launcher): the user shoots one **enemy soldier** with the ability's weapon, going through the shooting steps: the target must be within the **weapon's range**, in **line of sight** and not in **full cover**, and keywords mustn't prevent it; "when targeted" triggers fire; then damage, penetration, the **hit roll** at the user's accuracy (with the sprint penalty if the unit sprinted), a crit roll, damage, "when damaged" triggers. It shoots once per point of the weapon's Shots. The weapon is the user's own (their faction's changes apply), it isn't used in volleys, and **Manual Load** applies to it (once a turn).
 - Each soldier can use each active ability once per turn (and in practice a unit uses at most one ability per turn — see Unit actions).
 - *Display:* ability buttons don't show uses per turn. A use limit is only shown to the player for abilities limited to a number of uses **per battle** (e.g. Frag Grenade: "1 left this battle").
@@ -260,7 +305,7 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - Casting a Spell after a normal move, after holding position, or instead of moving is allowed. Undoing a sprint lifts the restriction; it ends at the start of the next turn.
 - Abilities that aren't Spells can still be used after sprinting.
 - Spells so far: **Divine Healing**, **Divine Sanctuary**. (Lead from the front is not a Spell.)
-- *Sound:* when the Battlefield Priest successfully casts a spell, a **hallelujah** plays once (not when a target is refused).
+- *Sound:* when the Battle Priest successfully casts a spell, a **hallelujah** plays once (not when a target is refused).
 
 #### Gaining and losing keywords — *implemented*
 
@@ -354,7 +399,7 @@ Test room terrain:
 - The AI's turn is **watchable**, unit by unit: the camera pans to each unit, it moves, then takes its action. **Skip (Space)** resolves the rest at once. The player can't give orders during it.
 - **How the AI plays** (it uses the same rules as the player):
   - **Order:** the Field Commander first (so its aura is in place), then the infantry squads, then the other support units.
-  - **Moving:** squads push toward the enemy, preferring spots in cover from which they can see enemies; they avoid close range, and avoid sprinting when it isn't worth the accuracy penalty. Support units (Field Commander, Battlefield Priest) stay about 5 m behind their squads, in cover where they can; the priest never sprints, so it can still cast. The rest of a squad gathers into cohesion around its leader.
+  - **Moving:** squads push toward the enemy, preferring spots in cover from which they can see enemies; they avoid close range, and avoid sprinting when it isn't worth the accuracy penalty. Support units (Field Commander, Battle Priest) stay about 5 m behind their squads, in cover where they can; the priest never sprints, so it can still cast. The rest of a squad gathers into cohesion around its leader.
   - **Acting:** heal a friendly soldier missing 2+ health if it can; otherwise cast Divine Sanctuary on the friendly unit the most enemies can see; otherwise shoot the enemy unit the most of its soldiers can target (a sniper picks a soldier: Solo soldiers and sergeants first, otherwise the closest); otherwise throw a grenade (once per battle) at the spot hitting the most enemies — never if it would hit its own soldiers.
 
 ### Turn timer — *implemented (option)*
@@ -400,7 +445,7 @@ Test room terrain:
 
 - **80 × 60 m**, with **180° rotational symmetry**: every feature in the south half has a twin at the opposite point, turned round, so both sides face the same choices.
 - **Deployment zones:** the player sets up in the southern **8 m** of the map, the AI in the northern 8 m.
-- **Armies:** chosen in the army builder (see Army lists). With no list chosen (the scene opened directly in the editor), each side fields the demo army: **3 Infantry Squads**, a **Field Commander** and a **Battlefield Priest**.
+- **Armies:** chosen in the army builder (see Army lists). With no list chosen (the scene opened directly in the editor), each side fields the demo army: **3 Infantry Squads**, a **Field Commander** and a **Battle Priest**.
 - **Centre:** an open plaza with a fountain (half-cover, blocks movement) and a statue (full cover), ringed by planters and low walls.
 - **Each half:** an apartment block (two rooms), a corner shop with a raised loading dock (reached by a slope), a garage and a ruined house, plus streets with cars, sandbags, crates and a shipping container.
 - **Buildings** are roofless, with doorways (2 m) and **windows**. A window can be **seen and shot through**, its sill gives **Half-cover**, and soldiers can **climb through** it (mantle: no extra movement cost).
@@ -469,7 +514,7 @@ Example: 6 damage, penetration beats armor → 9, crit → +9 = **18**. If armor
 
 - **Mechanical** soldiers **can't be in close range**, whatever is near them.
 - A **Biological** soldier is **in close range** if a **Biological enemy** soldier is **less than 2 m** away (horizontally; exactly 2 m is not close range). The dead don't count.
-- A soldier in close range **can't use any weapon unless it has the keyword Pistol**:
+- A soldier in close range **can't use any weapon unless it has the keyword Pistol or Melee**:
   - **Shooting:** they shoot with a Pistol if they carry one (the Sergeant switches from his Assault Rifle to his Pistol); a soldier with no Pistol (e.g. a Trooper) doesn't shoot.
   - **Abilities that use a weapon** (e.g. Frag Grenade) can't be used by a soldier in close range. For a unit's shared ability, another soldier of the unit who isn't in close range uses it instead (ranges are then measured from them); if everyone is in close range, it can't be used.
 - **Magic and non-weapon abilities still work** in close range (e.g. Divine Healing). **Passive abilities are unaffected** (e.g. Lead from the front).

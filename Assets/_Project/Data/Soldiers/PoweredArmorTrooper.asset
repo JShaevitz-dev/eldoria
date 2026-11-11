@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
   displayName: Trooper in Powered Armor
   prefab: {fileID: 6223156834504139747, guid: e980dd808025d2642b054abb26a3e53a, type: 3}
-  health: 10
+  health: 5
   armorLevel: 2
   accuracy: 75
   movementRange: 6

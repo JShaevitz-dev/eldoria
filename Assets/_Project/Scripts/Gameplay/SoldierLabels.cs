@@ -38,7 +38,7 @@ namespace Eldoria.Gameplay
         /// <summary>The compact label used when soldiers are too close together on screen for full names: "T3 5/5".</summary>
         public static string ShortLabelFor(Soldier soldier) => $"{ShortName(soldier.name)} {soldier.Health}/{soldier.MaxHealth}";
 
-        /// <summary>Trooper_03 → T3, Sergeant → Sgt, Field Commander → Cmdr, Battlefield Priest → Priest; others: first 4 letters.</summary>
+        /// <summary>Trooper_03 → T3, Sergeant → Sgt, Field Commander → Cmdr, Battle Priest → Priest; others: first 4 letters.</summary>
         public static string ShortName(string name)
         {
             string baseName = name, number = "";
@@ -52,6 +52,7 @@ namespace Eldoria.Gameplay
             {
                 "Sergeant" => "Sgt",
                 "Field Commander" => "Cmdr",
+                "Battle Priest" => "Priest",
                 "Battlefield Priest" => "Priest",
                 _ => number.Length > 0 ? baseName.Substring(0, 1) : (baseName.Length <= 4 ? baseName : baseName.Substring(0, 4)),
             };

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: StahlColossus
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Stahl Colossus
+  role: 2
+  description: 'The Draksa Reich''s war machine: a humanoid robot twice a man''s
+    height, with 15 health and Armor Level 3 that rifles, pistols and grenades can''t
+    dent. Its Stabilizers let its Machine Gun (5 shots) fire even after moving, and
+    when an enemy is within 2 m it can strike with its Iron Claw instead (Damage
+    10, +25% accuracy). Mechanical: it moves 15 m but can''t sprint. Rockets and
+    tank cannons are its bane. Heavy Support, so you can field more than one.'
+  leader: {fileID: 11400000, guid: 91b86136dcdbc6e4982924f4b8f077d9, type: 2}
+  members: []
+  deploymentSpacing: 2

@@ -138,7 +138,7 @@ namespace Eldoria.Tests
         {
             int Damage(int dmg, int? pen) => ArmorPenetration.Resolve(dmg, pen, 4).Damage;
             Assert.That(Damage(4, 1), Is.EqualTo(0), "Assault Rifle");
-            Assert.That(Damage(6, 1), Is.EqualTo(0), "Machine Gun");
+            Assert.That(Damage(5, 1), Is.EqualTo(0), "Machine Gun");
             Assert.That(Damage(10, 4), Is.EqualTo(10), "another tank's 100mm Cannon: full damage");
         }
 

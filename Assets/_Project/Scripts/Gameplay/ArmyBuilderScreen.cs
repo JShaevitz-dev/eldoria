@@ -125,7 +125,7 @@ namespace Eldoria.Gameplay
             if (GUILayout.Button("Change faction", button, GUILayout.Width(160f), GUILayout.Height(30f))) ChangeFaction();
             GUILayout.EndHorizontal();
             if (Faction == null) { GUILayout.EndArea(); return Result.None; }
-            GUILayout.Label($"Up to {ArmyRules.MaxUnits} units · at least 1 Commander · no duplicate Commander or Specialist units", small);
+            GUILayout.Label($"Up to {ArmyRules.MaxUnits} units · exactly 1 Commander · no duplicate Specialist units", small);
             GUILayout.Space(10f);
 
             GUILayout.BeginHorizontal();

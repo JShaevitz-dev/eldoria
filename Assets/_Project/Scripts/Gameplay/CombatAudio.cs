@@ -7,7 +7,7 @@ namespace Eldoria.Gameplay
     /// Sound only. Starts itself when play begins.
     ///  - Gunshot (Resources/Audio/Gunshot) when a unit finishes a volley in which at least one soldier fired,
     ///    for any unit, player or AI.
-    ///  - An ability's cast sound (e.g. the Battlefield Priest's spells: Hallelujah) when it is used successfully.
+    ///  - An ability's cast sound (e.g. the Battle Priest's spells: Hallelujah) when it is used successfully.
     ///  - A bell when the player's turn starts (Resources/Audio/Bell if present, otherwise a synthesised bell).
     ///  - Error sound when an order is refused, e.g. Divine Healing on a soldier at full health
     ///    (Resources/Audio/Error if present, otherwise a short synthesised "denied" buzz).

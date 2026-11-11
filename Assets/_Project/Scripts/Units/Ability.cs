@@ -92,12 +92,19 @@ namespace Eldoria.Units
         public bool IsActive => kind == AbilityKind.Active;
         public bool IsAreaAttack => targets == AbilityTarget.Point && areaWeapon != null;
 
-        [Tooltip("Aimed attack: the user shoots the target soldier with this weapon (e.g. a Rocket Launcher), going through " +
-                 "the shooting steps: range and sight, keywords, hit roll, penetration. The weapon's range applies.")]
+        [Tooltip("Targets a soldier: an aimed attack with this weapon (e.g. a Rocket Launcher, Fireball): range and sight, " +
+                 "keywords, hit roll, penetration; the weapon's range applies. Targets a unit: every soldier of the unit (that " +
+                 "has Target Must Have, if set) is hit with it - no hit roll, no line of sight needed (e.g. Firestorm).")]
         public WeaponTemplate attackWeapon;
 
         /// <summary>An aimed attack on one soldier with a weapon (e.g. the Tank Hunter Team's Rocket Launcher).</summary>
         public bool IsAimedAttack => kind == AbilityKind.Active && targets == AbilityTarget.Soldier && attackWeapon != null;
+
+        [Tooltip("Passive: this keyword has no effect on the holder's weapons (e.g. Stabilizers nullify Deployed).")]
+        public Keyword nullifiesKeyword;
+
+        /// <summary>An attack on every soldier of a unit with a weapon (e.g. the Battle Mage's Firestorm).</summary>
+        public bool IsUnitAttack => kind == AbilityKind.Active && targets == AbilityTarget.Unit && attackWeapon != null;
 
         public bool HasKeyword(string name) => Keyword.Contains(keywords, name);
 

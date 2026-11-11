@@ -444,7 +444,7 @@ namespace Eldoria.EditorTools
         }
 
         /// <summary>
-        /// Both sides field the same army: three Infantry Squads, a Field Commander and a Battlefield Priest.
+        /// Both sides field the same army: three Infantry Squads, a Field Commander and a Battle Priest.
         /// Squads deploy across the zone (west, centre, east) with the officers behind the gaps between them.
         /// </summary>
         private static void SpawnArmies()
@@ -465,7 +465,7 @@ namespace Eldoria.EditorTools
                     SquadBuilder.SpawnUnit(infantry, side, new Vector3(0f, 0f, -24f) * s, facing, "Infantry Squad 2" + suffix),
                     SquadBuilder.SpawnUnit(infantry, side, new Vector3(22f, 0f, -24f) * s, facing, "Infantry Squad 3" + suffix),
                     SquadBuilder.SpawnUnit(commander, side, new Vector3(-11f, 0f, -27f) * s, facing, "Field Commander" + suffix),
-                    SquadBuilder.SpawnUnit(priest, side, new Vector3(11f, 0f, -27f) * s, facing, "Battlefield Priest" + suffix),
+                    SquadBuilder.SpawnUnit(priest, side, new Vector3(11f, 0f, -27f) * s, facing, priest.displayName + suffix),
                 };
                 // Units sit side by side under "Armies", never inside one another (a unit owns only its own soldiers).
                 foreach (var u in units) u.transform.SetParent(armies.transform, true);

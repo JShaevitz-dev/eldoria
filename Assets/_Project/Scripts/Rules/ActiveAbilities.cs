@@ -11,7 +11,7 @@ namespace Eldoria.Rules
         public bool Used;
         public string Reason;
         public readonly List<string> Log = new List<string>();
-        /// <summary>For area attacks: everyone caught in the area, and the damage each took (0 if armor or keywords stopped it).</summary>
+        /// <summary>For area and unit attacks: everyone hit, and the damage each took (0 if armor or keywords stopped it).</summary>
         public readonly List<(Soldier soldier, int damage)> AreaHits = new List<(Soldier soldier, int damage)>();
         /// <summary>For area attacks: soldiers within the radius whom terrain shielded from the blast.</summary>
         public readonly List<Soldier> Shielded = new List<Soldier>();
@@ -19,6 +19,8 @@ namespace Eldoria.Rules
         public Vector3? Point;
         /// <summary>For aimed attacks (e.g. a rocket): the soldier shot at, and each shot's result.</summary>
         public Soldier Target;
+        /// <summary>For unit attacks (e.g. Firestorm): the unit attacked.</summary>
+        public Unit TargetUnit;
         public readonly List<AttackResult> Attacks = new List<AttackResult>();
     }
 
@@ -92,7 +94,8 @@ namespace Eldoria.Rules
             // Abilities that use a weapon (e.g. Frag Grenade) follow the close range rule; magic and others don't.
             if (ability.areaWeapon != null && WeaponUse.WhyCannotUse(user, ability.areaWeapon) is string why)
                 return $"{user.name} can't use {ability.displayName}: {why}";
-            if (ability.attackWeapon != null && WeaponUse.WhyCannotUse(user, user.AbilityWeapon(ability.attackWeapon)) is string why2)
+            // Weapon rules (close range, Deployed, Manual Load) apply to weapon abilities, not to spells (magic).
+            if (ability.attackWeapon != null && !ability.IsSpell && WeaponUse.WhyCannotUse(user, user.AbilityWeapon(ability.attackWeapon)) is string why2)
                 return $"{user.name} can't use {ability.displayName}: {why2}";
             return null;
         }
@@ -142,6 +145,8 @@ namespace Eldoria.Rules
             if (!SideOk(ability, user, living[0])) return $"{targetUnit.DisplayName} isn't a valid target";
             if (targetUnit == user.Unit && !ability.includeSelf) return "Can't target its own unit";
             if (living.Min(s => Measure.Between(user, s)) > ability.range + Epsilon) return $"Out of range ({ability.range:0} m)";
+            if (ability.IsUnitAttack && ability.targetMustHave != null && !living.Any(s => s.HasKeyword(ability.targetMustHave.displayName)))
+                return $"{targetUnit.DisplayName} has no {ability.targetMustHave.displayName} soldiers";
             return null;
         }
 
@@ -171,6 +176,8 @@ namespace Eldoria.Rules
             }
             else if (ability.IsAimedAttack)
                 AimedAttack(user, ability, targetSoldier, result);
+            else if (ability.IsUnitAttack)
+                UnitAttack(user, ability, targetUnit, result);
             else
             {
                 var affected = ability.targets == AbilityTarget.Soldier
@@ -226,6 +233,57 @@ namespace Eldoria.Rules
                         : $"{user.name}'s {weapon.Name} → {target.name}: miss at {chance}.");
                     if (a.DamageDealt > 0) result.Log.AddRange(KeywordTriggers.Fire(TriggerEvent.Damaged, target, user));
                     if (a.Hit && !target.IsAlive) result.Log.Add($"{target.name} is down.");
+                }
+            }
+            finally
+            {
+                var removed = Casualties.EndVolley();
+                if (removed.Count > 0)
+                    result.Log.Add("Removed from the battlefield: " + string.Join(", ", removed.Where(r => r != null).Select(r => r.name)) + ".");
+            }
+            WeaponUse.MarkFired(weapon);
+        }
+
+        /// <summary>
+        /// A unit attack (e.g. Firestorm): every living soldier of the target unit (with the required keyword, if any) is hit
+        /// by the ability's weapon, one at a time - it always hits: no hit roll, no line of sight needed for each soldier
+        /// (the ability's range was checked to the unit). For each: "when targeted" triggers, keywords (e.g. no effect),
+        /// damage (Base Damage − penalties + bonuses), penetration vs armor (a weapon with no penetration value always does
+        /// 100%), "when damaged" triggers; once per point of the weapon's Shots. Anyone killed is removed when it's over.
+        /// </summary>
+        private static void UnitAttack(Soldier user, Ability ability, Unit target, AbilityResult result)
+        {
+            var weapon = user.AbilityWeapon(ability.attackWeapon);
+            result.TargetUnit = target;
+            var soldiers = target.LivingSoldiers
+                .Where(s => ability.targetMustHave == null || s.HasKeyword(ability.targetMustHave.displayName)).ToList();
+            result.Log.Add($"{user.name}'s {ability.displayName} engulfs {target.DisplayName}: {soldiers.Count} soldier(s) caught.");
+            Casualties.BeginVolley();
+            try
+            {
+                foreach (var s in soldiers)
+                {
+                    if (!s.IsAlive) continue;
+                    result.Log.AddRange(KeywordTriggers.Fire(TriggerEvent.Targeted, s, user));
+                    for (int shot = 0; shot < weapon.Shots && s.IsAlive; shot++)
+                    {
+                        var keywords = KeywordRules.Evaluate(user, weapon, s);
+                        if (keywords.NoEffect)
+                        {
+                            result.AreaHits.Add((s, 0));
+                            result.Log.Add($"  {s.name}: no effect ({string.Join("; ", keywords.Applied)}).");
+                            break;
+                        }
+                        int finalDamage = Attack.FinalDamage(weapon.BaseDamage, keywords);
+                        int armor = Attack.ArmorAgainst(s, keywords);
+                        int damage = ArmorPenetration.Resolve(finalDamage, weapon.PenetrationValue, armor).Damage;
+                        result.AreaHits.Add((s, damage));
+                        if (damage <= 0) { result.Log.Add($"  {s.name}: armor stops it."); continue; }
+                        result.Log.Add($"  {s.name} takes {damage}.");
+                        s.TakeDamage(damage);   // a death here can set off that soldier's own death triggers
+                        result.Log.AddRange(KeywordTriggers.Fire(TriggerEvent.Damaged, s, user));
+                        if (!s.IsAlive) result.Log.Add($"  {s.name} is down.");
+                    }
                 }
             }
             finally

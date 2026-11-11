@@ -15,13 +15,16 @@ namespace Eldoria.Tests
 
         [TestCase("InfantrySquad", UnitRole.Infantry)]
         [TestCase("FieldCommander", UnitRole.Commander)]
-        [TestCase("BattlefieldPriest", UnitRole.Commander)]
+        [TestCase("BattlefieldPriest", UnitRole.Specialist)]
         [TestCase("MachineGunTeam", UnitRole.HeavySupport)]
         [TestCase("PoweredArmorSquad", UnitRole.Specialist)]
         [TestCase("Sniper", UnitRole.Specialist)]
         [TestCase("FlamethrowerTeam", UnitRole.Specialist)]
         [TestCase("MediumTank", UnitRole.HeavySupport)]
         [TestCase("TankHunterTeam", UnitRole.HeavySupport)]
+        [TestCase("BattleMage", UnitRole.Specialist)]
+        [TestCase("StahlColossus", UnitRole.HeavySupport)]
+        [TestCase("FieldCommanderPoweredArmor", UnitRole.Commander)]
         public void EachUnitHasItsRole(string file, UnitRole role)
         {
             Assert.That(Load(file).role, Is.EqualTo(role));
@@ -32,8 +35,8 @@ namespace Eldoria.Tests
         {
             var units = AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" })
                 .Select(g => AssetDatabase.LoadAssetAtPath<UnitTemplate>(AssetDatabase.GUIDToAssetPath(g))).ToList();
-            Assert.That(units.Count, Is.EqualTo(9));
-            Assert.That(units.Count(u => u.role == UnitRole.Specialist), Is.EqualTo(3), "everything else is a Specialist");
+            Assert.That(units.Count, Is.EqualTo(12));
+            Assert.That(units.Count(u => u.role == UnitRole.Specialist), Is.EqualTo(5), "everything else is a Specialist (and the Battle Priest)");
         }
 
         [Test]

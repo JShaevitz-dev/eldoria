@@ -20,7 +20,7 @@ namespace Eldoria.Tests
         public IEnumerator DeployTwoFullArmies()
         {
             ArmySelection.Set(
-                new[] { Unit("Field Commander"), Unit("Battlefield Priest"), Unit("Sniper"), Unit("Powered Armor Squad"), Unit("Machine Gun Team"), Unit("Infantry Squad") },
+                new[] { Unit("Field Commander"), Unit("Battle Priest"), Unit("Sniper"), Unit("Powered Armor Squad"), Unit("Machine Gun Team"), Unit("Infantry Squad") },
                 new[] { Unit("Field Commander"), Unit("Infantry Squad"), Unit("Infantry Squad"), Unit("Machine Gun Team"), Unit("Machine Gun Team"), Unit("Sniper") },
                 Faction("United States of Liberteria"), Faction("The Draksa Reich"));
             SceneManager.LoadScene(MainMenu.GameScene);
@@ -36,7 +36,7 @@ namespace Eldoria.Tests
         {
             var controller = Object.FindFirstObjectByType<MovementController>();
             Assert.That(controller.PlayerUnits.Select(u => u.DisplayName), Is.EqualTo(new[]
-                { "Field Commander", "Battlefield Priest", "Sniper", "Powered Armor Squad", "Machine Gun Team", "Infantry Squad" }));
+                { "Field Commander", "Battle Priest", "Sniper", "Powered Armor Squad", "Machine Gun Team", "Infantry Squad" }));
             // Left to right across the deployment zone.
             var xs = controller.PlayerUnits.Select(u => u.Leader.Position.x).ToList();
             Assert.That(xs, Is.Ordered);
@@ -99,7 +99,7 @@ namespace Eldoria.Tests
             {
                 var faction = unit.Side == Side.Player ? ArmySelection.PlayerFaction : ArmySelection.AIFaction;
                 var primaryParts = unit.GetComponentsInChildren<Renderer>().Where(r => r.sharedMaterial == primary).ToList();
-                if (unit.Template.displayName != "Battlefield Priest")
+                if (unit.Template.displayName != "Battle Priest")
                     Assert.That(primaryParts, Is.Not.Empty, $"{unit.DisplayName} has primary-coloured parts");
                 foreach (var r in primaryParts)
                     Assert.That(Vector4.Distance(PrimaryColor.Of(r), faction.color), Is.LessThan(0.002f), $"{unit.DisplayName}: {r.name}");

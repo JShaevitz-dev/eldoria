@@ -34,7 +34,8 @@ namespace Eldoria.Tests
             Assert.That(ArmyRules.Problems(List()).Single(), Does.Contain("at least 1 Commander"));
             Assert.That(ArmyRules.Problems(List(Infantry, MG, Sniper)).Single(), Does.Contain("at least 1 Commander"));
             Assert.That(ArmyRules.IsValid(List(Commander)), Is.True, "a single Commander is a valid army");
-            Assert.That(ArmyRules.IsValid(List(Priest, Infantry)), Is.True, "the Priest is a Commander too");
+            Assert.That(ArmyRules.Problems(List(Priest, Infantry)).Single(), Does.Contain("at least 1 Commander"),
+                "the Battle Priest is a Specialist, not a Commander");
         }
 
         [Test]
@@ -48,10 +49,21 @@ namespace Eldoria.Tests
         [Test]
         public void CommandersAndSpecialistsCantBeDuplicated()
         {
-            Assert.That(ArmyRules.Problems(List(Commander, Commander)).Single(), Does.Contain("Only one Field Commander"));
+            Assert.That(ArmyRules.Problems(List(Commander, Commander)), Has.Some.Contains("Only one Field Commander"));
             Assert.That(ArmyRules.Problems(List(Commander, Sniper, Sniper)).Single(), Does.Contain("Only one Sniper"));
             Assert.That(ArmyRules.Problems(List(Commander, PA, PA)).Single(), Does.Contain("Only one Powered Armor Squad"));
             Assert.That(ArmyRules.IsValid(List(Commander, Priest, Sniper, PA)), Is.True, "different ones are fine");
+            Assert.That(ArmyRules.Problems(List(Commander, Priest, Priest)).Single(), Does.Contain("Only one Battle Priest"));
+        }
+
+        [Test]
+        public void OnlyOneCommanderIsAllowedInAList()
+        {
+            var commanderPA = U("FieldCommanderPoweredArmor");
+            Assert.That(ArmyRules.Problems(List(Commander, commanderPA)).Single(), Does.Contain("Only 1 Commander unit is allowed"));
+            Assert.That(ArmyRules.WhyCannotAdd(List(Commander, Infantry), commanderPA), Does.Contain("already has its Commander"));
+            Assert.That(ArmyRules.WhyCannotAdd(List(Infantry), commanderPA), Is.Null, "the first Commander is fine");
+            Assert.That(ArmyRules.IsValid(List(commanderPA, Infantry, Priest)), Is.True);
         }
 
         [Test]
@@ -80,7 +92,7 @@ namespace Eldoria.Tests
                 var army = ArmyRules.RandomArmy(available, new System.Random(seed));
                 Assert.That(ArmyRules.Problems(army), Is.Empty, $"seed {seed}");
                 Assert.That(army.Count, Is.EqualTo(6), "every slot filled");
-                Assert.That(army.Count(u => u.role == UnitRole.Commander), Is.InRange(1, 2));
+                Assert.That(army.Count(u => u.role == UnitRole.Commander), Is.EqualTo(1), "exactly one Commander");
                 used.UnionWith(army);
             }
             Assert.That(used, Is.EquivalentTo(available), "every unit turns up sometimes");
@@ -90,7 +102,7 @@ namespace Eldoria.Tests
         public void TheCatalogListsEveryUnitCommandersFirst()
         {
             var catalog = UnitCatalog.Load();
-            Assert.That(catalog.Available.Count(), Is.EqualTo(9));
+            Assert.That(catalog.Available.Count(), Is.EqualTo(12));
             Assert.That(catalog.Available.Select(u => u.role.ListOrder()), Is.Ordered);
             Assert.That(catalog.Available.First().role, Is.EqualTo(UnitRole.Commander));
             Assert.That(catalog.primaryColorMaterial, Is.Not.Null);
@@ -132,7 +144,7 @@ namespace Eldoria.Tests
                 "Sergeant — Health 5 · Armor 1 · Accuracy 75% · Move 10 m (sprint 20 m) · Assault Rifle, Pistol",
                 "9× Trooper — Health 5 · Armor 1 · Accuracy 75% · Move 10 m (sprint 20 m) · Assault Rifle",
             }));
-            Assert.That(UnitInfo.SoldierLines(PA).Last(), Does.StartWith("4× Trooper in Powered Armor — Health 10 · Armor 2 · Accuracy 75% · Move 6 m (sprint 12 m)"));
+            Assert.That(UnitInfo.SoldierLines(PA).Last(), Does.StartWith("4× Trooper in Powered Armor — Health 5 · Armor 2 · Accuracy 75% · Move 6 m (sprint 12 m)"));
             Assert.That(UnitInfo.SoldierLines(Sniper).Single(), Does.Contain("Accuracy 100% · Move 15 m (sprint 30 m) · Sniper Rifle"));
         }
 
@@ -147,7 +159,7 @@ namespace Eldoria.Tests
             Assert.That(UnitInfo.WeaponLines(Sniper).Single(), Is.EqualTo("Sniper Rifle — Damage 5 · Shots 1 · Penetration 1 · +50% accuracy · Range 50 m · Deployed"));
             Assert.That(UnitInfo.WeaponLines(U("FlamethrowerTeam")).First(), Does.StartWith("Flamethrower — Damage 10 · Shots 3 · Penetration X · Range 10 m · Incendiary"));
             Assert.That(UnitInfo.WeaponLines(MG).Select(l => l.Split(' ')[0]), Is.EqualTo(new[] { "Pistol", "SMG", "Machine" }));
-            Assert.That(UnitInfo.WeaponLines(MG).Last(), Is.EqualTo("Machine Gun — Damage 6 · Shots 5 · Penetration 1 · Range 20 m · Deployed"));
+            Assert.That(UnitInfo.WeaponLines(MG).Last(), Is.EqualTo("Machine Gun — Damage 5 · Shots 5 · Penetration 1 · Range 20 m · Deployed"));
         }
 
         [Test]
@@ -184,7 +196,7 @@ namespace Eldoria.Tests
         private static Faction F(string file) => AssetDatabase.LoadAssetAtPath<Faction>($"Assets/_Project/Data/Factions/{file}.asset");
 
         [Test]
-        public void ThereAreThreeFactionsAndEachHasEveryUnitForNow()
+        public void ThereAreThreeFactionsAndEachHasEveryUnitExceptOtherFactionsOwn()
         {
             var catalog = UnitCatalog.Load();
             Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[]
@@ -193,7 +205,12 @@ namespace Eldoria.Tests
             Assert.That(F("UnitedKingdomOfAelfland"), Is.Not.Null);
             Assert.That(F("DraksaReich"), Is.Not.Null);
             foreach (var f in catalog.Factions)
-                Assert.That(catalog.UnitsFor(f), Is.EquivalentTo(catalog.Available), f.displayName);
+            {
+                var expected = catalog.Available.Where(u =>
+                    (u.displayName != "Battle Mage" || f.displayName == "United States of Liberteria") &&
+                    (u.displayName != "Stahl Colossus" || f.displayName == "The Draksa Reich"));
+                Assert.That(catalog.UnitsFor(f), Is.EquivalentTo(expected), f.displayName);
+            }
         }
 
         [Test]
@@ -207,7 +224,7 @@ namespace Eldoria.Tests
                 Assert.That(ArmyRules.IsValid(List(Commander, Infantry, Infantry), limited), Is.True);
                 Assert.That(ArmyRules.Problems(List(Commander, Sniper), limited).Single(), Does.Contain("Sniper isn't available to Test Faction"));
                 Assert.That(ArmyRules.WhyCannotAdd(List(Commander), Sniper, limited), Does.Contain("Not available to Test Faction"));
-                Assert.That(ArmyRules.Problems(List(Priest), limited), Has.Some.Contains("Battlefield Priest isn't available"),
+                Assert.That(ArmyRules.Problems(List(U("FieldCommanderPoweredArmor")), limited), Has.Some.Contains("Field Commander in Powered Armor isn't available"),
                     "the faction decides the commanders too");
             }
             finally

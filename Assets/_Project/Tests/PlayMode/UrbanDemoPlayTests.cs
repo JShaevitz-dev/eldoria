@@ -78,7 +78,7 @@ namespace Eldoria.Tests
                 Assert.That(army.Count, Is.EqualTo(5));
                 Assert.That(army.Count(u => u.Template.displayName == "Infantry Squad"), Is.EqualTo(3), "three infantry squads");
                 Assert.That(army.Count(u => u.Template.displayName == "Field Commander"), Is.EqualTo(1));
-                Assert.That(army.Count(u => u.Template.displayName == "Battlefield Priest"), Is.EqualTo(1));
+                Assert.That(army.Count(u => u.Template.displayName == "Battle Priest"), Is.EqualTo(1));
             }
             foreach (var u in units)
             {
@@ -205,7 +205,7 @@ namespace Eldoria.Tests
             Assert.That(SoldierLabels.ShortLabelFor(trooper), Is.EqualTo("T3 3/5"), "the compact form when zoomed out");
             Assert.That(SoldierLabels.ShortName("Sergeant"), Is.EqualTo("Sgt"));
             Assert.That(SoldierLabels.ShortName("Field Commander"), Is.EqualTo("Cmdr"));
-            Assert.That(SoldierLabels.ShortName("Battlefield Priest"), Is.EqualTo("Priest"));
+            Assert.That(SoldierLabels.ShortName("Battle Priest"), Is.EqualTo("Priest"));
         }
 
         // ---- The AI ----
