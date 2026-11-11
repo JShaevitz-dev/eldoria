@@ -63,13 +63,21 @@ namespace Eldoria.Gameplay
             yield return Screenshot("menu.png");
             Check(FindFirstObjectByType<MainMenu>() != null, "the main menu is there");
 
-            MainMenu.Play();
+            var menu = FindFirstObjectByType<MainMenu>();
+            menu.OpenArmyBuilder();
+            yield return Screenshot("army.png");
+            Check(menu.Builder != null && menu.Builder.Available.Count >= 6, $"the army builder lists every unit ({menu.Builder?.Available.Count})");
+            Check(menu.Builder != null && menu.Builder.Confirm(), "the starting army is valid");
+            var army = new System.Collections.Generic.List<Eldoria.Units.UnitTemplate>(menu.Builder.Army);
+            MainMenu.StartBattle(army);
             for (int i = 0; i < 10 && SceneManager.GetActiveScene().name != MainMenu.GameScene; i++) yield return null;
             yield return null;
             Check(SceneManager.GetActiveScene().name == MainMenu.GameScene, "Play starts a game");
 
             var controller = FindFirstObjectByType<MovementController>();
-            Check(controller != null && controller.PlayerUnits.Count == 5, "the player's army is deployed");
+            Check(controller != null && controller.PlayerUnits.Count == army.Count, "the player's army is deployed");
+            Check(ArmySelection.HasArmies && FindObjectsByType<Eldoria.Units.Unit>(FindObjectsSortMode.None).Count(u => u.Side == Eldoria.Units.Side.AI) == ArmySelection.AIArmy.Count,
+                $"the AI's army is deployed ({ArmySelection.AIArmy?.Count} units)");
             if (controller != null)
             {
                 var unit = controller.PlayerUnits[0];

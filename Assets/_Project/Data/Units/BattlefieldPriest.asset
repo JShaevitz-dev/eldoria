@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: BattlefieldPriest
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Battlefield Priest
+  role: 1
   leader: {fileID: 11400000, guid: 5062a9432123ec045bc3022ba187bd2f, type: 2}
   members: []
   deploymentSpacing: 2

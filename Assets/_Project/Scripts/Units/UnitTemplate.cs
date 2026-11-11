@@ -5,6 +5,34 @@ using UnityEngine;
 
 namespace Eldoria.Units
 {
+    /// <summary>A unit's role on the battlefield (e.g. for building army lists).</summary>
+    public enum UnitRole
+    {
+        Infantry,
+        Commander,
+        HeavySupport,
+        Specialist,
+    }
+
+    public static class UnitRoles
+    {
+        /// <summary>The role as it's written in the rules: "Heavy Support", not "HeavySupport".</summary>
+        /// <summary>Order for listing units: Commanders first, then Infantry, Heavy Support and Specialists.</summary>
+        public static int ListOrder(this UnitRole role) => role switch
+        {
+            UnitRole.Commander => 0,
+            UnitRole.Infantry => 1,
+            UnitRole.HeavySupport => 2,
+            _ => 3,
+        };
+
+        public static string DisplayName(this UnitRole role) => role switch
+        {
+            UnitRole.HeavySupport => "Heavy Support",
+            _ => role.ToString(),
+        };
+    }
+
     /// <summary>
     /// Template for a class of unit (e.g. "Infantry Squad"): which soldier templates it is made of, and how many.
     /// The leader leads the unit when it is deployed (see leader succession in the rules).
@@ -20,6 +48,9 @@ namespace Eldoria.Units
         }
 
         public string displayName = "Unit";
+
+        [Tooltip("The unit's role: Infantry, Commander, Heavy Support or Specialist.")]
+        public UnitRole role = UnitRole.Specialist;
 
         [Tooltip("The soldier who leads the unit when deployed (e.g. a Sergeant).")]
         public SoldierTemplate leader;

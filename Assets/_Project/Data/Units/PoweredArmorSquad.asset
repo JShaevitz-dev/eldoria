@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PoweredArmorSquad
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Powered Armor Squad
+  role: 3
   leader: {fileID: 11400000, guid: 36cc24234701e7b4194a200d42e97f98, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: 72d995af189231c4a853f6a91a177a9b, type: 2}

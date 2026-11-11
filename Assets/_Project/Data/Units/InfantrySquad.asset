@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: InfantrySquad
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Infantry Squad
+  role: 0
   leader: {fileID: 11400000, guid: ac6683a9268f31c40b052e2a957f5dc8, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: b99f2bc187e76ea46b7b16cbd27a9256, type: 2}

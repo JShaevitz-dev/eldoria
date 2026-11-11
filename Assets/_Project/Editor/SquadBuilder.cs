@@ -329,8 +329,48 @@ namespace Eldoria.EditorTools
         /// <summary>
         /// Flamethrower: Base Damage 10, no penetration value ("X": always 100% damage), Accuracy Bonus +0, range 10 m,
         /// keywords Incendiary (only damages Biological targets) and Unstable (when the holder dies: 10% chance to explode,
-        /// 5 damage - no penetration value - to every soldier within 5 m). Not carried by anyone yet.
+        /// 5 damage - no penetration value - to every soldier within 5 m). Carried by the Flamethrower Team.
         /// </summary>
+        /// <summary>
+        /// Flamethrower Team: two Flamethrower Troopers (one leads), each with a Flamethrower (primary) and a Pistol.
+        /// Trooper stats as in the Infantry Squad (Health 5, Armor Level 1, Accuracy 75%, 10 m, Biological); no Frag Grenade.
+        /// </summary>
+        public static UnitTemplate EnsureFlamethrowerTeam(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var flamer = EnsureFlamethrower(keywords);
+            var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
+
+            var trooper = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/FlamethrowerTrooper.asset", s =>
+            {
+                s.displayName = "Flamethrower Trooper";
+                s.health = 5; s.armorLevel = 1; s.accuracy = 75; s.movementRange = 10f;
+                s.keywords = new List<Keyword> { keywords["Biological"] };
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate> { flamer, pistol };
+                s.primaryWeapon = flamer;
+            });
+            if (trooper.prefab == null)
+                trooper.prefab = BuildSoldierPrefab("FlamethrowerTrooper", trooper, false,
+                    GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f)),
+                    GetOrCreateMaterial("Skin", new Color(0.85f, 0.68f, 0.55f)),
+                    GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f)),
+                    GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                    flameKit: true);
+            EditorUtility.SetDirty(trooper);
+
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/FlamethrowerTeam.asset", u =>
+            {
+                u.displayName = "Flamethrower Team";
+                u.leader = trooper;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = trooper, count = 1 } };
+                u.deploymentSpacing = 2f;
+            });
+            AssetDatabase.SaveAssets();
+            return unit;
+        }
+
         public static WeaponTemplate EnsureFlamethrower(Dictionary<string, Keyword> keywords)
         {
             EnsureFolder(DataDir, "Weapons");
@@ -561,6 +601,56 @@ namespace Eldoria.EditorTools
         /// Updates the keyword and ability assets in place without rebuilding prefabs or touching the scene
         /// (batchmode: -executeMethod Eldoria.EditorTools.SquadBuilder.UpdateAbilityData).
         /// </summary>
+        /// <summary>Each unit's role. Any unit not listed is a Specialist.</summary>
+        public static readonly Dictionary<string, UnitRole> UnitRoleByFile = new Dictionary<string, UnitRole>
+        {
+            ["InfantrySquad"] = UnitRole.Infantry,
+            ["FieldCommander"] = UnitRole.Commander,
+            ["BattlefieldPriest"] = UnitRole.Commander,
+            ["MachineGunTeam"] = UnitRole.HeavySupport,
+        };
+
+        /// <summary>Sets the role on every unit template in Data/Units.</summary>
+        public static void ApplyUnitRoles()
+        {
+            foreach (var guid in AssetDatabase.FindAssets("t:UnitTemplate", new[] { $"{DataDir}/Units" }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var unit = AssetDatabase.LoadAssetAtPath<UnitTemplate>(path);
+                if (unit == null) continue;
+                string file = System.IO.Path.GetFileNameWithoutExtension(path);
+                unit.role = UnitRoleByFile.TryGetValue(file, out var role) ? role : UnitRole.Specialist;
+                EditorUtility.SetDirty(unit);
+            }
+        }
+
+        /// <summary>
+        /// The unit catalog for army lists (Resources/UnitCatalog): every unit in Data/Units, Commanders first, then
+        /// Infantry, Heavy Support and Specialists; the demo army as the army builder's starting list; and the
+        /// materials for deploying units at runtime.
+        /// </summary>
+        public static UnitCatalog EnsureUnitCatalog()
+        {
+            EnsureFolder(Root, "Resources");
+            var catalog = GetOrCreate<UnitCatalog>($"{Root}/Resources/{UnitCatalog.ResourcePath}.asset", c => { });
+            catalog.units = AssetDatabase.FindAssets("t:UnitTemplate", new[] { $"{DataDir}/Units" })
+                .Select(g => AssetDatabase.LoadAssetAtPath<UnitTemplate>(AssetDatabase.GUIDToAssetPath(g)))
+                .Where(u => u != null)
+                .OrderBy(u => u.role.ListOrder()).ThenBy(u => u.displayName).ToList();
+
+            UnitTemplate Unit(string file) => AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{DataDir}/Units/{file}.asset");
+            catalog.defaultArmy = new List<UnitTemplate>
+            {
+                Unit("InfantrySquad"), Unit("FieldCommander"), Unit("InfantrySquad"), Unit("BattlefieldPriest"), Unit("InfantrySquad"),
+            }.Where(u => u != null).ToList();
+
+            catalog.playerArmor = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            catalog.enemyArmor = GetOrCreateMaterial("Enemy_Armor", new Color(0.62f, 0.16f, 0.14f));
+            catalog.leaderMarker = GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f));
+            EditorUtility.SetDirty(catalog);
+            return catalog;
+        }
+
         public static void UpdateAbilityData()
         {
             var keywords = EnsureKeywords();
@@ -570,11 +660,14 @@ namespace Eldoria.EditorTools
             ApplyWeaponRanges();
             EnsureMachineGunTeam(keywords);
             EnsureFlamethrower(keywords);
+            EnsureFlamethrowerTeam(keywords);
             EnsurePoweredArmorTrooper(keywords);
             EnsurePoweredArmorSergeant(keywords);
             EnsurePoweredArmorSquad(keywords);
             EnsureSniperRifle(keywords);
             EnsureSniper(keywords);
+            ApplyUnitRoles();
+            EnsureUnitCatalog();
             var pistolWeapon = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
             if (pistolWeapon != null)
             {
@@ -950,7 +1043,7 @@ namespace Eldoria.EditorTools
 
         private static GameObject BuildSoldierPrefab(string name, SoldierTemplate template, bool isSergeant,
             Material armor, Material skin, Material weapon, Material gold, Material cape = null, bool priest = false,
-            bool heavyWeapon = false, bool poweredArmor = false, bool sniperKit = false)
+            bool heavyWeapon = false, bool poweredArmor = false, bool sniperKit = false, bool flameKit = false)
         {
             float h = template.height;          // 1.8m
             float headSize = 0.26f;
@@ -1001,6 +1094,19 @@ namespace Eldoria.EditorTools
                     new Vector3(0f, bodyHeight + headSize / 2f + 0.02f, -0.03f), Vector3.one * (headSize * 1.3f));
                 Part(root, "Cloak", PrimitiveType.Cube, cloak,
                     new Vector3(0f, h * 0.5f, -0.24f), new Vector3(0.52f, h * 0.7f, 0.05f));
+            }
+            else if (flameKit)
+            {
+                // A flamethrower: a wide-mouthed nozzle held low, fed by two fuel tanks on the back.
+                var tank = GetOrCreateMaterial("Fuel_Tank", new Color(0.75f, 0.42f, 0.12f));
+                Part(root, "Weapon", PrimitiveType.Cylinder, weapon,
+                    new Vector3(0.2f, h * 0.58f, 0.42f), new Vector3(0.09f, 0.42f, 0.09f), new Vector3(90f, 0f, 0f));
+                Part(root, "Nozzle", PrimitiveType.Cylinder, tank,
+                    new Vector3(0.2f, h * 0.58f, 0.86f), new Vector3(0.14f, 0.04f, 0.14f), new Vector3(90f, 0f, 0f));
+                Part(root, "Fuel Tank_L", PrimitiveType.Capsule, tank,
+                    new Vector3(-0.1f, h * 0.6f, -0.27f), new Vector3(0.17f, 0.28f, 0.17f));
+                Part(root, "Fuel Tank_R", PrimitiveType.Capsule, tank,
+                    new Vector3(0.1f, h * 0.6f, -0.27f), new Vector3(0.17f, 0.28f, 0.17f));
             }
             else if (heavyWeapon)
             {
@@ -1053,13 +1159,15 @@ namespace Eldoria.EditorTools
             return prefab;
         }
 
-        private static void Part(GameObject parent, string name, PrimitiveType type, Material mat, Vector3 pos, Vector3 scale)
+        private static void Part(GameObject parent, string name, PrimitiveType type, Material mat, Vector3 pos, Vector3 scale,
+            Vector3? rotation = null)
         {
             var go = GameObject.CreatePrimitive(type);
             go.name = name;
             Object.DestroyImmediate(go.GetComponent<Collider>());
             go.transform.SetParent(parent.transform, false);
             go.transform.localPosition = pos;
+            if (rotation.HasValue) go.transform.localEulerAngles = rotation.Value;
             go.transform.localScale = scale;
             go.GetComponent<Renderer>().sharedMaterial = mat;
         }

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: MachineGunTeam
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Machine Gun Team
+  role: 2
   leader: {fileID: 11400000, guid: fa6a4aec26cf1d64eb0a647a90c0367e, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: b8337c1f1af37914983ffe22f82007b7, type: 2}

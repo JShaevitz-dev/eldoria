@@ -25,6 +25,13 @@ namespace Eldoria.Units
             marker = go.transform;
         }
 
+        /// <summary>Sets the marker's material (for markers added at runtime, after Awake has built the marker).</summary>
+        public void SetMaterial(Material newMaterial)
+        {
+            material = newMaterial;
+            if (marker != null && material != null) marker.GetComponent<Renderer>().sharedMaterial = material;
+        }
+
         private void LateUpdate()
         {
             var leader = squad.Leader;

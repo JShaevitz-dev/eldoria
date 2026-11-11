@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using Eldoria.Rules;
+using Eldoria.Units;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -5,7 +8,7 @@ namespace Eldoria.Gameplay
 {
     /// <summary>
     /// The main menu (Scenes/MainMenu, the first scene the game opens):
-    ///   Play - starts a game on the demo map.
+    ///   Play - opens the army builder; confirming a valid army starts a game on the demo map against an AI army.
     ///   Quit - closes the program (in the Unity editor, stops Play mode).
     ///   Turn timer - On/Off (off by default) and its length (10 minutes by default); remembered between sessions.
     /// </summary>
@@ -17,8 +20,33 @@ namespace Eldoria.Gameplay
 
         private GUIStyle titleStyle, subtitleStyle, buttonStyle, optionStyle, optionLabelStyle;
 
-        /// <summary>Starts a game on the demo map.</summary>
-        public static void Play() => SceneManager.LoadScene(GameScene);
+        /// <summary>The army builder, while it's open (null on the main menu itself).</summary>
+        public ArmyBuilderScreen Builder { get; private set; }
+
+        /// <summary>The player's last confirmed army: the builder starts from it when reopened.</summary>
+        private static List<UnitTemplate> lastArmy;
+
+        /// <summary>Forgets the last confirmed army: the builder starts from the demo army again.</summary>
+        public static void ForgetLastArmy() => lastArmy = null;
+
+        /// <summary>Play: opens the army builder.</summary>
+        public void OpenArmyBuilder() => Builder = new ArmyBuilderScreen(UnitCatalog.Load(), lastArmy);
+
+        /// <summary>
+        /// Starts a battle with this army, if it's valid: the AI builds its own random valid army, and both go to the
+        /// demo map. Returns why the army isn't valid (empty if the battle started).
+        /// </summary>
+        public static List<string> StartBattle(IReadOnlyList<UnitTemplate> army)
+        {
+            var problems = ArmyRules.Problems(army);
+            if (problems.Count > 0) return problems;
+            var catalog = UnitCatalog.Load();
+            var aiArmy = ArmyRules.RandomArmy(catalog != null ? catalog.Available : army, Core.GameRandom.Shared);
+            lastArmy = new List<UnitTemplate>(army);
+            ArmySelection.Set(army, aiArmy);
+            SceneManager.LoadScene(GameScene);
+            return problems;
+        }
 
         /// <summary>Closes the program (in the editor: stops Play mode).</summary>
         public static void Quit()
@@ -46,12 +74,20 @@ namespace Eldoria.Gameplay
                 optionLabelStyle = new GUIStyle(GUI.skin.label) { fontSize = 18, alignment = TextAnchor.MiddleCenter };
             }
 
+            if (Builder != null)
+            {
+                var result = Builder.Draw();
+                if (result == ArmyBuilderScreen.Result.Back) Builder = null;
+                else if (result == ArmyBuilderScreen.Result.Confirmed) StartBattle(Builder.Army);
+                return;
+            }
+
             float cx = Screen.width / 2f, cy = Screen.height / 2f;
             GUI.Label(new Rect(cx - 400f, cy - 220f, 800f, 100f), "ELDORIA", titleStyle);
             GUI.Label(new Rect(cx - 400f, cy - 125f, 800f, 30f), "Turn-based tactics — urban demo", subtitleStyle);
 
             const float w = 260f, h = 60f;
-            if (GUI.Button(new Rect(cx - w / 2f, cy - 20f, w, h), "Play", buttonStyle)) Play();
+            if (GUI.Button(new Rect(cx - w / 2f, cy - 20f, w, h), "Play", buttonStyle)) OpenArmyBuilder();
             if (GUI.Button(new Rect(cx - w / 2f, cy + 60f, w, h), "Quit", buttonStyle)) Quit();
 
             // Options: the turn timer (off by default; 10 minutes by default).

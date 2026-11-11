@@ -13,10 +13,12 @@ getting the rules right.
 1. Download [`Eldoria-Windows.zip`](Eldoria-Windows.zip) from this repo.
 2. Unzip it anywhere and run `Eldoria/Eldoria.exe` (Windows 64-bit).
 3. Pick **Play** on the main menu. You can turn on the turn timer there too (it's off by default, 10 minutes per turn).
+4. **Build your army:** up to 6 units, at least 1 Commander, and no duplicate Commander or Specialist units. Then
+   press **Confirm army**.
 
 You play against the AI on the **Urban Demo** map: an 80 × 60 m city block with a central plaza, laid out with 180°
-symmetry so both sides start out even. Each side has three Infantry Squads, a Field Commander and a Battlefield Priest.
-You go first. Wipe out the enemy to win.
+symmetry so both sides start out even. The AI builds its own random army under the same rules. You go first. Wipe out
+the enemy to win.
 
 ## Controls
 
@@ -66,16 +68,17 @@ At a glance:
 
 ### Units
 
-| Unit | In the demo? |
+| Unit | Role |
 |---|---|
-| Infantry Squad | Yes |
-| Field Commander | Yes |
-| Battlefield Priest | Yes |
-| Machine Gun Team | Not yet |
-| Powered Armor Squad | Not yet |
-| Sniper | Not yet |
+| Field Commander | Commander |
+| Battlefield Priest | Commander |
+| Infantry Squad | Infantry |
+| Machine Gun Team | Heavy Support |
+| Flamethrower Team | Specialist |
+| Powered Armor Squad | Specialist |
+| Sniper | Specialist |
 
-Units outside the demo are in the game data and waiting for a list-building system.
+Every unit can be taken in an army list. Commander and Specialist units are limited to one of each per army.
 
 Weapons: Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, plus the Frag Grenade ability.
 
@@ -127,7 +130,7 @@ report whether everything loaded.
 
 ## Status
 
-Early proof of concept. Next up: more units, then a list-building system for choosing armies.
+Early proof of concept, with army list building. Next up: more units and factions.
 
 ## Audience and business model
 

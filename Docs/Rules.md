@@ -43,6 +43,31 @@ Living record of the rules decided so far. **Status** shows what the code does t
 
 ## Units
 
+### Roles — *implemented*
+
+Every unit has a **role**. It's shown in the HUD when the unit is selected.
+
+| Role | Units |
+|---|---|
+| **Infantry** | Infantry Squad |
+| **Commander** | Field Commander, Battlefield Priest |
+| **Heavy Support** | Machine Gun Team |
+| **Specialist** | Powered Armor Squad, Sniper, Flamethrower Team (and any unit not given another role) |
+
+### Army lists — *implemented*
+
+Before a battle, each side builds an **army list**:
+
+- An army has **6 slots**: it can have **1 to 6 units** (empty slots are allowed).
+- It must contain **at least 1 Commander** unit.
+- It **can't have duplicates of a Commander or Specialist** unit (e.g. only one Sniper, only one Field Commander; the Field Commander and the Battlefield Priest together is fine). **Infantry** and **Heavy Support** units can be taken more than once.
+
+**Army builder:** pressing **Play** opens the army builder. It lists every unit (role, size, what it's made of) with an **Add** button, greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the demo army (3 Infantry Squads, the Field Commander and the Battlefield Priest), or your last confirmed army. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
+
+**The AI's army:** the AI builds its own **random valid army** each battle under the same rules, always filling all 6 slots: 1 or 2 Commanders, then random units.
+
+**Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). A unit taken more than once is numbered ("Infantry Squad 1", "Infantry Squad 2"). Restarting a battle replays the same armies.
+
 ### Infantry Squad
 
 1 **Sergeant** (leader) + 9 **Troopers**. All soldiers are **Biological**.
@@ -64,7 +89,7 @@ Living record of the rules decided so far. **Status** shows what the code does t
 | Sniper Rifle | 5 | 1 | +50 | Deployed | 50 m |
 
 - **SMG** and **Machine Gun** are carried by the Machine Gun Team.
-- **Flamethrower** is defined but no soldier carries it yet. The **Sniper Rifle** is carried by the Sniper.
+- The **Flamethrower** is carried by the Flamethrower Team. The **Sniper Rifle** is carried by the Sniper.
 - **Incendiary** (weapon keyword): the weapon **only does damage to targets with the Biological keyword**. Against anything else the attack has no effect, so the soldier picks another target.
 - **Unstable** (weapon keyword): when the holder of this weapon dies, they have a **10% chance to explode**: **5 damage** (no penetration value, so always 5) to **ANY** soldier within **5 m** of the holder — friend or foe. As an explosion it can't go through object or structure terrain.
 - **Deployed** (weapon keyword, Trait): the weapon **can't be used in a volley if the soldier holding it has moved this turn** (they have the Moved status: any move this turn, even 0 m; a leader holding position and soldiers left where they stood haven't moved). Each soldier is checked on their own.
@@ -72,7 +97,7 @@ Living record of the rules decided so far. **Status** shows what the code does t
 
 ### Machine Gun Team
 
-1 **Sergeant** (leader) + 3 **Troopers** + 1 **Machine Gunner**. All soldiers are **Biological**, with the Infantry Squad's stats. **No Frag Grenade.** *(Not in the demo armies yet.)*
+1 **Sergeant** (leader) + 3 **Troopers** + 1 **Machine Gunner**. All soldiers are **Biological**, with the Infantry Squad's stats. **No Frag Grenade.**
 
 | Soldier | Health | Armor Level | Accuracy | Movement | Weapons (primary first) |
 |---|---|---|---|---|---|
@@ -84,16 +109,23 @@ Living record of the rules decided so far. **Status** shows what the code does t
 
 ### Powered Armor Squad
 
-1 **Sergeant in Powered Armor** (leader) + 4 **Troopers in Powered Armor**, all with an **Assault Rifle**. All **Biological**. **No Frag Grenade.** *(Not in the demo armies yet.)*
+1 **Sergeant in Powered Armor** (leader) + 4 **Troopers in Powered Armor**, all with an **Assault Rifle**. All **Biological**. **No Frag Grenade.**
 
 | Soldier | Health | Armor Level | Accuracy | Movement | Weapons |
 |---|---|---|---|---|---|
 | Sergeant in Powered Armor | 10 | 2 | 75% | 6 m (sprint 12 m) | Assault Rifle |
 | Trooper in Powered Armor (×4) | 10 | 2 | 75% | 6 m (sprint 12 m) | Assault Rifle |
 
+### Flamethrower Team
+
+2 **Flamethrower Troopers** (one leads the unit), each with a **Flamethrower** (primary weapon) and a **Pistol**. Trooper stats as in the Infantry Squad: Health 5, Armor Level 1, Accuracy 75%, Movement 10 m (sprint 20 m), **Biological**. **No Frag Grenade.** Role: **Specialist**.
+
+- The Flamethrower only damages **Biological** targets (Incendiary), reaches **10 m**, and its holder has a **10%** chance to **explode** on death (Unstable: 5 damage to everyone within 5 m).
+- In **close range** they fall back on their **Pistols**.
+
 ### Sniper
 
-1 **Sniper**, armed with a **Sniper Rifle** — a **solo** unit (a unit of one). *(Not in the demo armies yet.)*
+1 **Sniper**, armed with a **Sniper Rifle** — a **solo** unit (a unit of one).
 
 - With Accuracy 100% and the rifle's +50, the Sniper's shots are at **150%**: they always hit, with a **50% crit** chance. The rifle is **Deployed**: no shooting in a turn the Sniper has moved.
 
@@ -282,7 +314,7 @@ Test room terrain:
 
 - **80 × 60 m**, with **180° rotational symmetry**: every feature in the south half has a twin at the opposite point, turned round, so both sides face the same choices.
 - **Deployment zones:** the player sets up in the southern **8 m** of the map, the AI in the northern 8 m.
-- **Armies:** each side fields **3 Infantry Squads**, a **Field Commander** and a **Battlefield Priest**.
+- **Armies:** chosen in the army builder (see Army lists). With no list chosen (the scene opened directly in the editor), each side fields the demo army: **3 Infantry Squads**, a **Field Commander** and a **Battlefield Priest**.
 - **Centre:** an open plaza with a fountain (half-cover, blocks movement) and a statue (full cover), ringed by planters and low walls.
 - **Each half:** an apartment block (two rooms), a corner shop with a raised loading dock (reached by a slope), a garage and a ruined house, plus streets with cars, sandbags, crates and a shipping container.
 - **Buildings** are roofless, with doorways (2 m) and **windows**. A window can be **seen and shot through**, its sill gives **Half-cover**, and soldiers can **climb through** it (mantle: no extra movement cost).

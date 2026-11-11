@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Sniper
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Sniper
+  role: 3
   leader: {fileID: 11400000, guid: 8b12ea7df2388134bbad059b3901fa95, type: 2}
   members: []
   deploymentSpacing: 2

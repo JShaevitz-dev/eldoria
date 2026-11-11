@@ -267,5 +267,40 @@ namespace Eldoria.Tests
                 Is.EqualTo((TriggerEvent.Died, TriggerAction.Explode, 10, 5f)));
             Assert.That((boom.explosionWeapon.baseDamage, boom.explosionWeapon.PenetrationValue), Is.EqualTo((5, (int?)null)));
         }
+
+        // ---- The Flamethrower Team ----
+
+        [Test]
+        public void TheFlamethrowerTeamIsTwoTroopersWithFlamethrowersAndPistols()
+        {
+            var team = AssetDatabase.LoadAssetAtPath<UnitTemplate>("Assets/_Project/Data/Units/FlamethrowerTeam.asset");
+            Assert.That(team.displayName, Is.EqualTo("Flamethrower Team"));
+            Assert.That(team.Size, Is.EqualTo(2));
+            Assert.That(team.role, Is.EqualTo(UnitRole.Specialist), "not given another role");
+            foreach (var t in team.Roster())
+            {
+                Assert.That(t.displayName, Is.EqualTo("Flamethrower Trooper"));
+                Assert.That(t.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Flamethrower", "Pistol" }));
+                Assert.That(t.PrimaryWeapon.displayName, Is.EqualTo("Flamethrower"));
+                Assert.That((t.health, t.armorLevel, t.accuracy, t.movementRange), Is.EqualTo((5, 1, 75, 10f)), "Infantry Squad trooper stats");
+                Assert.That(t.HasKeyword("Biological"), Is.True);
+                Assert.That(t.abilities, Is.Empty, "no Frag Grenade");
+                Assert.That(t.prefab, Is.Not.Null);
+            }
+
+            var unit = UnitFactory.Spawn(team, Side.Player, Vector3.zero, Quaternion.identity);
+            try
+            {
+                Assert.That(unit.Soldiers.Count, Is.EqualTo(2));
+                Assert.That(unit.Leader, Is.Not.Null, "one of the two leads");
+                Assert.That(unit.Soldiers.All(s => s.WeaponFor(null).Name == "Flamethrower"), Is.True);
+                Assert.That(unit.Soldiers.All(s => s.Weapons.Any(w => w.Keywords.Any(k => k != null && k.Is("Unstable")))), Is.True,
+                    "each carries an Unstable weapon (checked when they die)");
+            }
+            finally
+            {
+                Object.DestroyImmediate(unit.gameObject);
+            }
+        }
     }
 }

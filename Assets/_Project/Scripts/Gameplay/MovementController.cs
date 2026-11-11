@@ -138,6 +138,12 @@ namespace Eldoria.Gameplay
         public IReadOnlyList<Unit> PlayerUnits => playerUnits;
         public bool HasActed(Unit unit) => actedThisTurn.Contains(unit);
 
+        private void Awake()
+        {
+            // The armies chosen in the army builder replace the ones placed in the scene (before anything looks for units).
+            ArmyDeployment.DeploySelected();
+        }
+
         private void Start()
         {
             if (cam == null) cam = Camera.main;
@@ -1038,6 +1044,7 @@ namespace Eldoria.Gameplay
         {
             var bold = new GUIStyle(wrap) { fontStyle = FontStyle.Bold };
             var small = new GUIStyle(wrap) { fontSize = 11 };
+            GUILayout.Label($"Role: {unit.Role.DisplayName()}", bold);
             GUILayout.Label("Unit keywords:", bold);
             var lines = UnitKeywordLines(unit);
             if (lines.Count == 0) GUILayout.Label("  (none)", small);

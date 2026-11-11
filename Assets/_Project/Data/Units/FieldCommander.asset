@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: FieldCommander
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Field Commander
+  role: 1
   leader: {fileID: 11400000, guid: 261f39bca7f2c59489776612e04bcf27, type: 2}
   members: []
   deploymentSpacing: 2

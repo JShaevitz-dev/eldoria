@@ -60,6 +60,8 @@ namespace Eldoria.Units
 
         public string DisplayName => displayName;
         public UnitTemplate Template => template;
+        /// <summary>The unit's role (from its template; Specialist if it has none).</summary>
+        public UnitRole Role => template != null ? template.role : UnitRole.Specialist;
         public Side Side => side;
 
         /// <summary>Every soldier in the unit, living or dead.</summary>
