@@ -27,3 +27,5 @@ MonoBehaviour:
   primaryWeapon: {fileID: 11400000, guid: 0518825b83c05864594c9f5974756a56, type: 2}
   radius: 0.35
   height: 1.8
+  weaponOptions: []
+  equipmentOptions: []

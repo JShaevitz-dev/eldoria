@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: PaladinSquad
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Paladin Squad
+  role: 2
+  description: 'The United Kingdom of Aelfland''s armored knights: a Sergeant and
+    four Troopers in powered armor, armed only with Broadswords. A sword strike does
+    5 damage at penetration 1, but only within 2 m, so the Paladins must close in
+    before they can fight. Armor Level 2 halves rifle fire on the way, but at 6 m
+    a move (12 m sprinting) they need cover to get there. Once in close range they
+    keep fighting where riflemen can''t. Heavy Support, so you can field more than
+    one.'
+  leader: {fileID: 11400000, guid: 8122d5773035e934fbbea1ccf0be2171, type: 2}
+  members:
+  - soldier: {fileID: 11400000, guid: 6f801de707432a949a4a8007677fc1a3, type: 2}
+    count: 4
+  deploymentSpacing: 2

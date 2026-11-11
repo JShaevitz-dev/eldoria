@@ -102,7 +102,7 @@ namespace Eldoria.Tests
         public void TheCatalogListsEveryUnitCommandersFirst()
         {
             var catalog = UnitCatalog.Load();
-            Assert.That(catalog.Available.Count(), Is.EqualTo(12));
+            Assert.That(catalog.Available.Count(), Is.EqualTo(13));
             Assert.That(catalog.Available.Select(u => u.role.ListOrder()), Is.Ordered);
             Assert.That(catalog.Available.First().role, Is.EqualTo(UnitRole.Commander));
             Assert.That(catalog.primaryColorMaterial, Is.Not.Null);
@@ -208,7 +208,8 @@ namespace Eldoria.Tests
             {
                 var expected = catalog.Available.Where(u =>
                     (u.displayName != "Battle Mage" || f.displayName == "United States of Liberteria") &&
-                    (u.displayName != "Stahl Colossus" || f.displayName == "The Draksa Reich"));
+                    (u.displayName != "Stahl Colossus" || f.displayName == "The Draksa Reich") &&
+                    (u.displayName != "Paladin Squad" || f.displayName == "United Kingdom of Aelfland"));
                 Assert.That(catalog.UnitsFor(f), Is.EquivalentTo(expected), f.displayName);
             }
         }
@@ -299,7 +300,7 @@ namespace Eldoria.Tests
         [Test]
         public void SixSlotsAreSpreadAcrossEachDeploymentZone()
         {
-            // The Urban Demo's zones: 80 × 8 m at z = ∓26.
+            // The Boxed in's zones: 80 × 8 m at z = ∓26.
             var player = Enumerable.Range(0, ArmyRules.MaxUnits).Select(i => ArmyDeployment.Slot(new Vector3(0f, 0f, -26f), new Vector2(80f, 8f), Side.Player, i)).ToList();
             var ai = Enumerable.Range(0, ArmyRules.MaxUnits).Select(i => ArmyDeployment.Slot(new Vector3(0f, 0f, 26f), new Vector2(80f, 8f), Side.AI, i)).ToList();
             Assert.That(player.Select(p => p.x), Is.Ordered, "west to east for the player");

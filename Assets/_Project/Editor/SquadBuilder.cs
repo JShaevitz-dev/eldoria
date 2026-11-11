@@ -922,6 +922,65 @@ namespace Eldoria.EditorTools
             return unit;
         }
 
+        /// <summary>
+        /// Paladin Squad (United Kingdom of Aelfland only; Heavy Support): 1 Sergeant in Powered Armor and 4 Troopers in Powered
+        /// Armor, each holding a Broadsword (Damage 5, Penetration 1, Range 2 m, Accuracy Bonus +0, Melee). The soldiers copy
+        /// the Sergeant / Trooper in Powered Armor's stats and keywords, so changes to those carry over.
+        /// </summary>
+        public static UnitTemplate EnsurePaladinSquad()
+        {
+            EnsureFolder(DataDir, "Weapons");
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var melee = AssetDatabase.LoadAssetAtPath<Keyword>($"{DataDir}/Keywords/Melee.asset");
+            var sword = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/Broadsword.asset", w => w.displayName = "Broadsword");
+            sword.displayName = "Broadsword";
+            sword.baseDamage = 5;
+            sword.hasPenetration = true;
+            sword.penetration = 1;
+            sword.range = 2f;
+            sword.accuracyBonus = 0;
+            sword.shots = 1;
+            sword.keywords = new List<Keyword>();
+            if (melee != null) sword.keywords.Add(melee);
+            EditorUtility.SetDirty(sword);
+
+            SoldierTemplate Paladin(string file, string from, bool sergeant)
+            {
+                var original = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/{from}.asset");
+                var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", x => x.displayName = original.displayName);
+                s.displayName = original.displayName;
+                s.health = original.health;
+                s.armorLevel = original.armorLevel;
+                s.accuracy = original.accuracy;
+                s.movementRange = original.movementRange;
+                s.keywords = new List<Keyword>(original.keywords);
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate> { sword };
+                s.primaryWeapon = sword;
+                if (s.prefab == null)
+                    s.prefab = BuildSoldierPrefab(file, s, sergeant,
+                        GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f)),
+                        GetOrCreateMaterial("Skin", new Color(0.85f, 0.68f, 0.55f)),
+                        GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f)),
+                        GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                        poweredArmor: true, swordKit: true);
+                EditorUtility.SetDirty(s);
+                return s;
+            }
+            var sergeantT = Paladin("PaladinSergeant", "PoweredArmorSergeant", true);
+            var trooperT = Paladin("PaladinTrooper", "PoweredArmorTrooper", false);
+
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/PaladinSquad.asset", u => u.displayName = "Paladin Squad");
+            unit.displayName = "Paladin Squad";
+            unit.leader = sergeantT;
+            unit.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = trooperT, count = 4 } };
+            unit.deploymentSpacing = 2f;
+            EditorUtility.SetDirty(unit);
+            AssetDatabase.SaveAssets();
+            return unit;
+        }
+
         public static WeaponTemplate EnsureRocketLauncher()
         {
             EnsureFolder(DataDir, "Weapons");
@@ -1024,7 +1083,7 @@ namespace Eldoria.EditorTools
         public static readonly (string file, int shots)[] WeaponShots =
         {
             ("AssaultRifle", 1), ("Pistol", 1), ("SMG", 1), ("MachineGun", 5), ("Flamethrower", 3), ("SniperRifle", 1),
-            ("FragGrenade", 1), ("UnstableExplosion", 1), ("Cannon100mm", 1), ("RocketLauncher", 1), ("IronClaw", 1),
+            ("FragGrenade", 1), ("UnstableExplosion", 1), ("Cannon100mm", 1), ("RocketLauncher", 1), ("IronClaw", 1), ("Broadsword", 1),
         };
 
         private static void ApplyWeaponShots()
@@ -1081,6 +1140,7 @@ namespace Eldoria.EditorTools
             ["MediumTank"] = UnitRole.HeavySupport,
             ["TankHunterTeam"] = UnitRole.HeavySupport,
             ["StahlColossus"] = UnitRole.HeavySupport,
+            ["PaladinSquad"] = UnitRole.HeavySupport,
         };
 
         /// <summary>How each unit plays and what it does in an army, shown in the army builder (by file name).</summary>
@@ -1108,6 +1168,8 @@ namespace Eldoria.EditorTools
                 "The Draksa Reich's war machine: a humanoid robot twice a man's height, with 15 health and Armor Level 3 that rifles, pistols and grenades can't dent. Its Stabilizers let its Machine Gun (5 shots) fire even after moving, and when an enemy is within 2 m it can strike with its Iron Claw instead (Damage 10, +25% accuracy). Mechanical: it moves 15 m but can't sprint. Rockets and tank cannons are its bane. Heavy Support, so you can field more than one.",
             ["FieldCommanderPoweredArmor"] =
                 "The Field Commander sealed in powered armor. Lead from the front still gives friendly soldiers within 15 m +15% accuracy, and Armor Level 2 halves rifle fire and shrugs off pistols and grenades, so the Commander can stand much closer to the fight. The cost is speed: 6 m a move (12 m sprinting), so it has to plan ahead to keep the army inside its aura. A Commander: it fills your required Commander slot.",
+            ["PaladinSquad"] =
+                "The United Kingdom of Aelfland's armored knights: a Sergeant and four Troopers in powered armor, armed only with Broadswords. A sword strike does 5 damage at penetration 1, but only within 2 m, so the Paladins must close in before they can fight. Armor Level 2 halves rifle fire on the way, but at 6 m a move (12 m sprinting) they need cover to get there. Once in close range they keep fighting where riflemen can't. Heavy Support, so you can field more than one.",
             ["Sniper"] =
                 "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing sergeants and officers. The Sniper Rifle can't fire after moving, and with 5 health and no armor the Sniper must stay out of sight; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo unit: one per army.",
         };
@@ -1168,6 +1230,7 @@ namespace Eldoria.EditorTools
         {
             ["BattleMage"] = "UnitedStatesOfLiberteria",
             ["StahlColossus"] = "DraksaReich",
+            ["PaladinSquad"] = "UnitedKingdomOfAelfland",
         };
 
         /// <summary>
@@ -1271,6 +1334,7 @@ namespace Eldoria.EditorTools
             EnsureStahlColossus(keywords);
             EnsureFieldCommanderInPoweredArmor();
             ApplyBalanceChanges();
+            EnsurePaladinSquad();   // after the balance changes: it copies the powered-armor soldiers' stats
             ApplyWeaponShots();
             ApplyUnitRoles();
             ApplyUnitDescriptions();
@@ -1652,7 +1716,7 @@ namespace Eldoria.EditorTools
         private static GameObject BuildSoldierPrefab(string name, SoldierTemplate template, bool isSergeant,
             Material armor, Material skin, Material weapon, Material gold, Material cape = null, bool priest = false,
             bool heavyWeapon = false, bool poweredArmor = false, bool sniperKit = false, bool flameKit = false, bool rocketKit = false,
-            bool mageKit = false)
+            bool mageKit = false, bool swordKit = false)
         {
             float h = template.height;          // 1.8m
             float headSize = 0.26f;
@@ -1691,7 +1755,16 @@ namespace Eldoria.EditorTools
             Part(root, "Head", PrimitiveType.Sphere, skin,
                 new Vector3(0f, bodyHeight + headSize / 2f - 0.02f, 0f), Vector3.one * headSize);
             // Rifle held forward; also shows which way the soldier is facing.
-            if (sniperKit)
+            if (swordKit)
+            {
+                // A broadsword held point-forward: a long flat blade, a crossguard and a grip.
+                var blade = GetOrCreateMaterial("Sword_Blade", new Color(0.78f, 0.8f, 0.84f));
+                Part(root, "Weapon", PrimitiveType.Cube, blade, new Vector3(0.24f, h * 0.6f, 0.62f), new Vector3(0.06f, 0.02f, 1.0f));
+                Part(root, "Crossguard", PrimitiveType.Cube, GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                    new Vector3(0.24f, h * 0.6f, 0.1f), new Vector3(0.3f, 0.04f, 0.05f));
+                Part(root, "Grip", PrimitiveType.Cube, weapon, new Vector3(0.24f, h * 0.6f, 0.0f), new Vector3(0.04f, 0.04f, 0.18f));
+            }
+            else if (sniperKit)
             {
                 // A sniper: a long, thin rifle with a scope, and a green hooded cloak.
                 Part(root, "Weapon", PrimitiveType.Cube, weapon,

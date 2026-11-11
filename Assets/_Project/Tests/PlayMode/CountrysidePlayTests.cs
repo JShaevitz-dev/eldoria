@@ -12,7 +12,7 @@ using L = Eldoria.Terrain.CountrysideLayout;
 
 namespace Eldoria.Tests
 {
-    /// <summary>The English Countryside map: the river (wading costs double; bridge and ford are dry), hills that block sight, farm props.</summary>
+    /// <summary>The Open Season map: the river (wading costs double; bridge and ford are dry), hills that block sight, farm props.</summary>
     public class CountrysidePlayTests
     {
         [UnitySetUp]

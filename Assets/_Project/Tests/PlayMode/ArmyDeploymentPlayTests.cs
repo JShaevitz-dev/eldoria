@@ -10,7 +10,7 @@ using UnityEngine.TestTools;
 
 namespace Eldoria.Tests
 {
-    /// <summary>Chosen armies replace the scene's armies on the Urban Demo map, in their deployment zones.</summary>
+    /// <summary>Chosen armies replace the scene's armies on the Boxed in map, in their deployment zones.</summary>
     public class ArmyDeploymentPlayTests
     {
         private static UnitTemplate Unit(string name) => UnitCatalog.Load().Available.First(u => u.displayName == name);

@@ -24,7 +24,7 @@ namespace Eldoria.Gameplay
         /// <summary>True while the player is choosing a map (after Play, before the army builder).</summary>
         public bool ChoosingMap { get; private set; }
 
-        /// <summary>The map the next battle is fought on (the Urban Demo unless another is chosen).</summary>
+        /// <summary>The map the next battle is fought on (the Boxed in unless another is chosen).</summary>
         public static Battlefield ChosenMap { get; private set; } = Battlefields.UrbanDemo;
 
         /// <summary>Play: choose a map first.</summary>
@@ -47,24 +47,27 @@ namespace Eldoria.Gameplay
 
         /// <summary>The player's last confirmed army and its faction: the builder starts from it when that faction is chosen again.</summary>
         private static List<UnitTemplate> lastArmy;
+        private static List<UnitLoadout> lastLoadouts;
         private static Faction lastFaction;
 
         /// <summary>Forgets the last confirmed army: the builder starts from the demo army again.</summary>
         public static void ForgetLastArmy()
         {
             lastArmy = null;
+            lastLoadouts = null;
             lastFaction = null;
             ChosenMap = Battlefields.UrbanDemo;
         }
 
         /// <summary>Opens the army builder (after the map is chosen).</summary>
-        public void OpenArmyBuilder() => Builder = new ArmyBuilderScreen(UnitCatalog.Load(), lastFaction, lastArmy);
+        public void OpenArmyBuilder() => Builder = new ArmyBuilderScreen(UnitCatalog.Load(), lastFaction, lastArmy, lastLoadouts);
 
         /// <summary>
         /// Starts a battle with this faction and army, if it's valid: the AI picks a random faction and builds a random valid
         /// army from it, and both go to the chosen map. Returns why the army isn't valid (empty if the battle started).
         /// </summary>
-        public static List<string> StartBattle(Faction faction, IReadOnlyList<UnitTemplate> army)
+        /// <param name="loadouts">Each unit's weapon swaps and equipment (same order as <paramref name="army"/>), if any.</param>
+        public static List<string> StartBattle(Faction faction, IReadOnlyList<UnitTemplate> army, IReadOnlyList<UnitLoadout> loadouts = null)
         {
             var problems = faction == null ? new List<string> { "Choose a faction first." } : ArmyRules.Problems(army, faction);
             if (problems.Count > 0) return problems;
@@ -74,8 +77,9 @@ namespace Eldoria.Gameplay
             var aiFaction = factions.Count > 0 ? factions[rng.Next(factions.Count)] : faction;
             var aiArmy = ArmyRules.RandomArmy(catalog != null ? catalog.UnitsFor(aiFaction) : army, rng);
             lastArmy = new List<UnitTemplate>(army);
+            lastLoadouts = loadouts?.Select(l => l?.Clone()).ToList();
             lastFaction = faction;
-            ArmySelection.Set(army, aiArmy, faction, aiFaction);
+            ArmySelection.Set(army, aiArmy, faction, aiFaction, loadouts);
             SceneManager.LoadScene(ChosenMap.Scene);
             return problems;
         }
@@ -112,7 +116,7 @@ namespace Eldoria.Gameplay
             {
                 var result = Builder.Draw();
                 if (result == ArmyBuilderScreen.Result.Back) OpenMapChoice();   // back to the map choice
-                else if (result == ArmyBuilderScreen.Result.Confirmed) StartBattle(Builder.Faction, Builder.Army);
+                else if (result == ArmyBuilderScreen.Result.Confirmed) StartBattle(Builder.Faction, Builder.Army, Builder.Loadouts);
                 return;
             }
             if (ChoosingMap)

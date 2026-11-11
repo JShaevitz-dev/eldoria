@@ -25,6 +25,7 @@ namespace Eldoria.Tests
         [TestCase("BattleMage", UnitRole.Specialist)]
         [TestCase("StahlColossus", UnitRole.HeavySupport)]
         [TestCase("FieldCommanderPoweredArmor", UnitRole.Commander)]
+        [TestCase("PaladinSquad", UnitRole.HeavySupport)]
         public void EachUnitHasItsRole(string file, UnitRole role)
         {
             Assert.That(Load(file).role, Is.EqualTo(role));
@@ -35,7 +36,7 @@ namespace Eldoria.Tests
         {
             var units = AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" })
                 .Select(g => AssetDatabase.LoadAssetAtPath<UnitTemplate>(AssetDatabase.GUIDToAssetPath(g))).ToList();
-            Assert.That(units.Count, Is.EqualTo(12));
+            Assert.That(units.Count, Is.EqualTo(13));
             Assert.That(units.Count(u => u.role == UnitRole.Specialist), Is.EqualTo(5), "everything else is a Specialist (and the Battle Priest)");
         }
 

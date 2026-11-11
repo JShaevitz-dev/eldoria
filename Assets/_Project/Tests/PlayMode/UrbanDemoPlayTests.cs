@@ -13,7 +13,7 @@ using UnityEngine.TestTools;
 
 namespace Eldoria.Tests
 {
-    /// <summary>The Urban Demo map: size, 180° symmetry, deployment, and that every area can be reached.</summary>
+    /// <summary>The Boxed in map: size, 180° symmetry, deployment, and that every area can be reached.</summary>
     public class UrbanDemoPlayTests
     {
         private const float Tolerance = 0.05f;

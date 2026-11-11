@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -59,6 +60,16 @@ namespace Eldoria.Units
         [Min(0.1f)] public float height = 1.8f;
 
         public bool HasKeyword(string name) => Keyword.Contains(keywords, name);
+
+        [Header("Army builder options")]
+        [Tooltip("Weapons this soldier type can swap in the army builder, and what for.")]
+        public List<WeaponOption> weaponOptions = new List<WeaponOption>();
+        [Tooltip("Equipment this soldier type can be given in the army builder.")]
+        public List<Equipment> equipmentOptions = new List<Equipment>();
+
+        /// <summary>Does the army builder offer this soldier type any weapon swaps or equipment?</summary>
+        public bool HasOptions => (weaponOptions != null && weaponOptions.Any(o => o != null && o.IsValid))
+                                  || (equipmentOptions != null && equipmentOptions.Any(e => e != null));
 
         private void OnValidate()
         {

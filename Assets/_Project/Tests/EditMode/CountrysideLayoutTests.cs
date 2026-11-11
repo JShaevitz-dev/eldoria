@@ -5,7 +5,7 @@ using L = Eldoria.Terrain.CountrysideLayout;
 
 namespace Eldoria.Tests
 {
-    /// <summary>The shape of the English Countryside map.</summary>
+    /// <summary>The shape of the Open Season map.</summary>
     public class CountrysideLayoutTests
     {
         [Test]

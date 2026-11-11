@@ -31,6 +31,39 @@ namespace Eldoria.Units
         private readonly Dictionary<Ability, int> abilityUses = new Dictionary<Ability, int>();
         private bool initialized;
 
+        /// <summary>The army builder choices for this soldier (weapons swapped, equipment), if any.</summary>
+        [System.NonSerialized] private SoldierLoadout loadout;
+        [System.NonSerialized] private List<Ability> abilitiesWithEquipment;
+
+        public SoldierLoadout Loadout => loadout;
+        private IEnumerable<Equipment> Gear => loadout != null ? loadout.Equipment.Where(e => e != null) : Enumerable.Empty<Equipment>();
+
+        /// <summary>
+        /// Applies the army builder choices: swapped weapons replace the ones they stand for (a swapped primary weapon is the
+        /// new primary), equipment adds its weapons, keywords, abilities and stat changes. Health starts at the new maximum.
+        /// </summary>
+        public void ApplyLoadout(SoldierLoadout newLoadout)
+        {
+            loadout = newLoadout;
+            abilitiesWithEquipment = null;
+            weapons.Clear();
+            if (template != null)
+                foreach (var w in template.weapons)
+                    if (w != null) weapons.Add(new Weapon(loadout != null ? loadout.Swap(w) : w, this));
+            foreach (var e in Gear)
+                foreach (var w in e.weapons)
+                    if (w != null) weapons.Add(new Weapon(w, this));
+            if (loadout != null && template != null)
+            {
+                abilitiesWithEquipment = new List<Ability>(template.abilities);
+                foreach (var e in Gear)
+                    foreach (var a in e.abilities)
+                        if (a != null && !abilitiesWithEquipment.Contains(a)) abilitiesWithEquipment.Add(a);
+            }
+            initialized = true;
+            health = MaxHealth;
+        }
+
         public SoldierTemplate Template => template;
         public bool IsSergeant => isSergeant;
         public bool IsAlive => isAlive;
@@ -47,22 +80,33 @@ namespace Eldoria.Units
 
         // ---- Stats (from the template) ----
         public string ClassName => template != null ? template.displayName : name;
-        /// <summary>Starting (maximum) health.</summary>
-        public int MaxHealth => template != null ? template.health : 1;
+        /// <summary>Starting (maximum) health (equipment can change it).</summary>
+        public int MaxHealth => template != null ? Mathf.Max(1, template.health + Gear.Sum(e => e.health)) : 1;
         /// <summary>Current health.</summary>
         public int Health { get { EnsureInitialized(); return health; } }
-        public int ArmorLevel => template != null ? template.armorLevel : 0;
+        public int ArmorLevel => template != null ? Mathf.Max(0, template.armorLevel + Gear.Sum(e => e.armorLevel)) : 0;
         /// <summary>Base chance to hit, in percent.</summary>
-        public int Accuracy => template != null ? template.accuracy : 0;
+        public int Accuracy => template != null ? template.accuracy + Gear.Sum(e => e.accuracy) : 0;
         /// <summary>Movement range in meters (a normal move).</summary>
-        public float Move => template != null ? template.movementRange : 0f;
+        public float Move => template != null ? Mathf.Max(0f, template.movementRange + Gear.Sum(e => e.movement)) : 0f;
         /// <summary>Can this soldier sprint? Mechanical soldiers can't.</summary>
         public bool CanSprint => !HasKeyword(Rules.MovementRules.MechanicalKeyword);
         /// <summary>Sprinting move in meters (just the normal move for a soldier who can't sprint).</summary>
         public float Sprint => CanSprint ? Move * Rules.MovementRules.SprintMultiplier : Move;
 
         // ---- Keywords: inherent (template) − lost + gained during the game ----
-        private IEnumerable<Keyword> InherentKeywords => template != null ? template.keywords : null;
+        private IEnumerable<Keyword> InherentKeywords
+        {
+            get
+            {
+                if (template == null) return null;
+                if (loadout == null) return template.keywords;
+                var list = new List<Keyword>(template.keywords);
+                foreach (var e in Gear)
+                    foreach (var k in e.keywords) Keyword.AddUnique(list, k);   // equipment keywords
+                return list;
+            }
+        }
         /// <summary>Keywords the soldier has right now (including any granted by nearby terrain).</summary>
         public IReadOnlyList<Keyword> Keywords
         {
@@ -131,8 +175,9 @@ namespace Eldoria.Units
             return health - before;
         }
 
-        /// <summary>Abilities this soldier has (from their template).</summary>
-        public IReadOnlyList<Ability> Abilities => template != null ? template.abilities : (IReadOnlyList<Ability>)System.Array.Empty<Ability>();
+        /// <summary>Abilities this soldier has (from their template, plus any their equipment gives).</summary>
+        public IReadOnlyList<Ability> Abilities => abilitiesWithEquipment != null ? abilitiesWithEquipment
+            : template != null ? template.abilities : (IReadOnlyList<Ability>)System.Array.Empty<Ability>();
 
         /// <summary>The weapon this soldier shoots with under normal conditions.</summary>
         public Weapon PrimaryWeapon
@@ -140,6 +185,7 @@ namespace Eldoria.Units
             get
             {
                 var primary = template != null ? template.PrimaryWeapon : null;
+                if (loadout != null) primary = loadout.Swap(primary);   // a swapped primary weapon is the new primary
                 foreach (var w in Weapons)
                     if (w.Template == primary) return w;
                 return Weapons.Count > 0 ? Weapons[0] : null;

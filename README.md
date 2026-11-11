@@ -13,16 +13,17 @@ getting the rules right.
 1. Download [`Eldoria-Windows.zip`](Eldoria-Windows.zip) from this repo.
 2. Unzip it anywhere and run `Eldoria/Eldoria.exe` (Windows 64-bit).
 3. Pick **Play** on the main menu. You can turn on the turn timer there too (it's off by default, 10 minutes per turn).
-4. **Choose a battlefield:** the Urban Demo or the English Countryside.
+4. **Choose a battlefield:** the Boxed in or the Open Season.
 5. **Choose your faction:** the United States of Liberteria, the United Kingdom of Aelfland or the Draksa Reich. Your
    faction decides which units and commanders you can take.
-6. **Build your army:** up to 6 units, exactly 1 Commander, and no duplicate Specialist units. Then
+6. **Build your army:** up to 6 units, exactly 1 Commander, and no duplicate Specialist units. Units whose soldiers
+   have weapon or equipment options can be customized. Then
    press **Confirm army**.
 
 You play against the AI on one of two maps:
 
-- **Urban Demo:** an 80 × 60 m city block with a central plaza, laid out with 180° symmetry so both sides start out even.
-- **English Countryside:** 100 × 100 m of open, rolling farmland. Hills block line of sight. A river crosses the map:
+- **Boxed in:** an 80 × 60 m city block with a central plaza, laid out with 180° symmetry so both sides start out even.
+- **Open Season:** 100 × 100 m of open, rolling farmland. Hills block line of sight. A river crosses the map:
   wading it costs double movement, unless you take the stone bridge or the ford. A farmhouse, a barn, a stone shed,
   and hay bales, carts and fences give cover.
 
@@ -89,10 +90,11 @@ At a glance:
 | Tank Hunter Team | Heavy Support |
 | Battle Mage (United States of Liberteria only) | Specialist |
 | Stahl Colossus (Draksa Reich only) | Heavy Support |
+| Paladin Squad (United Kingdom of Aelfland only) | Heavy Support |
 | Powered Armor Squad | Specialist |
 | Sniper | Specialist |
 
-Every faction can take every unit except another faction's own (so far, Liberteria's Battle Mage and the Draksa Reich's Stahl Colossus). An army has exactly 1 Commander, and Specialist units are limited to one of each.
+Every faction can take every unit except another faction's own (so far, Liberteria's Battle Mage, Aelfland's Paladin Squad and the Draksa Reich's Stahl Colossus). An army has exactly 1 Commander, and Specialist units are limited to one of each.
 
 Weapons: Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, plus the Frag Grenade ability.
 
@@ -120,7 +122,7 @@ Assets/_Project/
 Docs/Rules.md     the rules
 ```
 
-**Editor menu (Eldoria):** Build Urban Demo, Build Countryside, Build Main Menu, Build Cube Room, Spawn Test Unit, Build Game (Windows).
+**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Main Menu, Build Cube Room, Spawn Test Unit, Build Game (Windows).
 Game data is created and upgraded in code by `SquadBuilder`, so the assets can be rebuilt at any time.
 
 **Tests:** run them in Unity's Test Runner, or from the command line:

@@ -11,7 +11,7 @@ using UnityEngine.Rendering;
 namespace Eldoria.EditorTools
 {
     /// <summary>
-    /// Builds the demo map "Urban Demo": an 80 x 60 m town district with 180° rotational symmetry
+    /// Builds the map "Boxed in" (Scenes/UrbanDemo): an 80 x 60 m town district with 180° rotational symmetry
     /// (every feature in the south half has a twin at (-x, -z), turned round), so both sides face the same choices.
     ///
     ///   North: AI deployment zone (8 m deep)
@@ -22,7 +22,7 @@ namespace Eldoria.EditorTools
     ///
     /// Buildings are roofless (so the camera can see in), with doorways and windows. Window sills are low objects:
     /// soldiers can see, shoot and climb through a window (it costs no extra movement), and its sill gives half-cover.
-    /// Menu: Eldoria > Build Urban Demo, or -executeMethod Eldoria.EditorTools.UrbanMapBuilder.Build
+    /// Menu: Eldoria > Build Boxed in, or -executeMethod Eldoria.EditorTools.UrbanMapBuilder.Build
     /// </summary>
     public static class UrbanMapBuilder
     {
@@ -51,7 +51,7 @@ namespace Eldoria.EditorTools
             public static Opening Win(float offset, float width = WindowWidth) => new Opening { Offset = offset, Width = width, Window = true };
         }
 
-        [MenuItem("Eldoria/Build Urban Demo")]
+        [MenuItem("Eldoria/Build Boxed in")]
         public static void Build()
         {
             EnsureFolder(Root, "Scenes");

@@ -66,7 +66,7 @@ namespace Eldoria.Gameplay
             var menu = FindFirstObjectByType<MainMenu>();
             menu.OpenMapChoice();
             yield return Screenshot("maps.png");
-            Check(Battlefields.All.Count == 2, "the map choice offers the Urban Demo and the English Countryside");
+            Check(Battlefields.All.Count == 2, "the map choice offers Boxed in and Open Season");
             menu.ChooseMap(Battlefields.EnglishCountryside);
             yield return Screenshot("factions.png");
             Check(menu.Builder.Factions.Count == 3, $"the army builder offers the factions ({menu.Builder.Factions.Count})");

@@ -15,11 +15,15 @@ namespace Eldoria.Gameplay
         public static IReadOnlyList<UnitTemplate> AIArmy { get; private set; }
         public static Faction PlayerFaction { get; private set; }
         public static Faction AIFaction { get; private set; }
+        /// <summary>Each of the player's units' weapon swaps and equipment (same order as <see cref="PlayerArmy"/>; may be null).</summary>
+        public static IReadOnlyList<UnitLoadout> PlayerLoadouts { get; private set; }
 
         public static bool HasArmies => PlayerArmy != null && PlayerArmy.Count > 0 && AIArmy != null && AIArmy.Count > 0;
 
-        public static void Set(IEnumerable<UnitTemplate> player, IEnumerable<UnitTemplate> ai, Faction playerFaction = null, Faction aiFaction = null)
+        public static void Set(IEnumerable<UnitTemplate> player, IEnumerable<UnitTemplate> ai, Faction playerFaction = null, Faction aiFaction = null,
+            IEnumerable<UnitLoadout> playerLoadouts = null)
         {
+            PlayerLoadouts = playerLoadouts?.Select(l => l?.Clone()).ToList();
             PlayerArmy = player.Where(u => u != null).ToList();
             AIArmy = ai.Where(u => u != null).ToList();
             PlayerFaction = playerFaction;
@@ -32,6 +36,7 @@ namespace Eldoria.Gameplay
             AIArmy = null;
             PlayerFaction = null;
             AIFaction = null;
+            PlayerLoadouts = null;
         }
     }
 }

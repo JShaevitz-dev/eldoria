@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Eldoria.Terrain
 {
     /// <summary>
-    /// The shape of the English Countryside map (100 × 100 m, centred on the origin, not symmetrical): gently rolling
+    /// The shape of the Open Season map (100 × 100 m, centred on the origin, not symmetrical): gently rolling
     /// fields, a knoll in the north-west, a long ridge in the south-west, a low rise in the south field, a river
     /// meandering west to east across the middle with a stone bridge and a shallow ford, and flat pads for the farm
     /// buildings. Used by the map builder (Editor) and by the tests.

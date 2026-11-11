@@ -51,7 +51,7 @@ Every unit has a **role**. It's shown in the HUD when the unit is selected.
 |---|---|
 | **Infantry** | Infantry Squad |
 | **Commander** | Field Commander, Field Commander in Powered Armor |
-| **Heavy Support** | Machine Gun Team, Medium Tank, Tank Hunter Team, Stahl Colossus |
+| **Heavy Support** | Machine Gun Team, Medium Tank, Tank Hunter Team, Stahl Colossus, Paladin Squad |
 | **Specialist** | Powered Armor Squad, Sniper, Flamethrower Team, Battle Mage, Battle Priest (and any unit not given another role) |
 
 ### Factions — *implemented*
@@ -61,7 +61,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | Faction | Colour | Units |
 |---|---|---|
 | **United States of Liberteria** | dark green | every unit, plus its own **Battle Mage** |
-| **United Kingdom of Aelfland** | light green | every unit except other factions' own |
+| **United Kingdom of Aelfland** | light green | every unit except other factions' own, plus its own **Paladin Squad** |
 | **The Draksa Reich** | gray | every unit except other factions' own, plus its own **Stahl Colossus** |
 
 **Faction colours:** a unit's **primary colour** (its soldiers' bodies and caps) is its faction's colour. Every faction uses the same models and materials: the primary-colour parts are tinted per unit when it deploys, so a new faction only needs a colour, not new textures. Other parts keep their own colours (skin, weapons, gold trim, the officer's cape, the priest's white robe, powered armor plates). Both sides can choose the same faction; the soldier labels (blue for yours, red for the enemy's) still tell them apart. The army builder shows each faction's colour.
@@ -83,7 +83,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 
 ### Army lists — *implemented*
 
-Before a battle, the player chooses the **map** (Urban Demo or English Countryside), then each side chooses a **faction** and builds an **army list** from that faction's units:
+Before a battle, the player chooses the **map** (Boxed in or Open Season), then each side chooses a **faction** and builds an **army list** from that faction's units:
 
 - Every unit must be one the army's **faction** has access to.
 - An army has **6 slots**: it can have **1 to 6 units** (empty slots are allowed).
@@ -91,6 +91,13 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 - It **can't have duplicates of a Commander or Specialist** unit (e.g. only one Sniper, only one Field Commander; the Field Commander and the Battle Priest together is fine). **Infantry** and **Heavy Support** units can be taken more than once.
 
 **Map choice, then army builder:** pressing **Play** first asks which **battlefield** to fight on (each with a short description); **Back** in the army builder returns to it. Choosing one opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the demo army (3 Infantry Squads, the Field Commander and the Battle Priest, keeping only units the faction has), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
+
+**Weapons and equipment (customizing a unit):** a soldier type can offer **weapon swaps** (a weapon it carries, and what it can be swapped for, e.g. *Assault Rifle → SMG*) and **equipment** it can be given. A unit in your list whose soldiers have any options gets a **Customize** button, which opens a panel listing each of those soldier types with its weapon choices and equipment.
+- Choices apply to **every soldier of that type in the unit** (e.g. all the Troopers); the Sergeant is set separately. Each unit in the list has its own choices, even two of the same unit.
+- **A swapped weapon replaces the original**; if it was the primary weapon, the new one is the primary.
+- **Equipment** can give **keywords**, **abilities**, **extra weapons** (carried as well, not as the primary) and **stat changes** (Health, Armor Level, Accuracy, Movement; added to the soldier's own). The list shows a short summary of a unit's choices.
+- Choices are kept with your last army, and applied when your army deploys. The AI's armies don't customize.
+- *No soldier type has any options yet: they're set on each soldier's data (Weapon Options, Equipment Options) or given to me.*
 
 **The AI's army:** the AI picks a **random faction** and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
@@ -118,6 +125,7 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 | 100mm Cannon | 10 | 1 | 4 | +0 | Manual Load | 50 m |
 | Rocket Launcher | 5 | 1 | 5 | +0 | Manual Load | 50 m |
 | Iron Claw | 10 | 1 | 0 | +25 | Melee | 2 m |
+| Broadsword | 5 | 1 | 1 | +0 | Melee | 2 m |
 
 - **SMG** and **Machine Gun** are carried by the Machine Gun Team.
 - The **Flamethrower** is carried by the Flamethrower Team. The **Sniper Rifle** is carried by the Sniper. The **100mm Cannon** is carried by the Medium Tank. The **Rocket Launcher** is used by the Tank Hunter Team's Rocket Trooper, as an active ability (not in volleys).
@@ -155,6 +163,18 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 
 - The Flamethrower only damages **Biological** targets (Incendiary), reaches **10 m**, and its holder has a **10%** chance to **explode** on death (Unstable: 5 damage to everyone within 5 m).
 - In **close range** they fall back on their **Pistols**.
+
+### Paladin Squad
+
+1 **Sergeant in Powered Armor** (leader) + 4 **Troopers in Powered Armor**, each holding a **Broadsword**. **United Kingdom of Aelfland only.** Role: **Heavy Support** (more than one can be taken).
+
+| Soldier | Health | Armor Level | Accuracy | Movement | Weapons |
+|---|---|---|---|---|---|
+| Sergeant in Powered Armor | 10 | 2 | 75% | 6 m (sprint 12 m) | Broadsword |
+| Trooper in Powered Armor (×4) | 5 | 2 | 75% | 6 m (sprint 12 m) | Broadsword |
+
+- The soldiers have the Powered Armor Squad's soldiers' stats and keywords (Biological); only the weapon differs.
+- **Broadsword:** Damage 5, Penetration 1, Range **2 m**, Accuracy Bonus +0, Shots 1, keyword **Melee**: it **can be used in close range**, so the Paladins keep fighting when an enemy is right beside them. They can only reach enemies within 2 m.
 
 ### Stahl Colossus
 
@@ -416,7 +436,7 @@ Test room terrain:
 
 ## Maps
 
-### English Countryside — *built (Scenes/Countryside, Eldoria > Build Countryside)*
+### Open Season — *built (Scenes/Countryside, Eldoria > Build Open Season)*
 
 - **100 × 100 m**, **not symmetrical**: open, gently rolling English farmland. Its shape is defined in `CountrysideLayout`.
 - **Deployment zones:** the player sets up in the southern **10 m** of the map, the AI in the northern 10 m. Both strips are flat.
@@ -427,7 +447,7 @@ Test room terrain:
 - **The river** meanders west to east across the middle of the map, about 6 m of water between low banks. **Wading costs double** (see Wading). Two dry crossings:
   - a **stone bridge** (4 m wide) in the east, with low **parapets** (Half-cover; they block movement, so you can't step off the bridge into the water);
   - a **shallow ford** in the west, a gravel bed just above the water.
-- **Farm buildings** (roofless, with doorways and climbable windows like the Urban Demo's): a stone **farmhouse** in the north-east, a large wooden **barn** with wide doors in the south-east, and a small **stone shed** in the south field.
+- **Farm buildings** (roofless, with doorways and climbable windows like the Boxed in's): a stone **farmhouse** in the north-east, a large wooden **barn** with wide doors in the south-east, and a small **stone shed** in the south field.
 - **Farm props**, all **Half-cover**:
 
 | Prop | Mantle | Climb onto | Notes |
@@ -441,7 +461,7 @@ Test room terrain:
 
 - When the scene is opened directly in the editor, both sides field the demo army.
 
-### Urban Demo — *built (Scenes/UrbanDemo, Eldoria > Build Urban Demo)*
+### Boxed in — *built (Scenes/UrbanDemo, Eldoria > Build Boxed in)*
 
 - **80 × 60 m**, with **180° rotational symmetry**: every feature in the south half has a twin at the opposite point, turned round, so both sides face the same choices.
 - **Deployment zones:** the player sets up in the southern **8 m** of the map, the AI in the northern 8 m.

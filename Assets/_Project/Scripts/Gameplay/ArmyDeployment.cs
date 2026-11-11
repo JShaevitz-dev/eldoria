@@ -26,7 +26,7 @@ namespace Eldoria.Gameplay
             return zoneCentre + new Vector3(across * forward, 0f, forward * zoneSize.y * 0.125f);
         }
 
-        /// <summary>The slot in the current map's deployment zone for that side (the Urban Demo's zones if the map has none).</summary>
+        /// <summary>The slot in the current map's deployment zone for that side (the Boxed in's zones if the map has none).</summary>
         public static Vector3 SlotFor(Side side, int index)
         {
             var zone = Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None).FirstOrDefault(z => z.Side == side);
@@ -41,13 +41,13 @@ namespace Eldoria.Gameplay
         public static bool DeploySelected()
         {
             if (!ArmySelection.HasArmies) return false;
-            Deploy(ArmySelection.PlayerArmy, ArmySelection.AIArmy, ArmySelection.PlayerFaction, ArmySelection.AIFaction);
+            Deploy(ArmySelection.PlayerArmy, ArmySelection.AIArmy, ArmySelection.PlayerFaction, ArmySelection.AIFaction, ArmySelection.PlayerLoadouts);
             return true;
         }
 
         /// <summary>Removes every unit on the battlefield and deploys these two armies.</summary>
         public static List<Unit> Deploy(IReadOnlyList<UnitTemplate> player, IReadOnlyList<UnitTemplate> ai,
-            Faction playerFaction = null, Faction aiFaction = null)
+            Faction playerFaction = null, Faction aiFaction = null, IReadOnlyList<UnitLoadout> playerLoadouts = null)
         {
             // Out with the armies placed in the scene (deactivated at once so nothing finds them this frame).
             foreach (var old in Object.FindObjectsByType<Unit>(FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -60,18 +60,20 @@ namespace Eldoria.Gameplay
 
             var root = new GameObject("Armies").transform;
             var deployed = new List<Unit>();
-            deployed.AddRange(DeployArmy(player, Side.Player, root, playerFaction));
-            deployed.AddRange(DeployArmy(ai, Side.AI, root, aiFaction));
+            deployed.AddRange(DeployArmy(player, Side.Player, root, playerFaction, playerLoadouts));
+            deployed.AddRange(DeployArmy(ai, Side.AI, root, aiFaction, null));
             return deployed;   // nearby keywords (cover, auras) are worked out when the first turn starts
         }
 
-        private static IEnumerable<Unit> DeployArmy(IReadOnlyList<UnitTemplate> army, Side side, Transform root, Faction faction)
+        private static IEnumerable<Unit> DeployArmy(IReadOnlyList<UnitTemplate> army, Side side, Transform root, Faction faction,
+            IReadOnlyList<UnitLoadout> loadouts)
         {
             var units = army.Where(u => u != null).Take(ArmyRules.MaxUnits).ToList();
             var names = UnitNames(units, side);
             var facing = Quaternion.Euler(0f, side == Side.Player ? 0f : 180f, 0f);
             for (int i = 0; i < units.Count; i++)
-                yield return Spawn(units[i], side, SlotFor(side, i), facing, names[i], root, faction);
+                yield return Spawn(units[i], side, SlotFor(side, i), facing, names[i], root, faction,
+                    loadouts != null && i < loadouts.Count ? loadouts[i] : null);
         }
 
         /// <summary>
@@ -93,12 +95,24 @@ namespace Eldoria.Gameplay
             return names;
         }
 
+        /// <summary>Gives each soldier of the unit their type's army builder choices (weapon swaps, equipment), if any.</summary>
+        public static void ApplyLoadout(Unit unit, UnitLoadout loadout)
+        {
+            if (unit == null || loadout == null) return;
+            foreach (var s in unit.Soldiers)
+            {
+                var l = loadout.Get(s.Template);
+                if (l != null) s.ApplyLoadout(l);
+            }
+        }
+
         /// <summary>Spawns one unit: on the ground, in its faction's colour, with a marker over its leader.</summary>
         public static Unit Spawn(UnitTemplate template, Side side, Vector3 position, Quaternion facing, string name, Transform parent,
-            Faction faction = null)
+            Faction faction = null, UnitLoadout loadout = null)
         {
             var unit = UnitFactory.Spawn(template, side, position, facing, parent, name);
             unit.SetFaction(faction);
+            ApplyLoadout(unit, loadout);
             var catalog = UnitCatalog.Load();
 
             if (catalog != null && (faction != null || side == Side.AI))

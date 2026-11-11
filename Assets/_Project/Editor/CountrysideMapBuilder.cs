@@ -13,12 +13,12 @@ using L = Eldoria.Terrain.CountrysideLayout;
 namespace Eldoria.EditorTools
 {
     /// <summary>
-    /// Builds the English Countryside map (Scenes/Countryside): 100 × 100 m, not symmetrical. Rolling fields with a knoll
+    /// Builds the Open Season map (Scenes/Countryside): 100 × 100 m, not symmetrical. Rolling fields with a knoll
     /// (north-west), a long ridge (south-west) and a low rise (south field) whose crests block line of sight; a river
     /// meandering across the middle (wade at double
     /// movement cost) with a stone bridge and a shallow ford; a farmhouse, a barn and a stone shed; farm props giving
     /// half-cover (hay bales, haystacks, carts, fences, a well). The shape comes from <see cref="CountrysideLayout"/>.
-    /// Menu: Eldoria > Build Countryside.
+    /// Menu: Eldoria > Build Open Season.
     /// </summary>
     public static class CountrysideMapBuilder
     {
@@ -29,7 +29,7 @@ namespace Eldoria.EditorTools
 
         private static Material grass, gravel, mud, water, farmStone, barnWood, hay;
 
-        [MenuItem("Eldoria/Build Countryside")]
+        [MenuItem("Eldoria/Build Open Season")]
         public static void Build()
         {
             UrbanMapBuilder.PrepareShared();

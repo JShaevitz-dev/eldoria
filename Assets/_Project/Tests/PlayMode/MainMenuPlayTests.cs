@@ -46,7 +46,7 @@ namespace Eldoria.Tests
 
             menu.Builder.ChooseFaction(menu.Builder.Factions[1]);
             Assert.That(menu.Builder.Faction.displayName, Is.EqualTo("United Kingdom of Aelfland"));
-            Assert.That(menu.Builder.Available.Count, Is.EqualTo(10), "every unit but Liberteria's Battle Mage and the Reich's Stahl Colossus");
+            Assert.That(menu.Builder.Available.Count, Is.EqualTo(11), "every shared unit, plus Aelfland's own Paladin Squad");
             Assert.That(menu.Builder.Army.Select(u => u.displayName), Is.EqualTo(new[]
                 { "Infantry Squad", "Field Commander", "Infantry Squad", "Battle Priest", "Infantry Squad" }));
         }
@@ -108,7 +108,7 @@ namespace Eldoria.Tests
             var menu = Object.FindFirstObjectByType<MainMenu>();
             menu.OpenMapChoice();
             Assert.That((menu.ChoosingMap, menu.Builder), Is.EqualTo((true, (ArmyBuilderScreen)null)), "the map comes first");
-            Assert.That(Battlefields.All.Select(m => m.Name), Is.EqualTo(new[] { "Urban Demo", "English Countryside" }));
+            Assert.That(Battlefields.All.Select(m => m.Name), Is.EqualTo(new[] { "Boxed in", "Open Season" }));
 
             menu.ChooseMap(Battlefields.EnglishCountryside);
             Assert.That(menu.ChoosingMap, Is.False);

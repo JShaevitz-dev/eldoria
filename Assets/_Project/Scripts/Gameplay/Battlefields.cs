@@ -15,7 +15,7 @@ namespace Eldoria.Gameplay
     {
         public static readonly Battlefield UrbanDemo = new Battlefield
         {
-            Name = "Urban Demo",
+            Name = "Boxed in",
             Scene = "UrbanDemo",
             Description = "80 × 60 m city block around a central plaza, laid out with 180° symmetry. Roofless buildings with " +
                           "doorways and climbable windows, streets full of cars, sandbags and crates.",
@@ -23,7 +23,7 @@ namespace Eldoria.Gameplay
 
         public static readonly Battlefield EnglishCountryside = new Battlefield
         {
-            Name = "English Countryside",
+            Name = "Open Season",
             Scene = "Countryside",
             Description = "100 × 100 m of open, rolling fields. A knoll, a long ridge and a low rise block line of sight; a river " +
                           "crosses the map (wading costs double, or use the stone bridge or the ford); a farmhouse, a barn, a " +
