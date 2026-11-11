@@ -1,3 +1,4 @@
+using System.Linq;
 using Eldoria.Units;
 using NUnit.Framework;
 using UnityEditor;
@@ -57,6 +58,35 @@ namespace Eldoria.Tests
                 UnityEngine.Object.DestroyImmediate(go);
                 UnityEngine.Object.DestroyImmediate(template);
             }
+        }
+
+        [Test]
+        public void EveryWeaponHasShots()
+        {
+            var weapons = AssetDatabase.FindAssets("t:WeaponTemplate", new[] { "Assets/_Project/Data/Weapons" })
+                .Select(g => AssetDatabase.LoadAssetAtPath<WeaponTemplate>(AssetDatabase.GUIDToAssetPath(g))).ToList();
+            Assert.That(weapons.Count, Is.GreaterThanOrEqualTo(8));
+            foreach (var w in weapons)
+            {
+                int expected = w.displayName == "Machine Gun" ? 5 : w.displayName == "Flamethrower" ? 3 : 1;
+                Assert.That(w.shots, Is.EqualTo(expected), w.displayName);
+            }
+            Assert.That(weapons.Select(w => w.displayName), Does.Contain("Machine Gun").And.Contain("Flamethrower"));
+            var fresh = UnityEngine.ScriptableObject.CreateInstance<WeaponTemplate>();
+            Assert.That(fresh.shots, Is.EqualTo(1), "new weapons default to 1");
+            UnityEngine.Object.DestroyImmediate(fresh);
+        }
+
+        [Test]
+        public void TheRocketLauncherIsAsDesigned()
+        {
+            var rocket = Load("RocketLauncher");
+            Assert.That(rocket.displayName, Is.EqualTo("Rocket Launcher"));
+            Assert.That((rocket.baseDamage, rocket.PenetrationValue, rocket.accuracyBonus, rocket.range, rocket.shots),
+                Is.EqualTo((5, (int?)5, 0, 50f, 1)));
+            Assert.That(rocket.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Manual Load" }));
+            // Penetration 5 beats a Medium Tank's Armor Level 4: 150% damage (7).
+            Assert.That(Eldoria.Rules.ArmorPenetration.Resolve(5, 5, 4).Damage, Is.EqualTo(7));
         }
 
         [Test]

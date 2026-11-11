@@ -22,7 +22,7 @@ namespace Eldoria.Tests
             ArmySelection.Set(
                 new[] { Unit("Field Commander"), Unit("Battlefield Priest"), Unit("Sniper"), Unit("Powered Armor Squad"), Unit("Machine Gun Team"), Unit("Infantry Squad") },
                 new[] { Unit("Field Commander"), Unit("Infantry Squad"), Unit("Infantry Squad"), Unit("Machine Gun Team"), Unit("Machine Gun Team"), Unit("Sniper") },
-                Faction("United States of Columbia"), Faction("The Draksa Reich"));
+                Faction("United States of Liberteria"), Faction("The Draksa Reich"));
             SceneManager.LoadScene(MainMenu.GameScene);
             yield return null;
             yield return null;
@@ -74,6 +74,18 @@ namespace Eldoria.Tests
                     Assert.That(zone.Contains(s.Position), Is.True, $"{unit.DisplayName}: {s.name} at {s.Position}");
                     Assert.That(Mathf.Abs(s.Position.y), Is.LessThan(0.6f), $"{s.name} stands on the ground");
                 }
+            }
+        }
+
+        [Test]
+        public void EachUnitBelongsToItsArmysFactionAndItsWeaponsKnowIt()
+        {
+            foreach (var unit in Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+            {
+                var faction = unit.Side == Side.Player ? ArmySelection.PlayerFaction : ArmySelection.AIFaction;
+                Assert.That(unit.Faction, Is.SameAs(faction), unit.DisplayName);
+                foreach (var w in unit.Soldiers.SelectMany(s => s.Weapons))
+                    Assert.That(w.Faction, Is.SameAs(faction), $"{unit.DisplayName}: {w.Name}");
             }
         }
 

@@ -18,6 +18,10 @@ namespace Eldoria.Units
         [FormerlySerializedAs("maxDamage")]
         [Min(0)] public int baseDamage = 3;
 
+        [Tooltip("How many times a soldier shoots with this weapon in a volley. Each shot runs through the shooting steps, " +
+                 "picking a target afresh.")]
+        [Min(1)] public int shots = 1;
+
         [Tooltip("Off = the weapon has no penetration value (\"—\"): its attacks always do 100% damage, regardless of armor.")]
         public bool hasPenetration = true;
 

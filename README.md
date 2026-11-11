@@ -14,7 +14,7 @@ getting the rules right.
 2. Unzip it anywhere and run `Eldoria/Eldoria.exe` (Windows 64-bit).
 3. Pick **Play** on the main menu. You can turn on the turn timer there too (it's off by default, 10 minutes per turn).
 4. **Choose a battlefield:** the Urban Demo or the English Countryside.
-5. **Choose your faction:** the United States of Columbia, the United Kingdom of Aelfland or the Draksa Reich. Your
+5. **Choose your faction:** the United States of Liberteria, the United Kingdom of Aelfland or the Draksa Reich. Your
    faction decides which units and commanders you can take.
 6. **Build your army:** up to 6 units, at least 1 Commander, and no duplicate Commander or Specialist units. Then
    press **Confirm army**.
@@ -84,6 +84,8 @@ At a glance:
 | Infantry Squad | Infantry |
 | Machine Gun Team | Heavy Support |
 | Flamethrower Team | Specialist |
+| Medium Tank | Heavy Support |
+| Tank Hunter Team | Heavy Support |
 | Powered Armor Squad | Specialist |
 | Sniper | Specialist |
 

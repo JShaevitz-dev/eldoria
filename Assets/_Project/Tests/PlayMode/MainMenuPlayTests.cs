@@ -39,14 +39,14 @@ namespace Eldoria.Tests
             Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("MainMenu"), "still on the menu, building");
             Assert.That(menu.Builder.Faction, Is.Null, "a faction is chosen first");
             Assert.That(menu.Builder.Factions.Select(f => f.displayName), Is.EqualTo(new[]
-                { "United States of Columbia", "United Kingdom of Aelfland", "The Draksa Reich" }));
+                { "United States of Liberteria", "United Kingdom of Aelfland", "The Draksa Reich" }));
             Assert.That(menu.Builder.Available, Is.Empty, "no units until a faction is chosen");
             Assert.That(menu.Builder.Add(UnitCatalog.Load().Available.First()), Does.Contain("faction"));
             Assert.That(menu.Builder.Confirm(), Is.False);
 
             menu.Builder.ChooseFaction(menu.Builder.Factions[1]);
             Assert.That(menu.Builder.Faction.displayName, Is.EqualTo("United Kingdom of Aelfland"));
-            Assert.That(menu.Builder.Available.Count, Is.EqualTo(7), "for now every faction has every unit");
+            Assert.That(menu.Builder.Available.Count, Is.EqualTo(9), "for now every faction has every unit");
             Assert.That(menu.Builder.Army.Select(u => u.displayName), Is.EqualTo(new[]
                 { "Infantry Squad", "Field Commander", "Infantry Squad", "Battlefield Priest", "Infantry Squad" }));
         }

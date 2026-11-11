@@ -35,7 +35,7 @@ namespace Eldoria.Rules
         {
             var result = new AreaAttackResult { Point = point, Radius = radius };
             if (weaponTemplate == null) return result;
-            var weapon = new Weapon(weaponTemplate);
+            var weapon = new Weapon(weaponTemplate, attacker);   // the attacker's faction changes apply (e.g. to a grenade)
 
             var inRadius = Object.FindObjectsByType<Soldier>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
                 .Where(s => s != exclude && s.IsAlive && Measure.ToPoint(s, point) <= radius + Epsilon)

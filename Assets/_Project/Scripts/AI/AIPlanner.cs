@@ -206,6 +206,9 @@ namespace Eldoria.AI
                     };
             }
 
+            var aimed = ChooseAimedAttack(unit);
+            if (aimed != null) return aimed;
+
             var shoot = ChooseShootTarget(unit, out int shooters);
             if (shoot != null)
                 return new AIAction
@@ -218,6 +221,32 @@ namespace Eldoria.AI
             if (grenade != null) return grenade;
 
             return AIAction.Nothing;
+        }
+
+        /// <summary>
+        /// An aimed-attack ability (e.g. the Rocket Launcher) is saved for heavily armored targets (Armor Level 2 or more,
+        /// where rifles do little or nothing): tanks first, then the most heavily armored, then the closest. Otherwise the
+        /// unit shoots as usual. Null if there's no such target in reach.
+        /// </summary>
+        private static AIAction ChooseAimedAttack(Unit unit)
+        {
+            foreach (var (user, ability) in ActiveAbilities.UnitAbilities(unit))
+            {
+                if (user == null || !ability.IsAimedAttack || ActiveAbilities.WhyCannotCast(user, ability) != null) continue;
+                var target = Enemies(unit)
+                    .Where(s => s.ArmorLevel >= 2 && ActiveAbilities.WhyCannotUse(user, ability, s) == null)
+                    .OrderByDescending(s => s.HasKeyword("Tank"))
+                    .ThenByDescending(s => s.ArmorLevel)
+                    .ThenBy(s => Measure.Between(user, s))
+                    .FirstOrDefault();
+                if (target != null)
+                    return new AIAction
+                    {
+                        Kind = AIActionKind.Ability, Ability = ability, User = user, TargetSoldier = target,
+                        Reason = $"{ability.displayName} at {target.name} (Armor {target.ArmorLevel})"
+                    };
+            }
+            return null;
         }
 
         /// <summary>Heal the friendly soldier missing the most health (2 or more), if a heal ability can reach one.</summary>

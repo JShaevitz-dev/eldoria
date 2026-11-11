@@ -9,6 +9,8 @@ namespace Eldoria.Terrain
     /// Measures moves over real terrain:
     ///  - Routes use the shortest walkable path (NavMesh). Structure terrain (ground, hills, ditches,
     ///    building walls) shapes the path; objects that can't be mantled block it; mantleable objects don't.
+    ///    Routes and standing spots are found on the map for the soldier's size, so a wide soldier (e.g. a tank) only
+    ///    goes through gaps it fits through and only stops where it fits (see BattlefieldNavigation).
     ///  - Length is measured along the surface of structure terrain (up and down hills, into ditches),
     ///    and straight through objects.
     ///  - Soldiers may stand on walkable structure, or on top of objects that can be climbed onto;
@@ -58,10 +60,10 @@ namespace Eldoria.Terrain
             else
             {
                 // Structure: must be walkable ground (not a wall top or a too-steep slope).
-                if (!NavMesh.SamplePosition(hit.point, out var navHit, NavSnap, NavMesh.AllAreas)
+                if (!NavMesh.SamplePosition(hit.point, out var navHit, NavSnap, BattlefieldNavigation.FilterFor(radius))
                     || Mathf.Abs(navHit.position.y - hit.point.y) > 0.3f)
                 {
-                    reason = "Can't stand there";
+                    reason = radius > 1f ? "Not enough room to stand there" : "Can't stand there";
                     return false;
                 }
             }
@@ -86,11 +88,12 @@ namespace Eldoria.Terrain
             return true;
         }
 
-        public MovePath Measure(Vector3 from, Vector3 to)
+        public MovePath Measure(Vector3 from, Vector3 to, float radius = 0f)
         {
+            var filter = BattlefieldNavigation.FilterFor(radius);
             // A soldier on top of an object can climb down on any side: try each side, keep the shortest route.
-            var fromEnds = RouteEnds(from);
-            var toEnds = RouteEnds(to);
+            var fromEnds = RouteEnds(from, filter);
+            var toEnds = RouteEnds(to, filter);
             if (fromEnds.Count == 0) return MovePath.Unreachable("Start is not on walkable ground");
             if (toEnds.Count == 0) return MovePath.Unreachable("No route there");
 
@@ -98,7 +101,7 @@ namespace Eldoria.Terrain
             foreach (var a in fromEnds)
             foreach (var b in toEnds)
             {
-                var path = MeasureVia(from, a, b, to);
+                var path = MeasureVia(from, a, b, to, filter);
                 if (path != null && (best == null || path.Length < best.Length)) best = path;
             }
             return best ?? MovePath.Unreachable("No route there");
@@ -111,10 +114,10 @@ namespace Eldoria.Terrain
             public bool Climb;      // soldier is on top of an object and climbs down/up here
         }
 
-        private static List<RouteEnd> RouteEnds(Vector3 p)
+        private static List<RouteEnd> RouteEnds(Vector3 p, NavMeshQueryFilter filter)
         {
             var ends = new List<RouteEnd>();
-            if (NavMesh.SamplePosition(p, out var hit, NavSnap, NavMesh.AllAreas) && Mathf.Abs(hit.position.y - p.y) < 0.3f)
+            if (NavMesh.SamplePosition(p, out var hit, NavSnap, filter) && Mathf.Abs(hit.position.y - p.y) < 0.3f)
             {
                 ends.Add(new RouteEnd { Nav = hit.position, Climb = false });
                 return ends;
@@ -135,7 +138,7 @@ namespace Eldoria.Terrain
             {
                 float a = i * Mathf.PI / 4f;
                 var probe = below + new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)) * r;
-                if (!NavMesh.SamplePosition(probe, out hit, 0.5f, NavMesh.AllAreas)) continue;
+                if (!NavMesh.SamplePosition(probe, out hit, 0.5f, filter)) continue;
                 if (Mathf.Abs(hit.position.y - below.y) > 1f) continue;
                 if (standingOn != null && !IsBeside(standingOn, hit.position)) continue;
                 bool duplicate = false;
@@ -156,10 +159,10 @@ namespace Eldoria.Terrain
             return Vector3.Distance(closest, groundPoint) <= ClimbReach;
         }
 
-        private static MovePath MeasureVia(Vector3 from, RouteEnd a, RouteEnd b, Vector3 to)
+        private static MovePath MeasureVia(Vector3 from, RouteEnd a, RouteEnd b, Vector3 to, NavMeshQueryFilter filter)
         {
             var navPath = new NavMeshPath();
-            if (!NavMesh.CalculatePath(a.Nav, b.Nav, NavMesh.AllAreas, navPath) || navPath.status != NavMeshPathStatus.PathComplete)
+            if (!NavMesh.CalculatePath(a.Nav, b.Nav, filter, navPath) || navPath.status != NavMeshPathStatus.PathComplete)
                 return null;
 
             // Route corners laid exactly on the structure surface; ground-level ends are the soldier's own spots.

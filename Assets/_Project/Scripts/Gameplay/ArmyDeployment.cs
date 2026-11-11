@@ -98,6 +98,7 @@ namespace Eldoria.Gameplay
             Faction faction = null)
         {
             var unit = UnitFactory.Spawn(template, side, position, facing, parent, name);
+            unit.SetFaction(faction);
             var catalog = UnitCatalog.Load();
 
             if (catalog != null && (faction != null || side == Side.AI))

@@ -55,8 +55,10 @@ namespace Eldoria.Units
         public int Accuracy => template != null ? template.accuracy : 0;
         /// <summary>Movement range in meters (a normal move).</summary>
         public float Move => template != null ? template.movementRange : 0f;
-        /// <summary>Sprinting move in meters.</summary>
-        public float Sprint => Move * Rules.MovementRules.SprintMultiplier;
+        /// <summary>Can this soldier sprint? Mechanical soldiers can't.</summary>
+        public bool CanSprint => !HasKeyword(Rules.MovementRules.MechanicalKeyword);
+        /// <summary>Sprinting move in meters (just the normal move for a soldier who can't sprint).</summary>
+        public float Sprint => CanSprint ? Move * Rules.MovementRules.SprintMultiplier : Move;
 
         // ---- Keywords: inherent (template) − lost + gained during the game ----
         private IEnumerable<Keyword> InherentKeywords => template != null ? template.keywords : null;
@@ -159,6 +161,18 @@ namespace Eldoria.Units
             return null;
         }
 
+        /// <summary>Weapons this soldier uses through abilities (e.g. a Rocket Launcher), one instance each so they remember
+        /// when they last fired (Manual Load) and take the soldier's faction changes. Not used in volleys.</summary>
+        [System.NonSerialized] private Dictionary<WeaponTemplate, Weapon> abilityWeapons;
+
+        public Weapon AbilityWeapon(WeaponTemplate template)
+        {
+            if (template == null) return null;
+            abilityWeapons ??= new Dictionary<WeaponTemplate, Weapon>();
+            if (!abilityWeapons.TryGetValue(template, out var w)) abilityWeapons[template] = w = new Weapon(template, this);
+            return w;
+        }
+
         /// <summary>Weapons this soldier is carrying.</summary>
         public IReadOnlyList<Weapon> Weapons { get { EnsureInitialized(); return weapons; } }
 
@@ -181,12 +195,15 @@ namespace Eldoria.Units
         /// <summary>Fills in health and weapons from the template the first time they're needed.</summary>
         private void EnsureInitialized()
         {
+            // Each weapon knows who holds it (its stats depend on the holder's faction).
+            foreach (var w in weapons)
+                if (w != null && w.Owner != this) w.Owner = this;
             if (initialized || template == null) return;
             initialized = true;
             health = template.health;
             if (weapons.Count == 0)
                 foreach (var w in template.weapons)
-                    if (w != null) weapons.Add(new Weapon(w));
+                    if (w != null) weapons.Add(new Weapon(w, this));
         }
 
         /// <summary>Reduces health; the soldier is killed at 0.</summary>

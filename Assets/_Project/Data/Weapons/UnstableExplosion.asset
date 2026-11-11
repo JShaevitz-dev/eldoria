@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.WeaponTemplate
   displayName: Unstable Explosion
   baseDamage: 5
+  shots: 1
   hasPenetration: 0
   penetration: 0
   range: 0

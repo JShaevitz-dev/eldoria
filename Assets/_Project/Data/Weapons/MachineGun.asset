@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.WeaponTemplate
   displayName: Machine Gun
   baseDamage: 6
+  shots: 5
   hasPenetration: 1
   penetration: 1
   range: 20

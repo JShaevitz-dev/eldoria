@@ -51,7 +51,7 @@ Every unit has a **role**. It's shown in the HUD when the unit is selected.
 |---|---|
 | **Infantry** | Infantry Squad |
 | **Commander** | Field Commander, Battlefield Priest |
-| **Heavy Support** | Machine Gun Team |
+| **Heavy Support** | Machine Gun Team, Medium Tank, Tank Hunter Team |
 | **Specialist** | Powered Armor Squad, Sniper, Flamethrower Team (and any unit not given another role) |
 
 ### Factions — *implemented*
@@ -60,11 +60,26 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 
 | Faction | Colour | Units |
 |---|---|---|
-| **United States of Columbia** | dark green | every unit (for now) |
+| **United States of Liberteria** | dark green | every unit (for now) |
 | **United Kingdom of Aelfland** | light green | every unit (for now) |
 | **The Draksa Reich** | gray | every unit (for now) |
 
 **Faction colours:** a unit's **primary colour** (its soldiers' bodies and caps) is its faction's colour. Every faction uses the same models and materials: the primary-colour parts are tinted per unit when it deploys, so a new faction only needs a colour, not new textures. Other parts keep their own colours (skin, weapons, gold trim, the officer's cape, the priest's white robe, powered armor plates). Both sides can choose the same faction; the soldier labels (blue for yours, red for the enemy's) still tell them apart. The army builder shows each faction's colour.
+
+**Faction weapons:** a faction can change its soldiers' weapons, without new weapons being made:
+
+- **Stat changes:** each faction can list changes to a weapon's stats: Damage, Shots, Penetration, Accuracy Bonus and Range. They are **added to the weapon's own stats** (negative values subtract), and several changes to the same weapon add up. Example: *Assault Rifle: Damage +1, Range −5 m* makes that faction's Assault Rifles 5 damage, 15 m.
+- **Names (aliases):** each faction can give a weapon its **own name**. Example: *Assault Rifle → "Sturmgewehr"*. It is the **same weapon and stat block** underneath (with that faction's stat changes, if any): only the name shown changes, in the army builder, the HUD and the combat log.
+- The changes apply to whichever soldier holds the weapon, by **their unit's faction**, including a thrown grenade or an explosion (the faction of the soldier who used it). Armies placed directly in a scene have no faction, so their weapons are unchanged.
+- **Limits:** Damage never goes below 0, Shots below 1, Penetration below 0 or Range below 1 m. A weapon with **no penetration value** keeps none, and **unlimited range** stays unlimited.
+- The army builder shows each unit's weapons **as the chosen faction has them**.
+- Each faction's weapon changes and names:
+
+| Faction | Assault Rifle is called | Changes |
+|---|---|---|
+| United States of Liberteria | **Semi-auto rifle** | **Shots 2** (+1) |
+| United Kingdom of Aelfland | **Bolt-Action Rifle** | — |
+| The Draksa Reich | **Bolt-Action Rifle** | — |
 
 ### Army lists — *implemented*
 
@@ -92,19 +107,22 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 | Sergeant | 5 | 1 | 75% | 10 m | Assault Rifle, Pistol |
 | Trooper | 5 | 1 | 75% | 10 m | Assault Rifle |
 
-| Weapon | Base Damage | Penetration | Accuracy Bonus | Keywords | Range |
-|---|---|---|---|---|---|
-| Assault Rifle | 4 | 1 | +0 | — | 20 m |
-| Pistol | 2 | 0 | +0 | Pistol | 10 m |
-| SMG | 4 (as the Assault Rifle) | 0 | +0 | — | 10 m (as the Pistol) |
-| Machine Gun | 6 | 1 | +0 | Deployed | 20 m |
-| Flamethrower | 10 | X (none: always 100%) | +0 | Incendiary, Unstable | 10 m |
-| Sniper Rifle | 5 | 1 | +50 | Deployed | 50 m |
+| Weapon | Base Damage | Shots | Penetration | Accuracy Bonus | Keywords | Range |
+|---|---|---|---|---|---|---|
+| Assault Rifle | 4 | 1 | 1 | +0 | — | 20 m |
+| Pistol | 2 | 1 | 0 | +0 | Pistol | 10 m |
+| SMG | 4 (as the Assault Rifle) | 1 | 0 | +0 | — | 10 m (as the Pistol) |
+| Machine Gun | 6 | 5 | 1 | +0 | Deployed | 20 m |
+| Flamethrower | 10 | 3 | X (none: always 100%) | +0 | Incendiary, Unstable | 10 m |
+| Sniper Rifle | 5 | 1 | 1 | +50 | Deployed | 50 m |
+| 100mm Cannon | 10 | 1 | 4 | +0 | Manual Load | 50 m |
+| Rocket Launcher | 5 | 1 | 5 | +0 | Manual Load | 50 m |
 
 - **SMG** and **Machine Gun** are carried by the Machine Gun Team.
-- The **Flamethrower** is carried by the Flamethrower Team. The **Sniper Rifle** is carried by the Sniper.
+- The **Flamethrower** is carried by the Flamethrower Team. The **Sniper Rifle** is carried by the Sniper. The **100mm Cannon** is carried by the Medium Tank. The **Rocket Launcher** is used by the Tank Hunter Team's Rocket Trooper, as an active ability (not in volleys).
 - **Incendiary** (weapon keyword): the weapon **only does damage to targets with the Biological keyword**. Against anything else the attack has no effect, so the soldier picks another target.
 - **Unstable** (weapon keyword): when the holder of this weapon dies, they have a **10% chance to explode**: **5 damage** (no penetration value, so always 5) to **ANY** soldier within **5 m** of the holder — friend or foe. As an explosion it can't go through object or structure terrain.
+- **Manual Load** (weapon keyword, Trait): the weapon **can't be fired more than once a turn**, even if the soldier carrying it has a way to shoot more than one volley in a turn. All the shots of the volley it fires in count as that one firing. It's ready again on its holder's next turn.
 - **Deployed** (weapon keyword, Trait): the weapon **can't be used in a volley if the soldier holding it has moved this turn** (they have the Moved status: any move this turn, even 0 m; a leader holding position and soldiers left where they stood haven't moved). Each soldier is checked on their own.
 - **Using another weapon:** a soldier who can't use their primary weapon right now (Deployed after moving, or close range without a pistol) uses another weapon they carry that they can use; if none, they don't shoot in that volley. The same goes for abilities that use a weapon.
 
@@ -135,6 +153,27 @@ Before a battle, the player chooses the **map** (Urban Demo or English Countrysi
 
 - The Flamethrower only damages **Biological** targets (Incendiary), reaches **10 m**, and its holder has a **10%** chance to **explode** on death (Unstable: 5 damage to everyone within 5 m).
 - In **close range** they fall back on their **Pistols**.
+
+### Tank Hunter Team
+
+1 **Sergeant** (leader, **Assault Rifle** and **Pistol**) + 3 **Troopers** (**Assault Rifle**) + 1 **Rocket Trooper** (**Assault Rifle**, and the **Rocket Launcher**). All with the Infantry Squad's stats (Health 5, Armor Level 1, Accuracy 75%, Movement 10 m), **Biological**. **No Frag Grenade.** Role: **Heavy Support** (more than one can be taken). Every faction can take it; the Assault Rifle shows under the faction's name for it (Semi-auto rifle, Bolt-Action Rifle).
+
+- **Active ability — Rocket Launcher** (the Rocket Trooper): an **aimed shot at one enemy soldier** within **50 m** and in sight, with a hit roll: **Damage 5, Penetration 5** (Manual Load). Against a Medium Tank (Armor Level 4) a hit does **7**. Firing it is the **unit's action** for the turn (no rifle volley); Manual Load makes it **once a turn**. The rocket isn't fired in the team's volleys.
+- **The AI** keeps the rocket for heavily armored targets (Armor Level 2 or more: tanks first, then the heaviest armor, then the closest) and otherwise shoots its rifles.
+
+### Medium Tank
+
+1 **Medium Tank**, a unit of one, armed with a **100mm Cannon**. Role: **Heavy Support** (more than one can be taken). Every faction can take it.
+
+| Soldier | Health | Armor Level | Accuracy | Movement | Keywords | Weapons |
+|---|---|---|---|---|---|---|
+| Medium Tank | 20 | 4 | 75% | 30 m (**can't sprint**) | Mechanical, Tank, Unstable | 100mm Cannon |
+
+- **Mechanical** (soldier keyword, Trait): soldiers with it **can't sprint** (see Movement) and **can't be in close range** (see Close range). The tank also isn't Biological, so Toxic and Incendiary weapons (the Flamethrower) have no effect on it, it can't be healed by Divine Healing, and it doesn't put enemies in close range either.
+- **Tank** (soldier keyword, Trait): a trait for other rules to check.
+- **Unstable**: when the tank is destroyed it has a **10% chance to explode**: 5 damage to everyone within 5 m.
+- Armor Level 4 means rifles, machine guns, SMGs, pistols and grenades (penetration 0–1) do **no damage** to it; another 100mm Cannon (penetration 4) does full damage.
+- The tank is much bigger than a soldier (a 3.4 × 5.6 m hull; it counts as 1.8 m across from its centre). It needs room for its hull **along its whole route**, not just where it stops: see Movement restrictions.
 
 ### Sniper
 
@@ -198,7 +237,8 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - **Abilities can target their user** (or the user's own unit) **unless they say otherwise** — this applies to passive and active abilities. (Lead from the front says otherwise.)
 - See **Unit actions** below for when an active ability can be used.
 - The target must be the right side (e.g. friendly), within range (horizontal; for a unit, to its closest soldier) and have any required keyword (e.g. Biological).
-- Effects so far: **restore health** (up to starting health) and **give a keyword** (to the soldier, or every soldier of the unit), optionally until the next turn.
+- Effects so far: **restore health** (up to starting health) and **give a keyword** (to the soldier, or every soldier of the unit), optionally until the next turn; an **area attack** at a spot (Frag Grenade); and an **aimed attack** on one soldier (Rocket Launcher).
+- **Aimed attack** (e.g. the Tank Hunter Team's Rocket Launcher): the user shoots one **enemy soldier** with the ability's weapon, going through the shooting steps: the target must be within the **weapon's range**, in **line of sight** and not in **full cover**, and keywords mustn't prevent it; "when targeted" triggers fire; then damage, penetration, the **hit roll** at the user's accuracy (with the sprint penalty if the unit sprinted), a crit roll, damage, "when damaged" triggers. It shoots once per point of the weapon's Shots. The weapon is the user's own (their faction's changes apply), it isn't used in volleys, and **Manual Load** applies to it (once a turn).
 - Each soldier can use each active ability once per turn (and in practice a unit uses at most one ability per turn — see Unit actions).
 - *Display:* ability buttons don't show uses per turn. A use limit is only shown to the player for abilities limited to a number of uses **per battle** (e.g. Frag Grenade: "1 left this battle").
 - **Uses per battle:** some abilities can only be used a number of times per battle **by each unit** (Frag Grenade: once). The count is shared by all the unit's soldiers.
@@ -246,7 +286,7 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 
 1. **The squad leader moves first.**
    - **Normal move:** up to their **movement range** (10 m for the demo squad).
-   - **Sprint:** up to **double** their movement range (20 m).
+   - **Sprint:** up to **double** their movement range (20 m). **Mechanical** soldiers **can't sprint**: they only make a normal move (no sprint ring is shown).
    - Or the leader can **hold position**.
 2. **Then the rest of the squad moves.** Each soldier may move **any distance**, but must **end in cohesion**: within **5 m** of the squad leader.
    - Cohesion is measured from whoever was squad leader **when the movement began**.
@@ -277,6 +317,7 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - Soldiers cannot end a move outside the battlefield.
 - **Terrain that cannot be mantled over blocks movement**: building walls, and objects marked as not mantleable. Routes go around them.
 - Soldiers can only end a move on walkable ground or **on top of an object that can be climbed onto**.
+- **Room for the body:** a soldier wider than a person (e.g. the **Medium Tank**) moves on a walkable-area map built for its size. Its **route must have room for its hull the whole way**: it can't squeeze through a doorway, between buildings or between blocking objects that a soldier could pass, and goes around instead if there's a wide enough way; if there isn't, it can't get there. It can also only stop where its hull fits (not right up against a wall).
 
 ## Terrain — *implemented*
 
@@ -426,6 +467,7 @@ Example: 6 damage, penetration beats armor → 9, crit → +9 = **18**. If armor
 
 ### Close range — *implemented*
 
+- **Mechanical** soldiers **can't be in close range**, whatever is near them.
 - A **Biological** soldier is **in close range** if a **Biological enemy** soldier is **less than 2 m** away (horizontally; exactly 2 m is not close range). The dead don't count.
 - A soldier in close range **can't use any weapon unless it has the keyword Pistol**:
   - **Shooting:** they shoot with a Pistol if they carry one (the Sergeant switches from his Assault Rifle to his Pistol); a soldier with no Pistol (e.g. a Trooper) doesn't shoot.
@@ -452,6 +494,13 @@ Under normal circumstances, shooting follows this order:
 3. The player **declares** the unit will shoot.
 4. The player **selects an enemy unit**.
 5. **Line of sight:** the attacking unit must be able to see the defending unit (at least one attacking soldier can see at least one defending soldier). Any **objects in the lines of sight** are noted.
+
+**Shots:** every weapon has a **Shots** value: in a volley, a soldier shoots that many times. **Every shot runs through steps 6–13**, including picking a target afresh. The volley is resolved in **rounds**: first, everyone whose weapon has **Shots 1 or more** fires one shot (steps 6–13 for all of them); then everyone with **Shots 2 or more** fires a shot; then **3 or more**; and so on, until no one has shots left.
+- Each round's picks are made after the previous round has been resolved, so soldiers **killed in an earlier round aren't picked again** (they stay on the battlefield until the volley ends, as usual). If no valid target is left, the soldier doesn't take that shot.
+- **Spreading fire** (step 6) counts only the soldiers aiming in the current round.
+- A soldier killed during the volley (e.g. by an explosion) doesn't take any more shots.
+- "When targeted" triggers still fire **only once per volley**, however many shots pick the soldier.
+- Every weapon has **Shots 1**, except the **Flamethrower (3)** and the **Machine Gun (5)**.
 6. **Targets:** the attacking soldiers pick one at a time, and **spread their fire**: each picks a valid target (one they can target) that **no other soldier of their unit is aiming at yet**. If every valid target is already taken, they pick one that **only 1** soldier is aiming at; if there's none, one with **2**, and so on. Among equally-aimed-at targets they pick the **closest**. So several soldiers only share a target once every valid target has someone on it. If the target has keywords **triggered by being targeted**, shooting pauses, the trigger is resolved, and shooting resumes (so its effects apply to that attack).
 7. **Prevented?** If keywords prevent the attack (e.g. a **Toxic** weapon against a target without **Biological**), the soldier **goes back to step 6** with the next soldier in that order, and repeats steps 6–7 through **every enemy soldier** it can shoot until it finds a valid target. If there is none, it **doesn't shoot this turn**. The target picked at the end of step 7 is final.
 8. **Damage** is calculated: Base Damage − keyword penalties (not below 0) + keyword bonuses.

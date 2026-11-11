@@ -149,6 +149,112 @@ namespace Eldoria.Tests
             Assert.That(r.Shots.All(s => s.Target == them.Soldiers[0]), Is.True);
         }
 
+        // ---- Shots: a soldier shoots once per point of their weapon's Shots, in rounds ----
+
+        private SoldierTemplate Gunner(int shots)
+        {
+            var gun = Make<WeaponTemplate>();
+            gun.displayName = shots + "-shot gun";
+            gun.baseDamage = 2;
+            gun.penetration = 1;
+            gun.shots = shots;
+            var t = Make<SoldierTemplate>();
+            t.displayName = "Gunner";
+            t.accuracy = 100;
+            t.keywords.Add(biological);
+            t.weapons.Add(gun);
+            return t;
+        }
+
+        [Test]
+        public void ASoldierShootsOnceForEachOfTheirWeaponsShots()
+        {
+            var us = MakeUnit("Us", Side.Player, Gunner(3), Vector3.zero);
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10));
+
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(r.Shots.Count, Is.EqualTo(3));
+            Assert.That(r.Shots.Select(s => s.Round), Is.EqualTo(new[] { 1, 2, 3 }));
+            Assert.That(r.Hits, Is.EqualTo(3));
+            Assert.That(them.Soldiers[0].Health, Is.EqualTo(10 - 3 * 2));
+        }
+
+        [Test]
+        public void EveryoneFiresTheirFirstShotBeforeAnyoneFiresTheirSecond()
+        {
+            // One unit: a 1-shot rifleman, a 3-shot gunner and a 2-shot gunner.
+            var us = MakeUnit("Us", Side.Player, shooterT, Vector3.zero);
+            var three = MakeUnit("Tmp3", Side.Player, Gunner(3), new Vector3(1, 0, 0)).Soldiers[0];
+            var two = MakeUnit("Tmp2", Side.Player, Gunner(2), new Vector3(-1, 0, 0)).Soldiers[0];
+            three.transform.SetParent(us.transform, true);
+            two.transform.SetParent(us.transform, true);
+            us.RefreshSoldiers();
+            var rifleman = us.Soldiers.First(s => s.Template == shooterT);
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(3, 0, 10), new Vector3(-3, 0, 10));
+
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(r.Shots.Count, Is.EqualTo(1 + 3 + 2));
+            Assert.That(r.Shots.Where(s => s.Round == 1).Select(s => s.Shooter), Is.EquivalentTo(new[] { rifleman, three, two }), "shots 1 or more");
+            Assert.That(r.Shots.Where(s => s.Round == 2).Select(s => s.Shooter), Is.EquivalentTo(new[] { three, two }), "then shots 2 or more");
+            Assert.That(r.Shots.Where(s => s.Round == 3).Select(s => s.Shooter), Is.EquivalentTo(new[] { three }), "then shots 3 or more");
+            Assert.That(r.Shots.Select(s => s.Round), Is.Ordered, "round by round");
+        }
+
+        [Test]
+        public void EachShotPicksANewTargetAfterThePreviousShotsAreResolved()
+        {
+            targetT.health = 2;   // one hit kills
+            var us = MakeUnit("Us", Side.Player, Gunner(2), Vector3.zero);
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(0, 0, 20));
+            var near = them.Soldiers[0];
+            var far = them.Soldiers[1];
+
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(r.Shots[0].Target, Is.EqualTo(near), "shot 1: the closest");
+            Assert.That(r.Shots[1].Target, Is.EqualTo(far), "shot 2: the first is already dead, so a new target");
+            Assert.That(r.Kills, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void EachRoundSpreadsItsShotsAgain()
+        {
+            var us = MakeUnit("Us", Side.Player, Gunner(2), new Vector3(-1, 0, 0), new Vector3(1, 0, 0));
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10), new Vector3(0, 0, 20));
+            var targets = them.Soldiers.ToList();
+
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            foreach (int round in new[] { 1, 2 })
+                Assert.That(r.Shots.Where(s => s.Round == round).Select(s => s.Target), Is.EquivalentTo(targets), "round " + round + ": one on each");
+        }
+
+        [Test]
+        public void WithNobodyLeftToShootLaterShotsAreNotTaken()
+        {
+            targetT.health = 2;
+            var us = MakeUnit("Us", Side.Player, Gunner(3), Vector3.zero);
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10));
+
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(r.Kills, Is.EqualTo(1));
+            Assert.That(r.Shots.Count(s => s.Attack != null), Is.EqualTo(1));
+            Assert.That(r.Shots.Skip(1).All(s => s.Target == null && s.Note == "no target left"), Is.True);
+        }
+
+        [Test]
+        public void WhenTargetedFiresOncePerVolleyAcrossAllShots()
+        {
+            var marked = Kw("Marked");
+            var alert = Kw("Alert");
+            alert.triggers.Add(new KeywordTrigger { when = TriggerEvent.Targeted, action = TriggerAction.GainKeyword, subject = TriggerSubject.Self, keyword = marked, untilNextTurn = false });
+            targetT.keywords.Add(alert);
+            var us = MakeUnit("Us", Side.Player, Gunner(3), Vector3.zero);
+            var them = MakeUnit("Them", Side.AI, targetT, new Vector3(0, 0, 10));
+
+            var r = UnitShooting.Resolve(us, them, false, new System.Random(1));
+            Assert.That(r.Shots.Count(s => s.Target == them.Soldiers[0]), Is.EqualTo(3));
+            Assert.That(r.Log.Count(l => l.Contains("Marked")), Is.EqualTo(1), "the trigger fired once");
+        }
+
         [Test]
         public void NoLineOfSightMeansNoShooting()
         {

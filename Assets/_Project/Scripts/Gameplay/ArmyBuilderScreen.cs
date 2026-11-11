@@ -199,8 +199,8 @@ namespace Eldoria.Gameplay
             if (why != null) GUILayout.Label(why, warn);
 
             GUILayout.Space(4f);
-            foreach (var line in UnitInfo.SoldierLines(unit)) GUILayout.Label(line, stat);
-            foreach (var line in UnitInfo.WeaponLines(unit)) GUILayout.Label("<b>Weapon:</b> " + line, stat);
+            foreach (var line in UnitInfo.SoldierLines(unit, Faction)) GUILayout.Label(line, stat);
+            foreach (var line in UnitInfo.WeaponLines(unit, Faction)) GUILayout.Label("<b>Weapon:</b> " + line, stat);
             foreach (var line in UnitInfo.AbilityLines(unit)) GUILayout.Label("<b>Ability:</b> " + line, stat);
             string keywords = UnitInfo.SharedKeywords(unit);
             if (keywords.Length > 0) GUILayout.Label("<b>Keywords:</b> " + keywords, stat);

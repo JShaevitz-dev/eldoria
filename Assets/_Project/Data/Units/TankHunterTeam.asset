@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: TankHunterTeam
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Tank Hunter Team
+  role: 2
+  description: 'Five riflemen built around one Rocket Trooper. Their rifles do the
+    everyday work, but the Rocket Launcher is why you take them: an aimed shot at
+    a single enemy soldier within 50 m, Damage 5 with Penetration 5, enough to beat
+    a Medium Tank''s armor for 7 damage a hit. Firing it is the team''s action for
+    the turn (no rifle volley), and it''s Manual Load, so once a turn. Keep the Rocket
+    Trooper alive and in sight of the enemy''s armor. Heavy Support, so you can field
+    more than one.'
+  leader: {fileID: 11400000, guid: 91733e55454735444b648a9d542d69f6, type: 2}
+  members:
+  - soldier: {fileID: 11400000, guid: d4c72293262f31b4a9e08db72242b596, type: 2}
+    count: 3
+  - soldier: {fileID: 11400000, guid: 514c1b4605c161b4ea87f249a4e43b64, type: 2}
+    count: 1
+  deploymentSpacing: 2

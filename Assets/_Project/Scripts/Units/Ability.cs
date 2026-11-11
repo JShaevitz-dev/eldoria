@@ -92,6 +92,13 @@ namespace Eldoria.Units
         public bool IsActive => kind == AbilityKind.Active;
         public bool IsAreaAttack => targets == AbilityTarget.Point && areaWeapon != null;
 
+        [Tooltip("Aimed attack: the user shoots the target soldier with this weapon (e.g. a Rocket Launcher), going through " +
+                 "the shooting steps: range and sight, keywords, hit roll, penetration. The weapon's range applies.")]
+        public WeaponTemplate attackWeapon;
+
+        /// <summary>An aimed attack on one soldier with a weapon (e.g. the Tank Hunter Team's Rocket Launcher).</summary>
+        public bool IsAimedAttack => kind == AbilityKind.Active && targets == AbilityTarget.Soldier && attackWeapon != null;
+
         public bool HasKeyword(string name) => Keyword.Contains(keywords, name);
 
         /// <summary>Spells can't be cast by a soldier whose unit sprinted this turn.</summary>

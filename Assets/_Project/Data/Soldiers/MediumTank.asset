@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c831d2daf4333a42b1b9b15f92f56c6, type: 3}
+  m_Name: MediumTank
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
+  displayName: Medium Tank
+  prefab: {fileID: 5354333869954642875, guid: 866d85b9e00197e4f9bcd43e905ae481, type: 3}
+  health: 20
+  armorLevel: 4
+  accuracy: 75
+  movementRange: 30
+  keywords:
+  - {fileID: 11400000, guid: 79be367eee8536e40ad85e8e7cfe97e4, type: 2}
+  - {fileID: 11400000, guid: 16bea93c054efd74a9a283738e5c1573, type: 2}
+  - {fileID: 11400000, guid: 2ab6be3cef3ec9b4eafa9ab24e5f4c93, type: 2}
+  abilities: []
+  weapons:
+  - {fileID: 11400000, guid: 00c074b268f4cc3419c095f15d659646, type: 2}
+  primaryWeapon: {fileID: 11400000, guid: 00c074b268f4cc3419c095f15d659646, type: 2}
+  radius: 1.8
+  height: 2.3

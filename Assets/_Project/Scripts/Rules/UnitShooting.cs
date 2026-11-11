@@ -11,6 +11,8 @@ namespace Eldoria.Rules
     {
         public Soldier Shooter;
         public Weapon Weapon;
+        /// <summary>Which of the shooter's shots this is: round 1, 2, 3... (one per point of the weapon's Shots).</summary>
+        public int Round = 1;
         /// <summary>Picked in step 6 (null if the shooter had no valid target).</summary>
         public Soldier Target;
         /// <summary>Terrain objects in the line of fire between shooter and target.</summary>
@@ -50,7 +52,10 @@ namespace Eldoria.Rules
     /// A unit shooting at an enemy unit: one "volley". Steps 1–4 (select unit, optionally move, declare shooting, pick the enemy unit)
     /// happen in the controller; this resolves the rest:
     ///    5. Line of sight: can the attacking unit see the defending unit? Note any objects in the lines of sight.
-    ///    6. Each attacking soldier picks the closest defending soldier they can target (several may pick the same one).
+    ///   Then the shooting goes in rounds: in round 1 every soldier with a weapon shoots once (steps 6–13); in round 2
+    ///   every soldier whose weapon has 2 or more Shots shoots again, picking a target afresh; then 3 or more; and so on.
+    ///    6. Each attacking soldier picks a defending soldier they can target: one nobody else in this round is aiming
+    ///       at if possible, then one with the fewest shooters, the closest first.
     ///       Picking fires the target's "when targeted" keyword triggers (even if no attack follows), resolved before
     ///       carrying on — at most once per soldier per volley (this unit's sequence of shooting).
     ///    7. If keywords would prevent that attack, the soldier goes back to step 6 for the next-closest soldier,
@@ -121,6 +126,9 @@ namespace Eldoria.Rules
             try
             {
                 ResolveVolley(result, attackers, defenders, attackersSprinted, rng, chosenTarget);
+                // Every weapon that fired in this volley has fired this turn (Manual Load: once a turn).
+                foreach (var w in result.Shots.Where(s => s.Attack != null).Select(s => s.Weapon).Distinct())
+                    WeaponUse.MarkFired(w);
             }
             finally
             {
@@ -162,22 +170,47 @@ namespace Eldoria.Rules
             if (result.ObjectsInLineOfSight.Count > 0)
                 result.Log.Add("In the line of sight: " + string.Join(", ", result.ObjectsInLineOfSight.Select(o => o.DisplayName).Distinct()));
 
-            // 6–7. Each soldier picks, among the enemies it can shoot, the one the fewest of its unit's soldiers are already
-            // aiming at (nobody, then 1, then 2...), the closest of those first. Picking fires "when targeted" triggers
-            // (an interrupt). If keywords would prevent the attack (step 7), it goes back to step 6 and tries the next in
-            // that order, until it finds a target it can shoot or runs out — then it doesn't shoot this turn.
-            var candidates = defenders.Soldiers.Where(t => t != null && t.CanBeTargeted).ToList();
+            // Each soldier's weapon for this volley, and how many shots it gives them.
+            var weapons = shooters.ToDictionary(s => s, s => s.WeaponFor(null));
+            int rounds = weapons.Values.Where(w => w != null).Select(w => w.Shots).DefaultIfEmpty(1).Max();
             // "When targeted" fires whenever a soldier is picked — even if no attack follows — but only once per volley
-            // (one attacking unit's sequence of shooting), however many of that unit's soldiers pick them.
+            // (one attacking unit's sequence of shooting, all rounds), however many of that unit's soldiers pick them.
             // Another attacking unit's volley later in the turn can trigger it again.
             var alreadyTargeted = new HashSet<Soldier>();
-            // How many of this unit's soldiers have settled on each target so far (spreading the fire).
+
+            for (int round = 1; round <= rounds; round++)
+            {
+                // Round 1: everyone with a weapon. Round n: those whose weapon has n or more Shots (and are still alive).
+                var firing = round == 1 ? shooters : shooters.Where(s => s.IsAlive && weapons[s] != null && weapons[s].Shots >= round).ToList();
+                if (firing.Count == 0) break;
+                if (rounds > 1) result.Log.Add($"Shot {round}: {string.Join(", ", firing.Select(s => s.name))}.");
+                var roundShots = PickTargets(result, firing, weapons, defenders, chosenTarget, round, alreadyTargeted);
+                ResolveShots(result, roundShots, attackersSprinted, rng);
+            }
+            // (the volley ends in Resolve: casualties are removed there)
+        }
+
+        /// <summary>
+        /// Steps 6–7 for one round: each soldier picks, among the enemies it can shoot, the one the fewest of its unit's
+        /// soldiers are aiming at this round (nobody, then 1, then 2...), the closest of those first. Picking fires "when
+        /// targeted" triggers (an interrupt). If keywords would prevent the attack (step 7), it goes back to step 6 and tries
+        /// the next in that order, until it finds a target it can shoot or runs out — then it doesn't take this shot.
+        /// Soldiers already killed in an earlier round of this volley aren't picked again.
+        /// </summary>
+        private static List<SoldierShot> PickTargets(ShootingResult result, List<Soldier> firing, Dictionary<Soldier, Weapon> weapons,
+            Unit defenders, Soldier chosenTarget, int round, HashSet<Soldier> alreadyTargeted)
+        {
+            var roundShots = new List<SoldierShot>();
+            var candidates = defenders.Soldiers.Where(t => t != null && t.CanBeTargeted && t.IsAlive).ToList();
+            // How many of this unit's soldiers have settled on each target so far this round (spreading the fire).
             var aimedAt = new Dictionary<Soldier, int>();
             int AimedAt(Soldier t) => aimedAt.TryGetValue(t, out var n) ? n : 0;
-            foreach (var shooter in shooters)
+            string which = round > 1 ? $" (shot {round})" : "";
+            foreach (var shooter in firing)
             {
-                var shot = new SoldierShot { Shooter = shooter, Weapon = shooter.WeaponFor(null) };
+                var shot = new SoldierShot { Shooter = shooter, Weapon = weapons[shooter], Round = round };
                 result.Shots.Add(shot);
+                roundShots.Add(shot);
                 if (shot.Weapon == null)
                 {
                     var primary = shooter.PrimaryWeapon;
@@ -219,22 +252,26 @@ namespace Eldoria.Rules
                     shot.Note = chosenTarget == null || !candidates.Contains(chosenTarget)
                         ? "Sniper Precision: no soldier picked in this unit"
                         : $"Sniper Precision: can't target {chosenTarget.name}";
-                    result.Log.Add($"{shooter.name}: {shot.Note}; doesn't shoot.");
+                    result.Log.Add($"{shooter.name}: {shot.Note}; doesn't shoot{which}.");
                     continue;
                 }
                 if (shot.Target == null)
                 {
                     bool anyInRange = candidates.Any(t => Attack.InRange(shooter, shot.Weapon, t));
-                    shot.Note = anyInRange ? "no target it can shoot" : $"no target within range ({shot.Weapon.Range:0} m)";
-                    result.Log.Add($"{shooter.name} has {shot.Note} and won't shoot this turn.");
+                    shot.Note = candidates.Count == 0 ? "no target left" : anyInRange ? "no target it can shoot" : $"no target within range ({shot.Weapon.Range:0} m)";
+                    result.Log.Add($"{shooter.name} has {shot.Note} and doesn't shoot{which}.");
                     continue;
                 }
                 aimedAt[shot.Target] = AimedAt(shot.Target) + 1;
                 shot.ObjectsInLine = ShotGeometry.ObjectsBetween(shooter.Position, shot.Target.Position);
             }
+            return roundShots;
+        }
 
-            // 8–13. Resolve each soldier's attack in turn, at the target it picked — even if that soldier has died meanwhile.
-            foreach (var shot in result.Shots)
+        /// <summary>Steps 8–13 for one round: each soldier's attack in turn, at the target it picked — even if that soldier has died meanwhile.</summary>
+        private static void ResolveShots(ShootingResult result, List<SoldierShot> roundShots, bool attackersSprinted, System.Random rng)
+        {
+            foreach (var shot in roundShots)
             {
                 if (shot.Target == null) continue;
                 shot.TargetAlreadyDown = !shot.Target.IsAlive;
@@ -252,13 +289,12 @@ namespace Eldoria.Rules
                     result.Log.Add($"{shot.Target.name} is down.");
                 }
             }
-            // (the volley ends in Resolve: casualties are removed there)
         }
 
         private static string Describe(SoldierShot shot)
         {
             var a = shot.Attack;
-            string who = $"{shot.Shooter.name} → {shot.Target.name}{(shot.TargetAlreadyDown ? " (already down)" : "")}";
+            string who = $"{shot.Shooter.name}{(shot.Round > 1 ? $" (shot {shot.Round})" : "")} → {shot.Target.name}{(shot.TargetAlreadyDown ? " (already down)" : "")}";
             if (a.NotTargetable) return $"{who}: can't target ({a.NotTargetableReason}).";
             if (a.NoEffect) return $"{who}: no effect ({string.Join("; ", a.Keywords.Applied)}).";
             string chance = a.Accuracy.CritChance > 0 ? $"{a.Accuracy.HitChance}% (+{a.Accuracy.CritChance}% crit)" : $"{a.Accuracy.HitChance}%";

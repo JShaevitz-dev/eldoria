@@ -17,6 +17,9 @@ namespace Eldoria.Rules
         public readonly List<Soldier> Shielded = new List<Soldier>();
         /// <summary>For area attacks: where it landed.</summary>
         public Vector3? Point;
+        /// <summary>For aimed attacks (e.g. a rocket): the soldier shot at, and each shot's result.</summary>
+        public Soldier Target;
+        public readonly List<AttackResult> Attacks = new List<AttackResult>();
     }
 
     /// <summary>
@@ -89,6 +92,8 @@ namespace Eldoria.Rules
             // Abilities that use a weapon (e.g. Frag Grenade) follow the close range rule; magic and others don't.
             if (ability.areaWeapon != null && WeaponUse.WhyCannotUse(user, ability.areaWeapon) is string why)
                 return $"{user.name} can't use {ability.displayName}: {why}";
+            if (ability.attackWeapon != null && WeaponUse.WhyCannotUse(user, user.AbilityWeapon(ability.attackWeapon)) is string why2)
+                return $"{user.name} can't use {ability.displayName}: {why2}";
             return null;
         }
 
@@ -114,6 +119,15 @@ namespace Eldoria.Rules
                 if (targetSoldier == null) return "Choose a soldier";
                 if (!targetSoldier.IsAlive) return $"{targetSoldier.name} is down";
                 if (!SideOk(ability, user, targetSoldier)) return $"{targetSoldier.name} isn't a valid target";
+                if (ability.IsAimedAttack)
+                {
+                    // As for shooting: the weapon's range, line of sight, not in full cover, and keywords must allow it.
+                    var weapon = user.AbilityWeapon(ability.attackWeapon);
+                    if (!Attack.InRange(user, weapon, targetSoldier)) return $"Out of range ({weapon.Range:0} m)";
+                    if (!Attack.CanTarget(user, weapon, targetSoldier)) return $"Can't target {targetSoldier.name}: out of sight or in full cover";
+                    if (KeywordRules.Evaluate(user, weapon, targetSoldier).NoEffect) return $"{weapon.Name} would have no effect on {targetSoldier.name}";
+                    return null;
+                }
                 if (Measure.Between(user, targetSoldier) > ability.range + Epsilon) return $"Out of range ({ability.range:0} m)";
                 if (ability.targetMustHave != null && !targetSoldier.HasKeyword(ability.targetMustHave.displayName))
                     return $"Target must be {ability.targetMustHave.displayName}";
@@ -155,6 +169,8 @@ namespace Eldoria.Rules
                 result.Point = targetPoint;
                 if (ability.IsAreaAttack) AreaAttack(user, ability, targetPoint.Value, result);
             }
+            else if (ability.IsAimedAttack)
+                AimedAttack(user, ability, targetSoldier, result);
             else
             {
                 var affected = ability.targets == AbilityTarget.Soldier
@@ -181,6 +197,44 @@ namespace Eldoria.Rules
             result.Used = true;
             AbilityUsed?.Invoke(user, ability, result);
             return result;
+        }
+
+        /// <summary>
+        /// An aimed attack (e.g. the Rocket Launcher): the user shoots the target with the ability's weapon, once per point of
+        /// its Shots, through the shooting steps - "when targeted" triggers, keywords, damage, penetration, accuracy and the
+        /// hit roll (with the sprint penalty if the unit sprinted), crit, damage, "when damaged" triggers. Anyone killed is
+        /// removed when it's over. The weapon then counts as fired this turn (Manual Load).
+        /// </summary>
+        private static void AimedAttack(Soldier user, Ability ability, Soldier target, AbilityResult result)
+        {
+            var weapon = user.AbilityWeapon(ability.attackWeapon);
+            bool sprinted = user.Unit != null && user.Unit.SprintedThisTurn;
+            result.Target = target;
+            Casualties.BeginVolley();
+            try
+            {
+                result.Log.AddRange(KeywordTriggers.Fire(TriggerEvent.Targeted, target, user));
+                for (int shot = 0; shot < weapon.Shots && target.IsAlive; shot++)
+                {
+                    var a = Attack.Resolve(user, weapon, target, sprinted, Core.GameRandom.Shared);
+                    result.Attacks.Add(a);
+                    if (a.NotTargetable) { result.Log.Add($"{user.name}'s {weapon.Name}: can't target {target.name} ({a.NotTargetableReason})."); break; }
+                    if (a.NoEffect) { result.Log.Add($"{user.name}'s {weapon.Name} → {target.name}: no effect."); break; }
+                    string chance = a.Accuracy.CritChance > 0 ? $"{a.Accuracy.HitChance}% (+{a.Accuracy.CritChance}% crit)" : $"{a.Accuracy.HitChance}%";
+                    result.Log.Add(a.Hit
+                        ? $"{user.name}'s {weapon.Name} → {target.name}: {(a.Crit ? "CRIT" : "hit")} at {chance} for {a.DamageDealt}."
+                        : $"{user.name}'s {weapon.Name} → {target.name}: miss at {chance}.");
+                    if (a.DamageDealt > 0) result.Log.AddRange(KeywordTriggers.Fire(TriggerEvent.Damaged, target, user));
+                    if (a.Hit && !target.IsAlive) result.Log.Add($"{target.name} is down.");
+                }
+            }
+            finally
+            {
+                var removed = Casualties.EndVolley();
+                if (removed.Count > 0)
+                    result.Log.Add("Removed from the battlefield: " + string.Join(", ", removed.Where(r => r != null).Select(r => r.name)) + ".");
+            }
+            WeaponUse.MarkFired(weapon);
         }
 
         /// <summary>

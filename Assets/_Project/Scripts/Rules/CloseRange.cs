@@ -7,7 +7,7 @@ namespace Eldoria.Rules
 {
     /// <summary>
     /// Close range: a Biological soldier is "in close range" if a Biological enemy soldier is less than 2 m away
-    /// (horizontally). A soldier in close range can't use any weapon unless it has the keyword "Pistol" - that goes for
+    /// (horizontally). Mechanical soldiers can never be in close range. A soldier in close range can't use any weapon unless it has the keyword "Pistol" - that goes for
     /// shooting and for abilities that use a weapon (e.g. Frag Grenade). Magic and other non-weapon abilities still work,
     /// and passive abilities are unaffected.
     /// </summary>
@@ -32,6 +32,7 @@ namespace Eldoria.Rules
         {
             var result = new List<Soldier>();
             if (soldier == null || !soldier.IsAlive || !soldier.HasKeyword(Biological) || soldier.Unit == null) return result;
+            if (soldier.HasKeyword(MovementRules.MechanicalKeyword)) return result;   // Mechanical: never in close range
             positionOf ??= s => s.Position;
             others ??= Object.FindObjectsByType<Soldier>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             Vector3 at = positionOf(soldier);

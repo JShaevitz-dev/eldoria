@@ -64,6 +64,9 @@ namespace Eldoria.Rules
         /// <summary>Wading: every meter moved through water (a riverbed below the water surface) counts this many times.</summary>
         public const float WadingCostMultiplier = 2f;
 
+        /// <summary>Soldier keyword: soldiers with it can't sprint (only a normal move).</summary>
+        public const string MechanicalKeyword = "Mechanical";
+
         /// <summary>Sprinting covers this many times a soldier's movement range.</summary>
         public const float SprintMultiplier = 2f;
 
@@ -77,14 +80,15 @@ namespace Eldoria.Rules
                 return MoveCheck.Fail(0f, why, to);
             if (!IsInsideBattlefield(stand, leader.Radius)) return MoveCheck.Fail(0f, "Outside the battlefield", stand);
 
-            var path = measurer.Measure(from, stand);
+            var path = measurer.Measure(from, stand, leader.Radius);
             if (!path.Reachable) return MoveCheck.Fail(0f, path.Reason, stand);
             float d = path.Length;
 
             MoveKind kind;
             if (d <= leader.Move + Epsilon) kind = MoveKind.Normal;
             else if (d <= leader.Sprint + Epsilon) kind = MoveKind.Sprint;
-            else return MoveCheck.Fail(d, $"Out of range (max {leader.Sprint:0.#} m sprint)", stand, path);
+            else return MoveCheck.Fail(d, leader.CanSprint ? $"Out of range (max {leader.Sprint:0.#} m sprint)"
+                : $"Out of range (max {leader.Move:0.#} m; {MechanicalKeyword} soldiers can't sprint)", stand, path);
 
             if (!IsSpaceFree(leader, stand, positions)) return MoveCheck.Fail(d, "Space is occupied", stand, path);
 
@@ -101,7 +105,7 @@ namespace Eldoria.Rules
             if (!IsInsideBattlefield(stand, follower.Radius)) return MoveCheck.Fail(0f, "Outside the battlefield", stand);
             if (!IsSpaceFree(follower, stand, positions)) return MoveCheck.Fail(0f, "Space is occupied", stand);
 
-            var path = measurer.Measure(from, stand);
+            var path = measurer.Measure(from, stand, follower.Radius);
             if (!path.Reachable) return MoveCheck.Fail(0f, path.Reason, stand);
 
             return new MoveCheck(true, MoveKind.Normal, path.Length, null, stand, path);

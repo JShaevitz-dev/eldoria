@@ -686,7 +686,8 @@ namespace Eldoria.Gameplay
             if (phase == MovePhase.MoveLeader)
             {
                 moveRing.ShowCircle(activation.LeaderStart, leader.Move, MoveColor);
-                sprintRing.ShowCircle(activation.LeaderStart, leader.Sprint, SprintColor);
+                if (leader.CanSprint) sprintRing.ShowCircle(activation.LeaderStart, leader.Sprint, SprintColor);
+                else sprintRing.Hide();   // Mechanical: no sprinting
                 followRing.Hide();
             }
             else
@@ -840,6 +841,16 @@ namespace Eldoria.Gameplay
                 blastRing.ShowCircle(r.Point.Value, ability.areaRadius, BlastColor);
                 blastUntil = Time.time + 2f;
             }
+            if (ability.IsAimedAttack && r.Target != null && r.Attacks.Count > 0)
+            {
+                // A tracer from the user to the target, like a shot.
+                var last = r.Attacks[r.Attacks.Count - 1];
+                if (tracers.Count == 0) tracers.Add(RangeRing.Create("Tracer", transform, 0.05f));
+                Color c = last.Crit ? new Color(1f, 0.5f, 0.1f) : last.Hit ? new Color(1f, 0.95f, 0.4f) : new Color(0.6f, 0.6f, 0.6f, 0.6f);
+                tracers[0].ShowLine(user.Position + Vector3.up * user.Height * 0.8f, r.Target.transform.position + Vector3.up * r.Target.Height * 0.6f, c);
+                for (int i = 1; i < tracers.Count; i++) tracers[i].Hide();
+                tracersUntil = Time.time + 2.5f;
+            }
         }
 
         /// <summary>A soldier exploded (e.g. Unstable on death): show the blast and say what happened.</summary>
@@ -943,7 +954,10 @@ namespace Eldoria.Gameplay
             switch (activation.Phase)
             {
                 case MovePhase.MoveLeader:
-                    GUILayout.Label($"1. Move the squad leader ({leaderName}, gold marker). Click inside the blue ring to move (10 m) or the orange ring to sprint (20 m).", wrap);
+                    var mover = activation.Leader;
+                    GUILayout.Label(mover.CanSprint
+                        ? $"1. Move the squad leader ({leaderName}, gold marker). Click inside the blue ring to move ({mover.Move:0.#} m) or the orange ring to sprint ({mover.Sprint:0.#} m)."
+                        : $"1. Move {leaderName}. Click inside the blue ring to move ({mover.Move:0.#} m). {MovementRules.MechanicalKeyword}: can't sprint.", wrap);
                     GUILayout.Label(HoverReadout(), wrap);
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button("Hold position (H)")) OrderHold();

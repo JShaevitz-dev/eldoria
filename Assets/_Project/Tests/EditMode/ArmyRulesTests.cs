@@ -90,7 +90,7 @@ namespace Eldoria.Tests
         public void TheCatalogListsEveryUnitCommandersFirst()
         {
             var catalog = UnitCatalog.Load();
-            Assert.That(catalog.Available.Count(), Is.EqualTo(7));
+            Assert.That(catalog.Available.Count(), Is.EqualTo(9));
             Assert.That(catalog.Available.Select(u => u.role.ListOrder()), Is.Ordered);
             Assert.That(catalog.Available.First().role, Is.EqualTo(UnitRole.Commander));
             Assert.That(catalog.primaryColorMaterial, Is.Not.Null);
@@ -141,12 +141,13 @@ namespace Eldoria.Tests
         {
             Assert.That(UnitInfo.WeaponLines(Infantry), Is.EqualTo(new[]
             {
-                "Assault Rifle — Damage 4 · Penetration 1 · Range 20 m",
-                "Pistol — Damage 2 · Penetration 0 · Range 10 m · Pistol",
+                "Assault Rifle — Damage 4 · Shots 1 · Penetration 1 · Range 20 m",
+                "Pistol — Damage 2 · Shots 1 · Penetration 0 · Range 10 m · Pistol",
             }));
-            Assert.That(UnitInfo.WeaponLines(Sniper).Single(), Is.EqualTo("Sniper Rifle — Damage 5 · Penetration 1 · +50% accuracy · Range 50 m · Deployed"));
-            Assert.That(UnitInfo.WeaponLines(U("FlamethrowerTeam")).First(), Does.StartWith("Flamethrower — Damage 10 · Penetration X · Range 10 m · Incendiary"));
+            Assert.That(UnitInfo.WeaponLines(Sniper).Single(), Is.EqualTo("Sniper Rifle — Damage 5 · Shots 1 · Penetration 1 · +50% accuracy · Range 50 m · Deployed"));
+            Assert.That(UnitInfo.WeaponLines(U("FlamethrowerTeam")).First(), Does.StartWith("Flamethrower — Damage 10 · Shots 3 · Penetration X · Range 10 m · Incendiary"));
             Assert.That(UnitInfo.WeaponLines(MG).Select(l => l.Split(' ')[0]), Is.EqualTo(new[] { "Pistol", "SMG", "Machine" }));
+            Assert.That(UnitInfo.WeaponLines(MG).Last(), Is.EqualTo("Machine Gun — Damage 6 · Shots 5 · Penetration 1 · Range 20 m · Deployed"));
         }
 
         [Test]
@@ -187,8 +188,8 @@ namespace Eldoria.Tests
         {
             var catalog = UnitCatalog.Load();
             Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[]
-                { "United States of Columbia", "United Kingdom of Aelfland", "The Draksa Reich" }));
-            Assert.That(F("UnitedStatesOfColumbia"), Is.Not.Null);
+                { "United States of Liberteria", "United Kingdom of Aelfland", "The Draksa Reich" }));
+            Assert.That(F("UnitedStatesOfLiberteria"), Is.Not.Null);
             Assert.That(F("UnitedKingdomOfAelfland"), Is.Not.Null);
             Assert.That(F("DraksaReich"), Is.Not.Null);
             foreach (var f in catalog.Factions)
@@ -218,10 +219,10 @@ namespace Eldoria.Tests
         [Test]
         public void EachFactionHasItsColour()
         {
-            Assert.That(F("UnitedStatesOfColumbia").color, Is.EqualTo(new Color(0.16f, 0.30f, 0.15f)), "dark green");
+            Assert.That(F("UnitedStatesOfLiberteria").color, Is.EqualTo(new Color(0.16f, 0.30f, 0.15f)), "dark green");
             Assert.That(F("UnitedKingdomOfAelfland").color, Is.EqualTo(new Color(0.50f, 0.74f, 0.36f)), "light green");
             Assert.That(F("DraksaReich").color, Is.EqualTo(new Color(0.46f, 0.47f, 0.49f)), "gray");
-            var usc = F("UnitedStatesOfColumbia").color;
+            var usc = F("UnitedStatesOfLiberteria").color;
             Assert.That(usc.g > usc.r && usc.g > usc.b, Is.True, "green");
             var aelf = F("UnitedKingdomOfAelfland").color;
             Assert.That(aelf.g > aelf.r && aelf.g > aelf.b && aelf.g > usc.g, Is.True, "a lighter green");

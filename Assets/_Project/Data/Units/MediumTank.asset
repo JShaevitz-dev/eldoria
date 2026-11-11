@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: MediumTank
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Medium Tank
+  role: 2
+  description: 'A lone armored vehicle and the hardest target on the field: 20 health
+    and Armor Level 4 shrug off rifles, machine guns, grenades and flamethrowers
+    alike. Its 100mm Cannon (10 damage, penetration 4, 50 m) is the only weapon that
+    hurts heavy armor, but it''s Manual Load: one shot a turn. It moves a long way
+    (30 m) but, being Mechanical, can''t sprint. When destroyed it has a 10% chance
+    to explode (Unstable), so keep your own soldiers clear of it. Heavy Support,
+    so you can field more than one.'
+  leader: {fileID: 11400000, guid: 0f15ab0df2cceb046b634d7964aac154, type: 2}
+  members: []
+  deploymentSpacing: 2

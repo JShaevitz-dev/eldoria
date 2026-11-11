@@ -529,6 +529,200 @@ namespace Eldoria.EditorTools
         /// Sniper: Health 5, Armor Level 0, Accuracy 100%, Movement 15 m; Biological, Solo, Sniper Precision.
         /// A unit of one (Data/Units/Sniper; not in the demo armies). Weapon: Sniper Rifle.
         /// </summary>
+        /// <summary>
+        /// Medium Tank: a unit of one soldier, the Medium Tank (Health 20, Armor Level 4, Accuracy 75%, Movement 30 m;
+        /// Mechanical: can't sprint; Tank; Unstable: 10% chance to explode when destroyed), armed with a 100mm Cannon (Damage 10, Penetration 4, Range 50 m, Shots 1,
+        /// Manual Load: fires at most once a turn). Role: Heavy Support.
+        /// </summary>
+        public static UnitTemplate EnsureMediumTank(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Keywords");
+            EnsureFolder(DataDir, "Weapons");
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            Keyword Kw(string file, string name, KeywordTarget target, string description)
+            {
+                var k = GetOrCreate<Keyword>($"{DataDir}/Keywords/{file}.asset", x => { x.displayName = name; x.appliesTo = target; });
+                k.description = description;
+                k.category = KeywordCategory.Trait;
+                EditorUtility.SetDirty(k);
+                return k;
+            }
+            var mechanical = Kw("Mechanical", "Mechanical", KeywordTarget.Soldier, "A machine, not a living being. Mechanical soldiers can't sprint.");
+            var tankKw = Kw("Tank", "Tank", KeywordTarget.Soldier, "An armored fighting vehicle. A trait for other rules to check.");
+            var manualLoad = Kw("ManualLoad", "Manual Load", KeywordTarget.Weapon,
+                "This weapon can't be fired more than once a turn, even if the soldier carrying it has a way to shoot more than one volley.");
+
+            var cannon = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/Cannon100mm.asset", w => w.displayName = "100mm Cannon");
+            cannon.displayName = "100mm Cannon";
+            cannon.baseDamage = 10;
+            cannon.hasPenetration = true;
+            cannon.penetration = 4;
+            cannon.range = 50f;
+            cannon.shots = 1;
+            cannon.accuracyBonus = 0;
+            cannon.keywords = new List<Keyword> { manualLoad };
+            EditorUtility.SetDirty(cannon);
+
+            var tank = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/MediumTank.asset", s => s.displayName = "Medium Tank");
+            tank.displayName = "Medium Tank";
+            tank.health = 20; tank.armorLevel = 4; tank.accuracy = 75; tank.movementRange = 30f;
+            // Unstable: when the tank is destroyed, a 10% chance it explodes (5 damage to everyone within 5 m).
+            var unstable = AssetDatabase.LoadAssetAtPath<Keyword>($"{DataDir}/Keywords/Unstable.asset");
+            tank.keywords = new List<Keyword> { mechanical, tankKw };
+            if (unstable != null) tank.keywords.Add(unstable);
+            tank.abilities = new List<Ability>();
+            tank.weapons = new List<WeaponTemplate> { cannon };
+            tank.primaryWeapon = cannon;
+            tank.radius = 1.8f;    // a 3.4 × 5.6 m hull
+            tank.height = 2.3f;
+            if (tank.prefab == null) tank.prefab = BuildTankPrefab("MediumTank", tank);
+            EditorUtility.SetDirty(tank);
+
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/MediumTank.asset", u => u.displayName = "Medium Tank");
+            unit.displayName = "Medium Tank";
+            unit.leader = tank;
+            unit.members = new List<UnitTemplate.Member>();
+            EditorUtility.SetDirty(unit);
+            AssetDatabase.SaveAssets();
+            return unit;
+        }
+
+        /// <summary>
+        /// Rocket Launcher: Damage 5, Penetration 5, Accuracy Bonus +0, Range 50 m, Shots 1, keyword Manual Load (fires at
+        /// most once a turn). Not carried by anyone yet.
+        /// </summary>
+        /// <summary>
+        /// Tank Hunter Team (Heavy Support): a Sergeant (Assault Rifle, Pistol), 3 Troopers (Assault Rifle) and a Rocket
+        /// Trooper (Assault Rifle, plus the Rocket Launcher used as an active ability: an aimed shot at one enemy soldier).
+        /// Infantry Squad stats (Health 5, Armor Level 1, Accuracy 75%, 10 m, Biological); no Frag Grenade. The Assault
+        /// Rifle shows under each faction's name for it.
+        /// </summary>
+        public static UnitTemplate EnsureTankHunterTeam(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            EnsureFolder(DataDir, "Abilities");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
+            var rocket = EnsureRocketLauncher();
+
+            // The Rocket Launcher as an active ability: an aimed shot at one enemy soldier, once a turn (Manual Load).
+            var fire = GetOrCreate<Ability>($"{DataDir}/Abilities/RocketLauncher.asset", a => a.displayName = "Rocket Launcher");
+            fire.displayName = "Rocket Launcher";
+            fire.description = "Active. An aimed shot at one enemy soldier within 50 m and in sight: Damage 5, Penetration 5, " +
+                               "with a hit roll. Firing it is the unit's action. Manual Load: once a turn.";
+            fire.kind = AbilityKind.Active;
+            fire.targets = AbilityTarget.Soldier;
+            fire.affects = AuraAffects.Enemies;
+            fire.includeSelf = false;
+            fire.range = rocket.range;
+            fire.attackWeapon = rocket;
+            fire.areaWeapon = null;
+            fire.heal = 0;
+            fire.grantsKeyword = null;
+            fire.usesPerTurn = 1;
+            fire.usesPerBattle = 0;
+            EditorUtility.SetDirty(fire);
+
+            SoldierTemplate Soldier(string file, string name, List<WeaponTemplate> weapons, List<Ability> abilities)
+            {
+                var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", x => x.displayName = name);
+                s.displayName = name;
+                s.health = 5; s.armorLevel = 1; s.accuracy = 75; s.movementRange = 10f;
+                s.keywords = new List<Keyword> { keywords["Biological"] };
+                s.weapons = weapons;
+                s.primaryWeapon = rifle;
+                s.abilities = abilities;
+                EditorUtility.SetDirty(s);
+                return s;
+            }
+            var sergeant = Soldier("TankHunterSergeant", "Sergeant", new List<WeaponTemplate> { rifle, pistol }, new List<Ability>());
+            var trooper = Soldier("TankHunterTrooper", "Trooper", new List<WeaponTemplate> { rifle }, new List<Ability>());
+            var rocketeer = Soldier("RocketTrooper", "Rocket Trooper", new List<WeaponTemplate> { rifle }, new List<Ability> { fire });
+
+            sergeant.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/Sergeant.prefab");
+            trooper.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/Trooper.prefab");
+            if (rocketeer.prefab == null)
+                rocketeer.prefab = BuildSoldierPrefab("RocketTrooper", rocketeer, false,
+                    GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f)),
+                    GetOrCreateMaterial("Skin", new Color(0.85f, 0.68f, 0.55f)),
+                    GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f)),
+                    GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f)),
+                    rocketKit: true);
+
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/TankHunterTeam.asset", u => u.displayName = "Tank Hunter Team");
+            unit.displayName = "Tank Hunter Team";
+            unit.leader = sergeant;
+            unit.members = new List<UnitTemplate.Member>
+            {
+                new UnitTemplate.Member { soldier = trooper, count = 3 },
+                new UnitTemplate.Member { soldier = rocketeer, count = 1 },
+            };
+            unit.deploymentSpacing = 2f;
+            EditorUtility.SetDirty(unit);
+            AssetDatabase.SaveAssets();
+            return unit;
+        }
+
+        public static WeaponTemplate EnsureRocketLauncher()
+        {
+            EnsureFolder(DataDir, "Weapons");
+            var manualLoad = AssetDatabase.LoadAssetAtPath<Keyword>($"{DataDir}/Keywords/ManualLoad.asset");
+            var w = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/RocketLauncher.asset", x => x.displayName = "Rocket Launcher");
+            w.displayName = "Rocket Launcher";
+            w.baseDamage = 5;
+            w.hasPenetration = true;
+            w.penetration = 5;
+            w.accuracyBonus = 0;
+            w.range = 50f;
+            w.shots = 1;
+            w.keywords = new List<Keyword>();
+            if (manualLoad != null) w.keywords.Add(manualLoad);
+            EditorUtility.SetDirty(w);
+            return w;
+        }
+
+        /// <summary>
+        /// The Medium Tank's model: tracks, a hull and a turret with a long barrel pointing forward. The hull and turret use
+        /// the primary-colour material (they take the faction's colour); tracks and barrel the weapon material.
+        /// </summary>
+        private static GameObject BuildTankPrefab(string name, SoldierTemplate template)
+        {
+            var armor = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = false;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+
+            // Selection collider (the soldier layer), roughly the hull.
+            var col = root.AddComponent<BoxCollider>();
+            col.size = new Vector3(3.4f, template.height, 5.6f);
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+
+            Part(root, "Track_L", PrimitiveType.Cube, metal, new Vector3(-1.35f, 0.45f, 0f), new Vector3(0.7f, 0.9f, 5.6f));
+            Part(root, "Track_R", PrimitiveType.Cube, metal, new Vector3(1.35f, 0.45f, 0f), new Vector3(0.7f, 0.9f, 5.6f));
+            Part(root, "Hull", PrimitiveType.Cube, armor, new Vector3(0f, 0.95f, 0f), new Vector3(2.2f, 0.9f, 5.2f));
+            Part(root, "Turret", PrimitiveType.Cube, armor, new Vector3(0f, 1.8f, -0.3f), new Vector3(1.8f, 0.8f, 2.2f));
+            var barrel = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            barrel.name = "Weapon";
+            Object.DestroyImmediate(barrel.GetComponent<Collider>());
+            barrel.transform.SetParent(root.transform, false);
+            barrel.transform.localPosition = new Vector3(0f, 1.85f, 2.3f);
+            barrel.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            barrel.transform.localScale = new Vector3(0.22f, 1.5f, 0.22f);
+            barrel.GetComponent<Renderer>().sharedMaterial = metal;
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            string path = $"{PrefabDir}/{name}.prefab";
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
         public static SoldierTemplate EnsureSniper(Dictionary<string, Keyword> keywords)
         {
             EnsureFolder(DataDir, "Soldiers");
@@ -567,7 +761,25 @@ namespace Eldoria.EditorTools
 
         /// <summary>Weapon ranges (meters): Assault Rifle 20, Pistol 10, SMG 10, Machine Gun 20. Applied to the existing weapon assets.</summary>
         public static readonly (string file, float range)[] WeaponRanges =
-            { ("AssaultRifle", 20f), ("Pistol", 10f), ("SMG", 10f), ("MachineGun", 20f), ("SniperRifle", 50f) };
+            { ("AssaultRifle", 20f), ("Pistol", 10f), ("SMG", 10f), ("MachineGun", 20f), ("SniperRifle", 50f), ("RocketLauncher", 50f) };
+
+        /// <summary>Shots per volley for every weapon (each shot is a full pass through the shooting steps).</summary>
+        public static readonly (string file, int shots)[] WeaponShots =
+        {
+            ("AssaultRifle", 1), ("Pistol", 1), ("SMG", 1), ("MachineGun", 5), ("Flamethrower", 3), ("SniperRifle", 1),
+            ("FragGrenade", 1), ("UnstableExplosion", 1), ("Cannon100mm", 1), ("RocketLauncher", 1),
+        };
+
+        private static void ApplyWeaponShots()
+        {
+            foreach (var (file, shots) in WeaponShots)
+            {
+                var w = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/{file}.asset");
+                if (w == null) continue;
+                w.shots = shots;
+                EditorUtility.SetDirty(w);
+            }
+        }
 
         private static void ApplyWeaponRanges()
         {
@@ -608,6 +820,8 @@ namespace Eldoria.EditorTools
             ["FieldCommander"] = UnitRole.Commander,
             ["BattlefieldPriest"] = UnitRole.Commander,
             ["MachineGunTeam"] = UnitRole.HeavySupport,
+            ["MediumTank"] = UnitRole.HeavySupport,
+            ["TankHunterTeam"] = UnitRole.HeavySupport,
         };
 
         /// <summary>How each unit plays and what it does in an army, shown in the army builder (by file name).</summary>
@@ -620,11 +834,15 @@ namespace Eldoria.EditorTools
             ["BattlefieldPriest"] =
                 "A fragile support caster (5 health, no armor, 50% accuracy) with two spells. Divine Healing restores 5 health to a friendly soldier within 25 m; Divine Sanctuary gives a whole friendly unit +1 Armor Level until your next turn, blunting the fire on a squad that's about to be shot. Spells can't be cast after sprinting, so move the Priest with care. A Commander, so the Priest can fill your required Commander slot.",
             ["MachineGunTeam"] =
-                "A heavy fire base. The Machine Gunner hits hard (6 damage, penetration 1, 20 m) but can't fire after moving, so set the team up covering a firing lane and let it hold there. Three SMG troopers add close-range firepower out to 10 m and protect the gun; the Sergeant carries only a pistol. With five soldiers and no grenade, it's best covering ground rather than leading an assault. Heavy Support can be taken more than once.",
+                "A heavy fire base. The Machine Gunner fires 5 shots a volley (6 damage, penetration 1, 20 m each) but can't fire after moving, so set the team up covering a firing lane and let it hold there. Three SMG troopers add close-range firepower out to 10 m and protect the gun; the Sergeant carries only a pistol. With five soldiers and no grenade, it's best covering ground rather than leading an assault. Heavy Support can be taken more than once.",
             ["PoweredArmorSquad"] =
                 "Five soldiers in powered armor with Assault Rifles. Health 10 and Armor Level 2 halve rifle damage and shrug off pistols and grenades entirely, so the squad can walk through fire that would shred an Infantry Squad. The trade-off is speed: only 6 m a move (12 m sprinting), so start advancing early or put them where the fight will come to them. A Specialist: one per army.",
             ["FlamethrowerTeam"] =
-                "Two troopers with Flamethrowers for clearing buildings and cover at close quarters. A flame hit does 10 damage that ignores armor, but only against Biological targets and only out to 10 m, so the team has to get close. When a trooper dies there's a 10% chance their tank explodes, hurting everyone within 5 m: keep them away from your own squads. In close range they fall back on pistols. A Specialist: one per army.",
+                "Two troopers with Flamethrowers for clearing buildings and cover at close quarters. Each Flamethrower fires 3 shots a volley, each doing 10 damage that ignores armor, but only against Biological targets and only out to 10 m, so the team has to get close. When a trooper dies there's a 10% chance their tank explodes, hurting everyone within 5 m: keep them away from your own squads. In close range they fall back on pistols. A Specialist: one per army.",
+            ["MediumTank"] =
+                "A lone armored vehicle and the hardest target on the field: 20 health and Armor Level 4 shrug off rifles, machine guns, grenades and flamethrowers alike. Its 100mm Cannon (10 damage, penetration 4, 50 m) is the only weapon that hurts heavy armor, but it's Manual Load: one shot a turn. It moves a long way (30 m) but, being Mechanical, can't sprint. When destroyed it has a 10% chance to explode (Unstable), so keep your own soldiers clear of it. Heavy Support, so you can field more than one.",
+            ["TankHunterTeam"] =
+                "Five riflemen built around one Rocket Trooper. Their rifles do the everyday work, but the Rocket Launcher is why you take them: an aimed shot at a single enemy soldier within 50 m, Damage 5 with Penetration 5, enough to beat a Medium Tank's armor for 7 damage a hit. Firing it is the team's action for the turn (no rifle volley), and it's Manual Load, so once a turn. Keep the Rocket Trooper alive and in sight of the enemy's armor. Heavy Support, so you can field more than one.",
             ["Sniper"] =
                 "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing sergeants and officers. The Sniper Rifle can't fire after moving, and with 5 health and no armor the Sniper must stay out of sight; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo unit: one per army.",
         };
@@ -658,7 +876,7 @@ namespace Eldoria.EditorTools
         /// <summary>The factions (Data/Factions), in the order the army builder shows them: file name → display name.</summary>
         public static readonly (string file, string name, Color color)[] FactionNames =
         {
-            ("UnitedStatesOfColumbia", "United States of Columbia", new Color(0.16f, 0.30f, 0.15f)),   // dark green
+            ("UnitedStatesOfLiberteria", "United States of Liberteria", new Color(0.16f, 0.30f, 0.15f)),   // dark green
             ("UnitedKingdomOfAelfland", "United Kingdom of Aelfland", new Color(0.50f, 0.74f, 0.36f)), // light green
             ("DraksaReich", "The Draksa Reich", new Color(0.46f, 0.47f, 0.49f)),                       // gray
         };
@@ -670,6 +888,11 @@ namespace Eldoria.EditorTools
         public static List<Faction> EnsureFactions(List<UnitTemplate> allUnits)
         {
             EnsureFolder(DataDir, "Factions");
+            // The United States of Columbia was renamed the United States of Liberteria: keep its asset, under the new name.
+            if (AssetDatabase.LoadAssetAtPath<Faction>($"{DataDir}/Factions/UnitedStatesOfColumbia.asset") != null
+                && AssetDatabase.LoadAssetAtPath<Faction>($"{DataDir}/Factions/UnitedStatesOfLiberteria.asset") == null)
+                AssetDatabase.RenameAsset($"{DataDir}/Factions/UnitedStatesOfColumbia.asset", "UnitedStatesOfLiberteria");
+
             var factions = new List<Faction>();
             foreach (var (file, name, color) in FactionNames)
             {
@@ -677,10 +900,34 @@ namespace Eldoria.EditorTools
                 faction.displayName = name;
                 faction.color = color;
                 faction.units = new List<UnitTemplate>(allUnits);
+                ApplyFactionWeapons(faction, file);
                 EditorUtility.SetDirty(faction);
                 factions.Add(faction);
             }
             return factions;
+        }
+
+        /// <summary>
+        /// Each faction's names for weapons (aliases of the same stat block) and its changes to their stats (added to the
+        /// weapon's own). By faction file name.
+        /// </summary>
+        private static void ApplyFactionWeapons(Faction faction, string file)
+        {
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            faction.weaponNames = new List<WeaponName>();
+            faction.weaponAdjustments = new List<WeaponAdjustment>();
+            switch (file)
+            {
+                case "UnitedStatesOfLiberteria":
+                    // The Assault Rifle is a semi-automatic rifle here: Shots 2 (the rifle's 1, +1).
+                    faction.weaponNames.Add(new WeaponName { weapon = rifle, name = "Semi-auto rifle" });
+                    faction.weaponAdjustments.Add(new WeaponAdjustment { weapon = rifle, shots = 1 });
+                    break;
+                case "UnitedKingdomOfAelfland":
+                case "DraksaReich":
+                    faction.weaponNames.Add(new WeaponName { weapon = rifle, name = "Bolt-Action Rifle" });
+                    break;
+            }
         }
 
         /// <summary>
@@ -726,6 +973,10 @@ namespace Eldoria.EditorTools
             EnsurePoweredArmorSquad(keywords);
             EnsureSniperRifle(keywords);
             EnsureSniper(keywords);
+            EnsureMediumTank(keywords);
+            EnsureRocketLauncher();
+            EnsureTankHunterTeam(keywords);
+            ApplyWeaponShots();
             ApplyUnitRoles();
             ApplyUnitDescriptions();
             EnsureUnitCatalog();
@@ -1000,7 +1251,8 @@ namespace Eldoria.EditorTools
             {
                 ["Biological"] = KeywordCategory.Trait, ["Robotic"] = KeywordCategory.Trait,
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
-                ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait,
+                ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,
@@ -1104,7 +1356,7 @@ namespace Eldoria.EditorTools
 
         private static GameObject BuildSoldierPrefab(string name, SoldierTemplate template, bool isSergeant,
             Material armor, Material skin, Material weapon, Material gold, Material cape = null, bool priest = false,
-            bool heavyWeapon = false, bool poweredArmor = false, bool sniperKit = false, bool flameKit = false)
+            bool heavyWeapon = false, bool poweredArmor = false, bool sniperKit = false, bool flameKit = false, bool rocketKit = false)
         {
             float h = template.height;          // 1.8m
             float headSize = 0.26f;
@@ -1180,6 +1432,19 @@ namespace Eldoria.EditorTools
             else
                 Part(root, "Weapon", PrimitiveType.Cube, weapon,
                     new Vector3(0.18f, h * 0.68f, 0.32f), new Vector3(0.07f, 0.1f, 0.85f));
+
+            if (rocketKit)
+            {
+                // A rocket launcher tube carried on the right shoulder, pointing forward.
+                var tube = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                tube.name = "Rocket Launcher";
+                Object.DestroyImmediate(tube.GetComponent<Collider>());
+                tube.transform.SetParent(root.transform, false);
+                tube.transform.localPosition = new Vector3(0.3f, h * 0.86f, 0.1f);
+                tube.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                tube.transform.localScale = new Vector3(0.16f, 0.6f, 0.16f);
+                tube.GetComponent<Renderer>().sharedMaterial = GetOrCreateMaterial("Rocket_Tube", new Color(0.32f, 0.36f, 0.24f));
+            }
 
             if (isSergeant)
             {

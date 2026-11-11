@@ -30,7 +30,8 @@ namespace Eldoria.Rules
         bool TryGetStandPoint(Vector3 point, float radius, float height, out Vector3 stand, out string reason);
 
         /// <summary>Finds and measures the route from one standing spot to another.</summary>
-        MovePath Measure(Vector3 from, Vector3 to);
+        /// <param name="radius">The moving soldier's body radius: the route must have room for it (0 = soldier-sized).</param>
+        MovePath Measure(Vector3 from, Vector3 to, float radius = 0f);
     }
 
     /// <summary>Flat, empty battlefield: anywhere is standable and every route is a straight line.</summary>
@@ -45,7 +46,7 @@ namespace Eldoria.Rules
             return true;
         }
 
-        public MovePath Measure(Vector3 from, Vector3 to)
+        public MovePath Measure(Vector3 from, Vector3 to, float radius = 0f)
         {
             return new MovePath
             {

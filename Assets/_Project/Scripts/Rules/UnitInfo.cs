@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Eldoria.Units;
+using UnityEngine;
 
 namespace Eldoria.Rules
 {
@@ -11,7 +12,8 @@ namespace Eldoria.Rules
     public static class UnitInfo
     {
         /// <summary>E.g. "9× Trooper — Health 5 · Armor 1 · Accuracy 75% · Move 10 m (sprint 20 m) · Assault Rifle".</summary>
-        public static List<string> SoldierLines(UnitTemplate unit)
+        /// <param name="faction">The army's faction: weapons are shown under its names for them.</param>
+        public static List<string> SoldierLines(UnitTemplate unit, Faction faction = null)
         {
             var lines = new List<string>();
             foreach (var group in unit.Roster().GroupBy(s => s))
@@ -19,25 +21,31 @@ namespace Eldoria.Rules
                 var s = group.Key;
                 int n = group.Count();
                 string who = n > 1 ? $"{n}× {s.displayName}" : s.displayName;
-                string weapons = string.Join(", ", WeaponsOf(s).Select(w => w.displayName));
+                string weapons = string.Join(", ", WeaponsOf(s).Select(w => WeaponStats.For(w, faction).Name));
                 lines.Add($"{who} — Health {s.health} · Armor {s.armorLevel} · Accuracy {s.accuracy}% · " +
-                          $"Move {s.movementRange:0.#} m (sprint {s.movementRange * 2f:0.#} m)" + (weapons.Length > 0 ? $" · {weapons}" : ""));
+                          $"Move {s.movementRange:0.#} m " + (s.HasKeyword(MovementRules.MechanicalKeyword) ? "(can't sprint)"
+                              : $"(sprint {s.movementRange * MovementRules.SprintMultiplier:0.#} m)") + (weapons.Length > 0 ? $" · {weapons}" : ""));
             }
             return lines;
         }
 
-        /// <summary>E.g. "Sniper Rifle — Damage 5 · Penetration 1 · +50% accuracy · Range 50 m · Deployed".</summary>
-        public static List<string> WeaponLines(UnitTemplate unit)
+        /// <summary>E.g. "Sniper Rifle — Damage 5 · Shots 1 · Penetration 1 · +50% accuracy · Range 50 m · Deployed".</summary>
+        /// <param name="faction">The army's faction: its changes to the weapons' stats, and its names for them.</param>
+        public static List<string> WeaponLines(UnitTemplate unit, Faction faction = null)
         {
             var lines = new List<string>();
-            foreach (var w in unit.Roster().SelectMany(WeaponsOf).Distinct())
+            // Carried weapons, then weapons used through abilities (e.g. a Rocket Launcher).
+            var abilityWeapons = unit.Roster().SelectMany(s => s.abilities).Where(a => a != null && a.attackWeapon != null).Select(a => a.attackWeapon);
+            foreach (var w in unit.Roster().SelectMany(WeaponsOf).Concat(abilityWeapons).Distinct())
             {
-                var parts = new List<string> { $"Damage {w.baseDamage}", $"Penetration {(w.PenetrationValue.HasValue ? w.PenetrationValue.Value.ToString() : "X")}" };
-                if (w.accuracyBonus != 0) parts.Add($"{(w.accuracyBonus > 0 ? "+" : "")}{w.accuracyBonus}% accuracy");
-                parts.Add(w.range > 0f ? $"Range {w.range:0.#} m" : "Range unlimited");
+                var stats = WeaponStats.For(w, faction);
+                var parts = new List<string> { $"Damage {stats.BaseDamage}", $"Shots {stats.Shots}",
+                    $"Penetration {(stats.PenetrationValue.HasValue ? stats.PenetrationValue.Value.ToString() : "X")}" };
+                if (stats.AccuracyBonus != 0) parts.Add($"{(stats.AccuracyBonus > 0 ? "+" : "")}{stats.AccuracyBonus}% accuracy");
+                parts.Add(stats.Range > 0f ? $"Range {stats.Range:0.#} m" : "Range unlimited");
                 var keywords = w.keywords.Where(k => k != null).Select(k => k.displayName).ToList();
                 if (keywords.Count > 0) parts.Add(string.Join(", ", keywords));
-                lines.Add($"{w.displayName} — {string.Join(" · ", parts)}");
+                lines.Add($"{stats.Name} — {string.Join(" · ", parts)}");
             }
             return lines;
         }

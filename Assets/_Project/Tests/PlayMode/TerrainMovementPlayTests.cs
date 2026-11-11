@@ -322,6 +322,48 @@ namespace Eldoria.Tests
             Assert.That(down.Length, Is.EqualTo(2.45f).Within(0.3f));
         }
 
+        // ---- Wide bodies (the Medium Tank: radius 1.8 m, a 3.4 m wide hull) need room along their whole route ----
+
+        private const float TankRadius = 1.8f, TankHeight = 2.3f;
+
+        private Vector3 TankStand(float x, float z)
+        {
+            Assert.That(measurer.TryGetStandPoint(new Vector3(x, 0f, z), TankRadius, TankHeight, out var p, out var why), Is.True, $"tank at ({x}, {z}): {why}");
+            return p;
+        }
+
+        [Test]
+        public void ATankCantSqueezeThroughADoorwayASoldierCanUse()
+        {
+            // The building's doorway is 1.6 m wide: fine for a soldier, far too narrow for a tank's hull.
+            var soldierRoute = measurer.Measure(Stand(14f, 3f), Stand(14f, 9f), 0.35f);
+            Assert.That(soldierRoute.Reachable, Is.True);
+
+            var tankInside = TankStand(14f, 9f);   // the room itself is big enough to hold a tank
+            var tankRoute = measurer.Measure(TankStand(14f, 2f), tankInside, TankRadius);
+            Assert.That(tankRoute.Reachable, Is.False, "no way in that's wide enough");
+        }
+
+        [Test]
+        public void ATankNeedsRoomToStandClearOfWalls()
+        {
+            // 1 m outside the building's east wall: room for a soldier, not for a tank's hull.
+            Assert.That(measurer.TryGetStandPoint(new Vector3(19f, 0f, 9f), 0.35f, 1.8f, out _, out _), Is.True);
+            Assert.That(measurer.TryGetStandPoint(new Vector3(19f, 0f, 9f), TankRadius, TankHeight, out _, out var why), Is.False);
+            Assert.That(why, Does.Contain("room"));
+        }
+
+        [Test]
+        public void OnOpenGroundATankMovesLikeAnyoneElse()
+        {
+            var a = TankStand(0f, -18f);
+            var b = TankStand(-8f, -18f);
+            var tank = measurer.Measure(a, b, TankRadius);
+            var soldier = measurer.Measure(a, b, 0.35f);
+            Assert.That(tank.Reachable, Is.True, tank.Reason);
+            Assert.That(tank.Length, Is.EqualTo(soldier.Length).Within(0.3f), "same distance on open ground");
+        }
+
         [Test]
         public void BuildingWallsBlockButTheDoorwayLetsSoldiersIn()
         {

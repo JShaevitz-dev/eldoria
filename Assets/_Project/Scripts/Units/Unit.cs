@@ -60,6 +60,11 @@ namespace Eldoria.Units
 
         public string DisplayName => displayName;
         public UnitTemplate Template => template;
+
+        [SerializeField] private Faction faction;
+        /// <summary>The army's faction (null for units placed in a scene without one). It changes the stats and names of the unit's weapons.</summary>
+        public Faction Faction => faction;
+        public void SetFaction(Faction newFaction) => faction = newFaction;
         /// <summary>The unit's role (from its template; Specialist if it has none).</summary>
         public UnitRole Role => template != null ? template.role : UnitRole.Specialist;
         public Side Side => side;

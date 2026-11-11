@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Machine Gun Team
   role: 2
-  description: A heavy fire base. The Machine Gunner hits hard (6 damage, penetration
-    1, 20 m) but can't fire after moving, so set the team up covering a firing lane
-    and let it hold there. Three SMG troopers add close-range firepower out to 10
-    m and protect the gun; the Sergeant carries only a pistol. With five soldiers
-    and no grenade, it's best covering ground rather than leading an assault. Heavy
-    Support can be taken more than once.
+  description: A heavy fire base. The Machine Gunner fires 5 shots a volley (6 damage,
+    penetration 1, 20 m each) but can't fire after moving, so set the team up covering
+    a firing lane and let it hold there. Three SMG troopers add close-range firepower
+    out to 10 m and protect the gun; the Sergeant carries only a pistol. With five
+    soldiers and no grenade, it's best covering ground rather than leading an assault.
+    Heavy Support can be taken more than once.
   leader: {fileID: 11400000, guid: fa6a4aec26cf1d64eb0a647a90c0367e, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: b8337c1f1af37914983ffe22f82007b7, type: 2}
