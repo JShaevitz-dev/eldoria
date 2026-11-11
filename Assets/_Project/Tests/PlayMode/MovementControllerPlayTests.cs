@@ -57,6 +57,29 @@ namespace Eldoria.Tests
         }
 
         [UnityTest]
+        public IEnumerator PlacingTheLeaderPreviewsThePrimaryWeaponRangeFromTheDestination()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            SelectInfantrySquad(controller);
+            var leader = controller.Activation.Leader;
+            Vector3 spot = leader.Position + new Vector3(0f, 0f, 4f);
+
+            controller.PreviewAt(spot);
+            var preview = controller.WeaponRangePreview;
+            Assert.That(preview.HasValue, Is.True, "the ring shows while choosing where the leader goes");
+            Assert.That(preview.Value.radius, Is.EqualTo(leader.PrimaryWeapon.Range), "the primary weapon's range");
+            Assert.That(preview.Value.radius, Is.EqualTo(20f), "the sergeant's Assault Rifle");
+            Vector3 c = preview.Value.center;
+            Assert.That(new Vector2(c.x - spot.x, c.z - spot.z).magnitude, Is.LessThan(0.5f), "centred where the leader would end up");
+
+            // Once the leader has moved, it's the followers' turn: no more preview.
+            Assert.That(controller.OrderLeaderMove(spot), Is.True);
+            controller.PreviewAt(spot + new Vector3(2f, 0f, 0f));
+            Assert.That(controller.WeaponRangePreview.HasValue, Is.False);
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator KilledLeaderIsReplacedByClosestSoldier()
         {
             var controller = SelectInfantrySquad(Object.FindFirstObjectByType<MovementController>());

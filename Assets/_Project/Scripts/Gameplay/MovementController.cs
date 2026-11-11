@@ -43,7 +43,16 @@ namespace Eldoria.Gameplay
         private readonly Dictionary<Soldier, Coroutine> walking = new Dictionary<Soldier, Coroutine>();
         private readonly Dictionary<Soldier, Quaternion> startRotations = new Dictionary<Soldier, Quaternion>();
 
-        private RangeRing moveRing, sprintRing, followRing, selectRing, cursorRing, pathLine;
+        private RangeRing moveRing, sprintRing, followRing, selectRing, cursorRing, pathLine, weaponRing;
+
+        /// <summary>Weapon range: the unit's primary weapon while placing the leader, the leader's weapon in shoot mode.</summary>
+        private static readonly Color WeaponRangeColor = new Color(1f, 0.25f, 0.2f, 0.75f);
+
+        /// <summary>
+        /// While moving the leader: where the weapon range ring is drawn (the previewed destination) and its radius
+        /// (the leader's primary weapon range). Null when not shown, e.g. the weapon has unlimited range.
+        /// </summary>
+        public (Vector3 center, float radius)? WeaponRangePreview { get; private set; }
         private readonly List<RangeRing> cohesionRings = new List<RangeRing>();
 
         private bool hasHover;
@@ -150,6 +159,7 @@ namespace Eldoria.Gameplay
             selectRing = RangeRing.Create("Ring_Selected", transform, 0.06f);
             cursorRing = RangeRing.Create("Ring_Cursor", transform, 0.06f);
             pathLine = RangeRing.Create("Line_Path", transform, 0.06f);
+            weaponRing = RangeRing.Create("Ring_WeaponRange", transform, 0.08f);
             abilityRing = RangeRing.Create("Ring_Ability", transform, 0.1f);
             blastRing = RangeRing.Create("Ring_Blast", transform, 0.15f);
 
@@ -330,8 +340,9 @@ namespace Eldoria.Gameplay
 
         private void HideMoveVisuals()
         {
-            foreach (var r in new[] { moveRing, sprintRing, followRing, selectRing, cursorRing, pathLine, abilityRing }.Concat(cohesionRings))
+            foreach (var r in new[] { moveRing, sprintRing, followRing, selectRing, cursorRing, pathLine, abilityRing, weaponRing }.Concat(cohesionRings))
                 if (r != null) r.Hide();
+            WeaponRangePreview = null;
         }
 
         /// <summary>True (and tells the player) if no unit is selected to give orders to.</summary>
@@ -638,6 +649,7 @@ namespace Eldoria.Gameplay
             if (Time.time > tracersUntil) foreach (var t in tracers) t.Hide();
             if (Time.time > blastUntil) blastRing.Hide();
             UpdateTargetRings();
+            if (abilityMode != null || shootMode) HideWeaponPreview();
             if (abilityMode != null && abilityUser != null)
             {
                 foreach (var r in new[] { moveRing, sprintRing, followRing, cursorRing, pathLine }.Concat(cohesionRings)) r.Hide();
@@ -657,7 +669,7 @@ namespace Eldoria.Gameplay
                 // The leader's weapon range (each soldier measures from where they stand).
                 var leaderWeapon = activation.Leader != null ? activation.Leader.WeaponFor(null) : null;
                 if (leaderWeapon != null && leaderWeapon.HasRangeLimit)
-                    abilityRing.ShowCircle(activation.Leader.Position, leaderWeapon.Range, InvalidColor);
+                    abilityRing.ShowCircle(activation.Leader.Position, leaderWeapon.Range, WeaponRangeColor);
                 return;
             }
 
@@ -716,6 +728,15 @@ namespace Eldoria.Gameplay
                 cursorRing.ShowCircle(hoverCheck.Ok ? hoverCheck.Destination : hoverPoint, mover.Radius, c);
                 if (hoverCheck.Path != null && hoverCheck.Path.Points.Count > 1) pathLine.ShowPath(hoverCheck.Path.Points, c);
                 else pathLine.ShowLine(from, hoverPoint, c);
+
+                // Placing the leader: preview the unit's primary weapon range from where the leader would end up.
+                var primary = phase == MovePhase.MoveLeader && hoverCheck.Ok ? leader.PrimaryWeapon : null;
+                if (primary != null && primary.HasRangeLimit)
+                {
+                    weaponRing.ShowCircle(hoverCheck.Destination, primary.Range, WeaponRangeColor);
+                    WeaponRangePreview = (hoverCheck.Destination, primary.Range);
+                }
+                else HideWeaponPreview();
             }
             else
             {
@@ -723,7 +744,14 @@ namespace Eldoria.Gameplay
                 lastPreviewKey = null;
                 cursorRing.Hide();
                 pathLine.Hide();
+                HideWeaponPreview();
             }
+        }
+
+        private void HideWeaponPreview()
+        {
+            weaponRing.Hide();
+            WeaponRangePreview = null;
         }
 
         // ------------------------------------------------------------------ Walking

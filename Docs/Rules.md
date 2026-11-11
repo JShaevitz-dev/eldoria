@@ -345,6 +345,7 @@ Example: 6 damage, penetration beats armor → 9, crit → +9 = **18**. If armor
 - If **none** of a unit's soldiers can target any soldier of the chosen enemy unit (out of range or out of sight), the shoot order is **refused** (error sound) and the unit's action isn't used.
 - **If no range is defined for a weapon, it has unlimited range.** (So far only the blast weapons — the Frag Grenade's and the Unstable explosion — have none; how far the grenade can be thrown is the ability's own 10 m.)
 - In shoot mode a red ring shows the unit leader's weapon range.
+- **Range preview while moving:** while choosing where the unit leader moves, a red ring shows the range of the leader's **primary weapon**, centred on the spot the leader would end up, so you can see what will be in range before committing. It isn't shown for a weapon with unlimited range, or once the leader has moved.
 
 ### Close range — *implemented*
 
