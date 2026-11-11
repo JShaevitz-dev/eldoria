@@ -14,6 +14,8 @@ namespace Eldoria.Terrain
     ///  - Soldiers may stand on walkable structure, or on top of objects that can be climbed onto;
     ///    climbing onto an object costs a flat <see cref="MovementRules.ClimbCost"/> (10 m) whatever its height.
     ///    Climbing down costs nothing.
+    ///  - Wading through water (structure of kind Water) costs <see cref="MovementRules.WadingCostMultiplier"/>× per meter;
+    ///    route finding knows this too (the water's NavMesh area costs the same), so routes use a bridge or ford when cheaper.
     /// </summary>
     public class TerrainMeasurer : IMoveMeasurer
     {
@@ -187,7 +189,10 @@ namespace Eldoria.Terrain
             return result;
         }
 
-        /// <summary>Walks a straight route segment along the structure surface, adding its length and points.</summary>
+        /// <summary>
+        /// Walks a straight route segment along the structure surface, adding its length and points. Stretches through
+        /// water count <see cref="MovementRules.WadingCostMultiplier"/> times.
+        /// </summary>
         private static void Drape(Vector3 a, Vector3 b, MovePath path)
         {
             Vector3 flat = b - a;
@@ -195,21 +200,47 @@ namespace Eldoria.Terrain
             int steps = Mathf.Max(1, Mathf.CeilToInt(flat.magnitude / SampleStep));
 
             Vector3 prev = a;
+            bool prevWet = InWater(a);
             for (int i = 1; i <= steps; i++)
             {
-                Vector3 p = i == steps ? b : OnSurface(Vector3.Lerp(a, b, (float)i / steps));
-                path.Length += Vector3.Distance(prev, p);
+                bool wet = false;
+                Vector3 p = i == steps ? b : OnSurface(Vector3.Lerp(a, b, (float)i / steps), out wet);
+                if (i == steps) wet = InWater(b);
+                float len = Vector3.Distance(prev, p);
+                float wading = len * ((prevWet ? 0.5f : 0f) + (wet ? 0.5f : 0f));
+                path.Length += len + wading * (MovementRules.WadingCostMultiplier - 1f);
+                path.WadingMeters += wading;
                 path.Points.Add(p);
                 prev = p;
+                prevWet = wet;
             }
         }
 
         /// <summary>Drops a point onto the structure surface just below it (objects are ignored).</summary>
-        private static Vector3 OnSurface(Vector3 p)
+        private static Vector3 OnSurface(Vector3 p) => OnSurface(p, out _);
+
+        private static Vector3 OnSurface(Vector3 p, out bool water)
         {
+            water = false;
             if (Physics.Raycast(p + Vector3.up * 2f, Vector3.down, out var hit, 10f, TerrainLayers.StructureMask, QueryTriggerInteraction.Ignore))
+            {
                 p.y = hit.point.y;
+                water = IsWater(hit.collider);
+            }
             return p;
+        }
+
+        /// <summary>True if the structure surface at this spot is water (a riverbed below the water surface).</summary>
+        public static bool InWater(Vector3 p)
+        {
+            OnSurface(p, out bool water);
+            return water;
+        }
+
+        private static bool IsWater(Collider c)
+        {
+            var st = c.GetComponentInParent<StructureTerrain>();
+            return st != null && st.Kind == StructureKind.Water;
         }
 
         /// <summary>Height of the structure surface under a point (used to lay range rings on the ground).</summary>

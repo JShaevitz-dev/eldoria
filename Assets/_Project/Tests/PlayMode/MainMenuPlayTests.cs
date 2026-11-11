@@ -103,6 +103,30 @@ namespace Eldoria.Tests
         }
 
         [UnityTest]
+        public IEnumerator PlayChoosesAMapThenTheArmyFightsThere()
+        {
+            var menu = Object.FindFirstObjectByType<MainMenu>();
+            menu.OpenMapChoice();
+            Assert.That((menu.ChoosingMap, menu.Builder), Is.EqualTo((true, (ArmyBuilderScreen)null)), "the map comes first");
+            Assert.That(Battlefields.All.Select(m => m.Name), Is.EqualTo(new[] { "Urban Demo", "English Countryside" }));
+
+            menu.ChooseMap(Battlefields.EnglishCountryside);
+            Assert.That(menu.ChoosingMap, Is.False);
+            Assert.That(menu.Builder, Is.Not.Null, "then the army builder");
+            menu.Builder.ChooseFaction(menu.Builder.Factions[1]);
+            Assert.That(MainMenu.StartBattle(menu.Builder.Faction, menu.Builder.Army.ToList()), Is.Empty);
+            yield return null;
+            yield return null;
+
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Countryside"));
+            var zones = Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None);
+            foreach (var unit in Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+            foreach (var s in unit.Soldiers)
+                Assert.That(zones.Single(z => z.Side == unit.Side).Contains(s.Position), Is.True, $"{unit.DisplayName}: {s.name}");
+            Assert.That(Object.FindFirstObjectByType<MovementController>().PlayerUnits.Count, Is.EqualTo(ArmySelection.PlayerArmy.Count));
+        }
+
+        [UnityTest]
         public IEnumerator TheGameCanReturnToTheMenu()
         {
             var menu = Object.FindFirstObjectByType<MainMenu>();

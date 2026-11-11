@@ -13,14 +13,21 @@ getting the rules right.
 1. Download [`Eldoria-Windows.zip`](Eldoria-Windows.zip) from this repo.
 2. Unzip it anywhere and run `Eldoria/Eldoria.exe` (Windows 64-bit).
 3. Pick **Play** on the main menu. You can turn on the turn timer there too (it's off by default, 10 minutes per turn).
-4. **Choose your faction:** the United States of Columbia, the United Kingdom of Aelfland or the Draksa Reich. Your
+4. **Choose a battlefield:** the Urban Demo or the English Countryside.
+5. **Choose your faction:** the United States of Columbia, the United Kingdom of Aelfland or the Draksa Reich. Your
    faction decides which units and commanders you can take.
-5. **Build your army:** up to 6 units, at least 1 Commander, and no duplicate Commander or Specialist units. Then
+6. **Build your army:** up to 6 units, at least 1 Commander, and no duplicate Commander or Specialist units. Then
    press **Confirm army**.
 
-You play against the AI on the **Urban Demo** map: an 80 × 60 m city block with a central plaza, laid out with 180°
-symmetry so both sides start out even. The AI picks a random faction and builds its own random army under the same rules. You go first. Wipe out
-the enemy to win.
+You play against the AI on one of two maps:
+
+- **Urban Demo:** an 80 × 60 m city block with a central plaza, laid out with 180° symmetry so both sides start out even.
+- **English Countryside:** 100 × 100 m of open, rolling farmland. Hills block line of sight. A river crosses the map:
+  wading it costs double movement, unless you take the stone bridge or the ford. A farmhouse, a barn, a stone shed,
+  and hay bales, carts and fences give cover.
+
+The AI picks a random faction and builds its own random army under the same rules. You go first. Wipe out the enemy to
+win.
 
 ## Controls
 
@@ -103,12 +110,12 @@ Assets/_Project/
     Core/         battlefield scale and the shared random number generator
   Data/           ScriptableObject assets: Units, Soldiers, Weapons, Keywords, Abilities
   Editor/         builders for data, maps, scenes and the Windows build
-  Scenes/         MainMenu, UrbanDemo, CubeRoom (test room)
+  Scenes/         MainMenu, UrbanDemo, Countryside, CubeRoom (test room)
   Tests/          EditMode and PlayMode tests
 Docs/Rules.md     the rules
 ```
 
-**Editor menu (Eldoria):** Build Urban Demo, Build Main Menu, Build Cube Room, Spawn Test Unit, Build Game (Windows).
+**Editor menu (Eldoria):** Build Urban Demo, Build Countryside, Build Main Menu, Build Cube Room, Spawn Test Unit, Build Game (Windows).
 Game data is created and upgraded in code by `SquadBuilder`, so the assets can be rebuilt at any time.
 
 **Tests:** run them in Unity's Test Runner, or from the command line:

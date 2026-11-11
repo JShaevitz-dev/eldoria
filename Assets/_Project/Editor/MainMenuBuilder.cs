@@ -36,7 +36,7 @@ namespace Eldoria.EditorTools
     }
 
     /// <summary>
-    /// The scenes in the build, in order: the main menu first (what the game opens), then the demo map, then the test
+    /// The scenes in the build, in order: the main menu first (what the game opens), then the maps, then the test
     /// room (used by the tests). Scenes that haven't been built yet are left out.
     /// </summary>
     public static class ProjectScenes
@@ -45,6 +45,7 @@ namespace Eldoria.EditorTools
         {
             MainMenuBuilder.ScenePath,
             UrbanMapBuilder.ScenePath,
+            CountrysideMapBuilder.ScenePath,
             "Assets/_Project/Scenes/CubeRoom.unity",
         };
 

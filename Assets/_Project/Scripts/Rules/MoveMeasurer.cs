@@ -13,6 +13,8 @@ namespace Eldoria.Rules
         public List<Vector3> Points = new List<Vector3>();
         /// <summary>How many times the route climbs onto an object (each costs <see cref="MovementRules.ClimbCost"/>).</summary>
         public int Climbs;
+        /// <summary>Meters of the route through water; each counts <see cref="MovementRules.WadingCostMultiplier"/> times in <see cref="Length"/>.</summary>
+        public float WadingMeters;
         public string Reason;
 
         public static MovePath Unreachable(string reason) => new MovePath { Reachable = false, Reason = reason };

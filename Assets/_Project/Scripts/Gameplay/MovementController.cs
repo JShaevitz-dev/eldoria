@@ -1236,7 +1236,9 @@ namespace Eldoria.Gameplay
         {
             if (!cursorRing.gameObject.activeSelf) return " ";
             if (!hoverCheck.Ok) return $"{hoverCheck.Distance:0.0} m — {hoverCheck.Reason}";
-            return hoverCheck.Kind == MoveKind.Sprint ? $"{hoverCheck.Distance:0.0} m — Sprint" : $"{hoverCheck.Distance:0.0} m";
+            string wading = hoverCheck.Path != null && hoverCheck.Path.WadingMeters > 0.05f
+                ? $" (wading {hoverCheck.Path.WadingMeters:0.0} m: counts double)" : "";
+            return (hoverCheck.Kind == MoveKind.Sprint ? $"{hoverCheck.Distance:0.0} m — Sprint" : $"{hoverCheck.Distance:0.0} m") + wading;
         }
     }
 }

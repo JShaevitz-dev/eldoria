@@ -39,11 +39,11 @@ namespace Eldoria.EditorTools
         private const float SillHeight = 1f, LintelBottom = 2.2f;
         private const float DoorWidth = 2f, WindowWidth = 2f;
 
-        private static Dictionary<string, Keyword> keywords;
-        private static Material plaster, brick, concrete, ruinMat, floorMat, stone, wood, sandbag, rust;
+        internal static Dictionary<string, Keyword> keywords;
+        internal static Material plaster, brick, concrete, ruinMat, floorMat, stone, wood, sandbag, rust;
 
         /// <summary>A gap in a wall: a doorway (walk through) or a window (see and shoot through, half-cover, no walking).</summary>
-        private struct Opening
+        internal struct Opening
         {
             public float Offset, Width;
             public bool Window;
@@ -186,7 +186,7 @@ namespace Eldoria.EditorTools
         // ------------------------------------------------------------------ Buildings
 
         /// <summary>A roofless building centred at <paramref name="centre"/>; openings are listed per side (offset along the side from its middle).</summary>
-        private static Transform Building(Transform parent, string name, Vector3 centre, float yaw, float w, float d, float height, Material mat,
+        internal static Transform Building(Transform parent, string name, Vector3 centre, float yaw, float w, float d, float height, Material mat,
             Opening[] north, Opening[] east, Opening[] south, Opening[] west)
         {
             var go = new GameObject(name);
@@ -294,7 +294,7 @@ namespace Eldoria.EditorTools
 
         // ------------------------------------------------------------------ Objects
 
-        private static void Prop(Transform parent, string name, PrimitiveType shape, Material mat, Vector3 pos, Vector3 scale, float yaw,
+        internal static GameObject Prop(Transform parent, string name, PrimitiveType shape, Material mat, Vector3 pos, Vector3 scale, float yaw,
             bool cover, bool mantle, bool climb, string keyword = null)
         {
             var go = GameObject.CreatePrimitive(shape);
@@ -313,6 +313,14 @@ namespace Eldoria.EditorTools
             go.layer = TerrainLayers.Object;
             go.AddComponent<TerrainObject>().Configure(name, cover, mantle, climb,
                 keyword != null ? new[] { keywords[keyword] } : null);
+            return go;
+        }
+
+        /// <summary>Loads the keywords and materials the shared helpers (Building, Prop, Mat...) use, for other map builders.</summary>
+        internal static void PrepareShared()
+        {
+            keywords = SquadBuilder.EnsureKeywords();
+            CreateMaterials();
         }
 
         // ------------------------------------------------------------------ Ground, edges, decoration
@@ -403,7 +411,7 @@ namespace Eldoria.EditorTools
             Decor(decor.transform, "Road Line", new Vector3(26f, 0.011f, 0f), new Vector2(28f, 0.2f), line);
         }
 
-        private static void Decor(Transform parent, string name, Vector3 localPos, Vector2 size, Material mat)
+        internal static void Decor(Transform parent, string name, Vector3 localPos, Vector2 size, Material mat)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Quad);
             go.name = name;
@@ -504,7 +512,7 @@ namespace Eldoria.EditorTools
 
         // ------------------------------------------------------------------ Assets
 
-        private static void CreateMaterials()
+        internal static void CreateMaterials()
         {
             plaster = Mat("Building", new Color(0.72f, 0.68f, 0.6f));
             brick = Mat("Brick", new Color(0.55f, 0.32f, 0.26f));
@@ -517,7 +525,7 @@ namespace Eldoria.EditorTools
             rust = Mat("Container", new Color(0.6f, 0.25f, 0.18f));
         }
 
-        private static Material Mat(string name, Color color, Texture2D tex = null)
+        internal static Material Mat(string name, Color color, Texture2D tex = null)
         {
             string path = $"{MaterialDir}/{name}.mat";
             var mat = AssetDatabase.LoadAssetAtPath<Material>(path);

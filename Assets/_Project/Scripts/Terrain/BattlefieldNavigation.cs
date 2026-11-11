@@ -13,6 +13,9 @@ namespace Eldoria.Terrain
     [DefaultExecutionOrder(-100)]
     public class BattlefieldNavigation : MonoBehaviour
     {
+        /// <summary>The NavMesh area for water (riverbeds); it costs <see cref="MovementRules.WadingCostMultiplier"/> to cross.</summary>
+        public const int WaterArea = 3;
+
         /// <summary>Measurer for the active battlefield, or null if there is none.</summary>
         public static IMoveMeasurer Measurer { get; private set; }
 
@@ -54,6 +57,17 @@ namespace Eldoria.Terrain
                 mod.overrideArea = !obj.CanMantle;       // routes go around
                 mod.area = 1;                            // "Not Walkable"
             }
+
+            // Water: walkable, but route finding treats each meter as WadingCostMultiplier meters.
+            foreach (var st in FindObjectsByType<StructureTerrain>(FindObjectsSortMode.None))
+            {
+                if (st.Kind != StructureKind.Water) continue;
+                var mod = st.GetComponent<NavMeshModifier>();
+                if (mod == null) mod = st.gameObject.AddComponent<NavMeshModifier>();
+                mod.overrideArea = true;
+                mod.area = WaterArea;
+            }
+            UnityEngine.AI.NavMesh.SetAreaCost(WaterArea, MovementRules.WadingCostMultiplier);
 
             var surface = GetComponent<NavMeshSurface>();
             surface.collectObjects = CollectObjects.All;

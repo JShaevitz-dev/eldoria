@@ -64,7 +64,10 @@ namespace Eldoria.Gameplay
             Check(FindFirstObjectByType<MainMenu>() != null, "the main menu is there");
 
             var menu = FindFirstObjectByType<MainMenu>();
-            menu.OpenArmyBuilder();
+            menu.OpenMapChoice();
+            yield return Screenshot("maps.png");
+            Check(Battlefields.All.Count == 2, "the map choice offers the Urban Demo and the English Countryside");
+            menu.ChooseMap(Battlefields.EnglishCountryside);
             yield return Screenshot("factions.png");
             Check(menu.Builder.Factions.Count == 3, $"the army builder offers the factions ({menu.Builder.Factions.Count})");
             menu.Builder.ChooseFaction(menu.Builder.Factions[0]);
@@ -73,9 +76,9 @@ namespace Eldoria.Gameplay
             Check(menu.Builder != null && menu.Builder.Confirm(), "the starting army is valid");
             var army = new System.Collections.Generic.List<Eldoria.Units.UnitTemplate>(menu.Builder.Army);
             MainMenu.StartBattle(menu.Builder.Faction, army);
-            for (int i = 0; i < 10 && SceneManager.GetActiveScene().name != MainMenu.GameScene; i++) yield return null;
+            for (int i = 0; i < 10 && SceneManager.GetActiveScene().name != Battlefields.EnglishCountryside.Scene; i++) yield return null;
             yield return null;
-            Check(SceneManager.GetActiveScene().name == MainMenu.GameScene, "Play starts a game");
+            Check(SceneManager.GetActiveScene().name == Battlefields.EnglishCountryside.Scene, "Play starts a game on the chosen map");
 
             var controller = FindFirstObjectByType<MovementController>();
             Check(controller != null && controller.PlayerUnits.Count == army.Count, "the player's army is deployed");

@@ -9,7 +9,11 @@ namespace Eldoria.Terrain
         Ditch,
         Building,
         /// <summary>A man-made incline, e.g. a ramp up to a platform. (Maps don't use steps: elevation changes are slopes or climbable objects.)</summary>
-        Slope
+        Slope,
+        /// <summary>A riverbed under water: soldiers can wade through it, but every meter costs double (see MovementRules.WadingCostMultiplier).</summary>
+        Water,
+        /// <summary>A bridge deck: walkable, dry.</summary>
+        Bridge,
     }
 
     /// <summary>

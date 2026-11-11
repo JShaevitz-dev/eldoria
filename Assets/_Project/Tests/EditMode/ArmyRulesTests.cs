@@ -279,11 +279,16 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void SixSlotsFitOnTheUrbanDemoMap()
+        public void SixSlotsAreSpreadAcrossEachDeploymentZone()
         {
-            Assert.That(ArmyDeployment.PlayerSlots.Length, Is.EqualTo(ArmyRules.MaxUnits));
+            // The Urban Demo's zones: 80 × 8 m at z = ∓26.
+            var player = Enumerable.Range(0, ArmyRules.MaxUnits).Select(i => ArmyDeployment.Slot(new Vector3(0f, 0f, -26f), new Vector2(80f, 8f), Side.Player, i)).ToList();
+            var ai = Enumerable.Range(0, ArmyRules.MaxUnits).Select(i => ArmyDeployment.Slot(new Vector3(0f, 0f, 26f), new Vector2(80f, 8f), Side.AI, i)).ToList();
+            Assert.That(player.Select(p => p.x), Is.Ordered, "west to east for the player");
+            Assert.That(player.All(p => Mathf.Abs(p.x) < 40f && Mathf.Approximately(p.z, -25f)), Is.True, "inside the zone, a little forward");
             for (int i = 0; i < ArmyRules.MaxUnits; i++)
-                Assert.That(ArmyDeployment.SlotFor(Side.AI, i), Is.EqualTo(-ArmyDeployment.PlayerSlots[i]), "the AI's slots are the player's turned 180°");
+                Assert.That(Vector3.Distance(ai[i], -player[i]), Is.LessThan(0.001f), "the AI's slots are the player's turned 180°");
+            Assert.That(player[1].x - player[0].x, Is.EqualTo(80f / 6f).Within(0.001f), "evenly spaced");
         }
     }
 }

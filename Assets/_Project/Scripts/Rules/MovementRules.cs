@@ -61,6 +61,9 @@ namespace Eldoria.Rules
         /// <summary>Movement (meters) it costs to climb onto an object of any height.</summary>
         public const float ClimbCost = 10f;
 
+        /// <summary>Wading: every meter moved through water (a riverbed below the water surface) counts this many times.</summary>
+        public const float WadingCostMultiplier = 2f;
+
         /// <summary>Sprinting covers this many times a soldier's movement range.</summary>
         public const float SprintMultiplier = 2f;
 

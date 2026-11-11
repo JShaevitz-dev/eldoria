@@ -68,14 +68,14 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 
 ### Army lists — *implemented*
 
-Before a battle, each side chooses a **faction**, then builds an **army list** from that faction's units:
+Before a battle, the player chooses the **map** (Urban Demo or English Countryside), then each side chooses a **faction** and builds an **army list** from that faction's units:
 
 - Every unit must be one the army's **faction** has access to.
 - An army has **6 slots**: it can have **1 to 6 units** (empty slots are allowed).
 - It must contain **at least 1 Commander** unit.
 - It **can't have duplicates of a Commander or Specialist** unit (e.g. only one Sniper, only one Field Commander; the Field Commander and the Battlefield Priest together is fine). **Infantry** and **Heavy Support** units can be taken more than once.
 
-**Army builder:** pressing **Play** opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the demo army (3 Infantry Squads, the Field Commander and the Battlefield Priest, keeping only units the faction has), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
+**Map choice, then army builder:** pressing **Play** first asks which **battlefield** to fight on (each with a short description); **Back** in the army builder returns to it. Choosing one opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the demo army (3 Infantry Squads, the Field Commander and the Battlefield Priest, keeping only units the faction has), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
 
 **The AI's army:** the AI picks a **random faction** and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 or 2 Commanders, then random units.
 
@@ -264,6 +264,13 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - Walking up a **slope** is not climbing: it's measured along the slope.
 - **Maps don't use steps.** Every elevation change is a slope, a climbable object, or purely visual.
 
+### Wading — *implemented*
+
+- **Water** (a riverbed below the water surface) can be walked through, but **every meter moved through water costs double** (2 m of movement per meter).
+- Soldiers can stand in water. A **bridge** or a **shallow ford** crosses at normal cost.
+- Routes take this into account: when going round by a bridge or ford is cheaper than wading, the route goes that way.
+- While placing a move, the readout shows how much of it is wading (e.g. "14.2 m (wading 5.6 m: counts double)").
+
 ### Movement restrictions — *implemented*
 
 - Soldiers **may walk through each other**, but may **not end a move overlapping another soldier**.
@@ -322,6 +329,31 @@ Test room terrain:
 - When the battle is decided, a **Victory / Defeat / Draw** banner appears, no more orders can be given, and **Restart (R)** starts the battle again.
 
 ## Maps
+
+### English Countryside — *built (Scenes/Countryside, Eldoria > Build Countryside)*
+
+- **100 × 100 m**, **not symmetrical**: open, gently rolling English farmland. Its shape is defined in `CountrysideLayout`.
+- **Deployment zones:** the player sets up in the southern **10 m** of the map, the AI in the northern 10 m. Both strips are flat.
+- **Hills and ridges** (structure terrain; slopes are gradual, never steeper than about 30°). Their crests **block line of sight**, so the high ground matters:
+  - a **knoll** in the north-west (about 4 m high);
+  - a **long ridge** running across the south-west (about 3 m);
+  - a **low rise** in the south field (about 1.5 m).
+- **The river** meanders west to east across the middle of the map, about 6 m of water between low banks. **Wading costs double** (see Wading). Two dry crossings:
+  - a **stone bridge** (4 m wide) in the east, with low **parapets** (Half-cover; they block movement, so you can't step off the bridge into the water);
+  - a **shallow ford** in the west, a gravel bed just above the water.
+- **Farm buildings** (roofless, with doorways and climbable windows like the Urban Demo's): a stone **farmhouse** in the north-east, a large wooden **barn** with wide doors in the south-east, and a small **stone shed** in the south field.
+- **Farm props**, all **Half-cover**:
+
+| Prop | Mantle | Climb onto | Notes |
+|---|---|---|---|
+| Hay bale | Yes | Yes | 1.2 m tall, in small groups |
+| Haystack | No | No | 2.8 m tall |
+| Cart | No | Yes | |
+| Fence | Yes | No | 1 m tall, along field edges |
+| Well | No | No | In the farmyard |
+| Bridge parapet | No | No | Along both sides of the bridge |
+
+- When the scene is opened directly in the editor, both sides field the demo army.
 
 ### Urban Demo — *built (Scenes/UrbanDemo, Eldoria > Build Urban Demo)*
 

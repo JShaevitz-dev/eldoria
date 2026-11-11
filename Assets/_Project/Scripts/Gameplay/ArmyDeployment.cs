@@ -9,19 +9,30 @@ namespace Eldoria.Gameplay
 {
     /// <summary>
     /// Puts the chosen armies (<see cref="ArmySelection"/>) on the battlefield, replacing the armies placed in the scene.
-    /// Each army deploys in its deployment zone, one unit per slot in list order, left to right as its side looks
-    /// across the map; the AI's slots are the player's turned 180°. Units take their faction's colour (see PrimaryColor).
+    /// Each army deploys in its side's deployment zone on the map being played, one unit per slot in list order, left
+    /// to right as its side looks across the map. Units take their faction's colour (see PrimaryColor).
     /// </summary>
     public static class ArmyDeployment
     {
-        /// <summary>The player's six deployment slots (unit leader positions) on the Urban Demo map, west to east.</summary>
-        public static readonly Vector3[] PlayerSlots =
+        /// <summary>
+        /// A deployment slot (unit leader position) in a zone: the six slots are spread evenly across the zone's width,
+        /// left to right as the side looks across the map (the player looks north, the AI south), a little forward of
+        /// the zone's middle so the unit's back ranks stay inside it.
+        /// </summary>
+        public static Vector3 Slot(Vector3 zoneCentre, Vector2 zoneSize, Side side, int index)
         {
-            new Vector3(-32.5f, 0f, -25f), new Vector3(-19.5f, 0f, -25f), new Vector3(-6.5f, 0f, -25f),
-            new Vector3(6.5f, 0f, -25f), new Vector3(19.5f, 0f, -25f), new Vector3(32.5f, 0f, -25f),
-        };
+            float forward = side == Side.Player ? 1f : -1f;   // towards the enemy
+            float across = (index + 0.5f) * zoneSize.x / ArmyRules.MaxUnits - zoneSize.x / 2f;
+            return zoneCentre + new Vector3(across * forward, 0f, forward * zoneSize.y * 0.125f);
+        }
 
-        public static Vector3 SlotFor(Side side, int index) => side == Side.Player ? PlayerSlots[index] : -PlayerSlots[index];
+        /// <summary>The slot in the current map's deployment zone for that side (the Urban Demo's zones if the map has none).</summary>
+        public static Vector3 SlotFor(Side side, int index)
+        {
+            var zone = Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None).FirstOrDefault(z => z.Side == side);
+            if (zone != null) return Slot(zone.transform.position, zone.Size, side, index);
+            return Slot(new Vector3(0f, 0f, side == Side.Player ? -26f : 26f), new Vector2(80f, 8f), side, index);
+        }
 
         /// <summary>The AI's colour when it has no faction (e.g. tests): the old enemy red. The player keeps the model's own blue.</summary>
         public static readonly Color NoFactionAIColor = new Color(0.62f, 0.16f, 0.14f);
