@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: FragGrenade
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.WeaponTemplate
   displayName: Frag Grenade
-  baseDamage: 2
+  baseDamage: 5
+  hasPenetration: 1
   penetration: 0
+  range: 0
   accuracyBonus: 0
   keywords:
   - {fileID: 11400000, guid: 2cf48a8db478eeb4bbab2528702e5a8f, type: 2}

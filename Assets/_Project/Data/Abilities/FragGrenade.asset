@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
   displayName: Frag Grenade
   description: 'Active, once per battle per unit. Throw at a spot within 10 m of
-    the unit leader: everyone within 2.5 m takes 2 damage (penetration 0), unless
+    the unit leader: everyone within 2.5 m takes 5 damage (penetration 0), unless
     terrain shields them from the blast.'
   kind: 1
   keywords: []

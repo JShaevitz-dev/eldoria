@@ -47,7 +47,7 @@ Living record of the rules decided so far. **Status** shows what the code does t
 
 1 **Sergeant** (leader) + 9 **Troopers**. All soldiers are **Biological**.
 
-- **Active ability — Frag Grenade** (every Sergeant and Trooper has it): pick a **spot on the ground within 10 m of the unit leader** (no line of sight needed: it's lobbed over walls). **Every soldier within 2.5 m** of the spot — friend or foe — takes an area attack of **2 damage, penetration 0** (no hit roll; armor and armor keywords count, e.g. vs Armor Level 1 it does 1). The explosion **can't go through object or structure terrain** (see Explosions). **Each unit can throw it once per battle**, and throwing it is the unit's action.
+- **Active ability — Frag Grenade** (every Sergeant and Trooper has it): pick a **spot on the ground within 10 m of the unit leader** (no line of sight needed: it's lobbed over walls). **Every soldier within 2.5 m** of the spot — friend or foe — takes an area attack of **5 damage, penetration 0** (no hit roll; armor and armor keywords count, e.g. vs Armor Level 1 it does 2, rounded down). The explosion **can't go through object or structure terrain** (see Explosions). **Each unit can throw it once per battle**, and throwing it is the unit's action.
 
 | Soldier | Health | Armor Level | Accuracy | Movement | Weapons (primary first) |
 |---|---|---|---|---|---|

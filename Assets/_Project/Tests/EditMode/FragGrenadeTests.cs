@@ -11,7 +11,7 @@ using UnityEngine;
 namespace Eldoria.Tests
 {
     /// <summary>
-    /// Frag Grenade: a spot within 10 m of the unit leader; everyone within 2.5 m the blast can reach takes 2 damage
+    /// Frag Grenade: a spot within 10 m of the unit leader; everyone within 2.5 m the blast can reach takes the blast damage (5 in the game; 2 in these tests)
     /// (penetration 0); once per battle per unit; one button however many soldiers have it; it is the unit's action.
     /// </summary>
     public class FragGrenadeTests
@@ -260,7 +260,7 @@ namespace Eldoria.Tests
             var ability = AssetDatabase.LoadAssetAtPath<Ability>($"{Data}/Abilities/FragGrenade.asset");
             Assert.That((ability.kind, ability.targets, ability.range, ability.areaRadius, ability.usesPerBattle),
                 Is.EqualTo((AbilityKind.Active, AbilityTarget.Point, 10f, 2.5f, 1)));
-            Assert.That((ability.areaWeapon.baseDamage, ability.areaWeapon.penetration), Is.EqualTo((2, 0)));
+            Assert.That((ability.areaWeapon.baseDamage, ability.areaWeapon.penetration), Is.EqualTo((5, 0)));
             Assert.That(ability.areaWeapon.HasKeyword("Explosive"), Is.True);
             foreach (var file in new[] { "Trooper", "Sergeant" })
                 Assert.That(AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{Data}/Soldiers/{file}.asset").abilities, Does.Contain(ability), file);

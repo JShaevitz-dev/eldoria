@@ -189,14 +189,16 @@ namespace Eldoria.EditorTools
             var weapon = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/FragGrenade.asset", w =>
             {
                 w.displayName = "Frag Grenade";
-                w.baseDamage = 2; w.penetration = 0; w.accuracyBonus = 0;
+                w.penetration = 0; w.accuracyBonus = 0;
                 w.keywords = new List<Keyword> { keywords["Explosive"] };
             });
-            return GetOrCreate<Ability>($"{DataDir}/Abilities/FragGrenade.asset", a =>
+            weapon.baseDamage = 5;
+            EditorUtility.SetDirty(weapon);
+            var ability = GetOrCreate<Ability>($"{DataDir}/Abilities/FragGrenade.asset", a =>
             {
                 a.displayName = "Frag Grenade";
                 a.description = "Active, once per battle per unit. Throw at a spot within 10 m of the unit leader: everyone within 2.5 m " +
-                                "takes 2 damage (penetration 0), unless terrain shields them from the blast.";
+                                "takes 5 damage (penetration 0), unless terrain shields them from the blast.";
                 a.kind = AbilityKind.Active;
                 a.targets = AbilityTarget.Point;
                 a.affects = AuraAffects.Everyone;
@@ -207,6 +209,10 @@ namespace Eldoria.EditorTools
                 a.usesPerTurn = 1;
                 a.usesPerBattle = 1;
             });
+            ability.description = "Active, once per battle per unit. Throw at a spot within 10 m of the unit leader: everyone within 2.5 m " +
+                                  "takes 5 damage (penetration 0), unless terrain shields them from the blast.";
+            EditorUtility.SetDirty(ability);
+            return ability;
         }
 
         /// <summary>
