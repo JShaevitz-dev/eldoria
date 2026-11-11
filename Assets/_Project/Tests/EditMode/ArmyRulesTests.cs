@@ -93,8 +93,7 @@ namespace Eldoria.Tests
             Assert.That(catalog.Available.Count(), Is.EqualTo(7));
             Assert.That(catalog.Available.Select(u => u.role.ListOrder()), Is.Ordered);
             Assert.That(catalog.Available.First().role, Is.EqualTo(UnitRole.Commander));
-            Assert.That(catalog.playerArmor, Is.Not.Null);
-            Assert.That(catalog.enemyArmor, Is.Not.Null);
+            Assert.That(catalog.primaryColorMaterial, Is.Not.Null);
             Assert.That(catalog.leaderMarker, Is.Not.Null);
         }
 
@@ -116,7 +115,10 @@ namespace Eldoria.Tests
         [Test]
         public void TheArmyBuilderAddsRemovesAndChecks()
         {
-            var builder = new ArmyBuilderScreen(UnitCatalog.Load(), new List<UnitTemplate>());
+            var catalog = UnitCatalog.Load();
+            var builder = new ArmyBuilderScreen(catalog);
+            builder.ChooseFaction(catalog.Factions.First());
+            builder.Clear();
             Assert.That(builder.Army, Is.Empty);
             Assert.That(builder.Confirm(), Is.False, "an empty army has no Commander");
             Assert.That(builder.Add(Commander), Is.Null);
@@ -127,6 +129,106 @@ namespace Eldoria.Tests
             Assert.That(builder.Army.Count, Is.EqualTo(5));
             Assert.That(builder.Confirm(), Is.False);
             Assert.That(builder.Problems.Single(), Does.Contain("Commander"));
+        }
+
+        // ---- Factions ----
+
+        private static Faction F(string file) => AssetDatabase.LoadAssetAtPath<Faction>($"Assets/_Project/Data/Factions/{file}.asset");
+
+        [Test]
+        public void ThereAreThreeFactionsAndEachHasEveryUnitForNow()
+        {
+            var catalog = UnitCatalog.Load();
+            Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[]
+                { "United States of Columbia", "United Kingdom of Aelfland", "The Draksa Reich" }));
+            Assert.That(F("UnitedStatesOfColumbia"), Is.Not.Null);
+            Assert.That(F("UnitedKingdomOfAelfland"), Is.Not.Null);
+            Assert.That(F("DraksaReich"), Is.Not.Null);
+            foreach (var f in catalog.Factions)
+                Assert.That(catalog.UnitsFor(f), Is.EquivalentTo(catalog.Available), f.displayName);
+        }
+
+        [Test]
+        public void AFactionsArmyCanOnlyHaveItsOwnUnits()
+        {
+            var limited = ScriptableObject.CreateInstance<Faction>();
+            try
+            {
+                limited.displayName = "Test Faction";
+                limited.units = List(Commander, Infantry);
+                Assert.That(ArmyRules.IsValid(List(Commander, Infantry, Infantry), limited), Is.True);
+                Assert.That(ArmyRules.Problems(List(Commander, Sniper), limited).Single(), Does.Contain("Sniper isn't available to Test Faction"));
+                Assert.That(ArmyRules.WhyCannotAdd(List(Commander), Sniper, limited), Does.Contain("Not available to Test Faction"));
+                Assert.That(ArmyRules.Problems(List(Priest), limited), Has.Some.Contains("Battlefield Priest isn't available"),
+                    "the faction decides the commanders too");
+            }
+            finally
+            {
+                Object.DestroyImmediate(limited);
+            }
+        }
+
+        [Test]
+        public void EachFactionHasItsColour()
+        {
+            Assert.That(F("UnitedStatesOfColumbia").color, Is.EqualTo(new Color(0.16f, 0.30f, 0.15f)), "dark green");
+            Assert.That(F("UnitedKingdomOfAelfland").color, Is.EqualTo(new Color(0.50f, 0.74f, 0.36f)), "light green");
+            Assert.That(F("DraksaReich").color, Is.EqualTo(new Color(0.46f, 0.47f, 0.49f)), "gray");
+            var usc = F("UnitedStatesOfColumbia").color;
+            Assert.That(usc.g > usc.r && usc.g > usc.b, Is.True, "green");
+            var aelf = F("UnitedKingdomOfAelfland").color;
+            Assert.That(aelf.g > aelf.r && aelf.g > aelf.b && aelf.g > usc.g, Is.True, "a lighter green");
+        }
+
+        [Test]
+        public void ThePrimaryColourTintsOnlyTheUnitsPrimaryParts()
+        {
+            var catalog = UnitCatalog.Load();
+            var unit = UnitFactory.Spawn(Infantry, Side.Player, Vector3.zero, Quaternion.identity);
+            try
+            {
+                var gray = F("DraksaReich").color;
+                int tinted = PrimaryColor.Apply(unit.gameObject, catalog.primaryColorMaterial, gray);
+                Assert.That(tinted, Is.GreaterThanOrEqualTo(10), "every soldier's body");
+                foreach (var r in unit.GetComponentsInChildren<Renderer>())
+                {
+                    bool isGray = Vector4.Distance(PrimaryColor.Of(r), gray) < 0.002f;
+                    if (r.sharedMaterial == catalog.primaryColorMaterial) Assert.That(isGray, Is.True, r.name);
+                    else Assert.That(isGray, Is.False, $"{r.name} keeps its own colour");
+                }
+                Assert.That(unit.GetComponentsInChildren<Renderer>().Select(r => r.sharedMaterial).Distinct().Count(),
+                    Is.LessThan(8), "no new materials were made");
+            }
+            finally
+            {
+                Object.DestroyImmediate(unit.gameObject);
+            }
+        }
+
+        [Test]
+        public void TheBuilderShowsOnlyTheFactionsUnits()
+        {
+            var catalog = UnitCatalog.Load();
+            var faction = catalog.Factions.Last();
+            var builder = new ArmyBuilderScreen(catalog);
+            Assert.That(builder.Faction, Is.Null);
+            builder.ChooseFaction(faction);
+            Assert.That(builder.Available, Is.EquivalentTo(catalog.UnitsFor(faction)));
+            Assert.That(builder.Confirm(), Is.True, "starts from the demo army");
+            builder.ChangeFaction();
+            Assert.That((builder.Faction, builder.Army.Count, builder.Available.Count), Is.EqualTo(((Faction)null, 0, 0)));
+        }
+
+        [Test]
+        public void TheBuilderRemembersTheLastArmyForItsFaction()
+        {
+            var catalog = UnitCatalog.Load();
+            var usc = catalog.Factions.First();
+            var builder = new ArmyBuilderScreen(catalog, usc, List(Commander, Sniper));
+            builder.ChooseFaction(usc);
+            Assert.That(builder.Army, Is.EqualTo(List(Commander, Sniper)));
+            builder.ChooseFaction(catalog.Factions.Last());
+            Assert.That(builder.Army, Is.EqualTo(catalog.defaultArmy), "another faction starts from the demo army");
         }
 
         [Test]

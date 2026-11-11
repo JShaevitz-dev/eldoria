@@ -65,11 +65,14 @@ namespace Eldoria.Gameplay
 
             var menu = FindFirstObjectByType<MainMenu>();
             menu.OpenArmyBuilder();
+            yield return Screenshot("factions.png");
+            Check(menu.Builder.Factions.Count == 3, $"the army builder offers the factions ({menu.Builder.Factions.Count})");
+            menu.Builder.ChooseFaction(menu.Builder.Factions[0]);
             yield return Screenshot("army.png");
             Check(menu.Builder != null && menu.Builder.Available.Count >= 6, $"the army builder lists every unit ({menu.Builder?.Available.Count})");
             Check(menu.Builder != null && menu.Builder.Confirm(), "the starting army is valid");
             var army = new System.Collections.Generic.List<Eldoria.Units.UnitTemplate>(menu.Builder.Army);
-            MainMenu.StartBattle(army);
+            MainMenu.StartBattle(menu.Builder.Faction, army);
             for (int i = 0; i < 10 && SceneManager.GetActiveScene().name != MainMenu.GameScene; i++) yield return null;
             yield return null;
             Check(SceneManager.GetActiveScene().name == MainMenu.GameScene, "Play starts a game");

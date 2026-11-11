@@ -14,13 +14,15 @@ namespace Eldoria.Tests
     public class ArmyDeploymentPlayTests
     {
         private static UnitTemplate Unit(string name) => UnitCatalog.Load().Available.First(u => u.displayName == name);
+        private static Faction Faction(string name) => UnitCatalog.Load().Factions.First(f => f.displayName == name);
 
         [UnitySetUp]
         public IEnumerator DeployTwoFullArmies()
         {
             ArmySelection.Set(
                 new[] { Unit("Field Commander"), Unit("Battlefield Priest"), Unit("Sniper"), Unit("Powered Armor Squad"), Unit("Machine Gun Team"), Unit("Infantry Squad") },
-                new[] { Unit("Field Commander"), Unit("Infantry Squad"), Unit("Infantry Squad"), Unit("Machine Gun Team"), Unit("Machine Gun Team"), Unit("Sniper") });
+                new[] { Unit("Field Commander"), Unit("Infantry Squad"), Unit("Infantry Squad"), Unit("Machine Gun Team"), Unit("Machine Gun Team"), Unit("Sniper") },
+                Faction("United States of Columbia"), Faction("The Draksa Reich"));
             SceneManager.LoadScene(MainMenu.GameScene);
             yield return null;
             yield return null;
@@ -76,16 +78,22 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void TheAIsSoldiersWearTheEnemyColours()
+        public void EachArmyWearsItsFactionsColour()
         {
             var catalog = UnitCatalog.Load();
+            var primary = catalog.primaryColorMaterial;
+            Color blue = primary.GetColor("_BaseColor");
             foreach (var unit in Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
             {
-                var mats = unit.GetComponentsInChildren<Renderer>().SelectMany(r => r.sharedMaterials).ToList();
-                if (unit.Side == Side.AI) Assert.That(mats.Contains(catalog.playerArmor), Is.False, unit.DisplayName);
-                if (unit.Side == Side.AI && unit.Template.displayName == "Infantry Squad") Assert.That(mats.Contains(catalog.enemyArmor), Is.True);
-                if (unit.Side == Side.Player) Assert.That(mats.Contains(catalog.enemyArmor), Is.False, unit.DisplayName);
+                var faction = unit.Side == Side.Player ? ArmySelection.PlayerFaction : ArmySelection.AIFaction;
+                var primaryParts = unit.GetComponentsInChildren<Renderer>().Where(r => r.sharedMaterial == primary).ToList();
+                if (unit.Template.displayName != "Battlefield Priest")
+                    Assert.That(primaryParts, Is.Not.Empty, $"{unit.DisplayName} has primary-coloured parts");
+                foreach (var r in primaryParts)
+                    Assert.That(Vector4.Distance(PrimaryColor.Of(r), faction.color), Is.LessThan(0.002f), $"{unit.DisplayName}: {r.name}");
             }
+            Assert.That(Vector4.Distance(primary.GetColor("_BaseColor"), blue), Is.LessThan(0.002f), "the shared material itself is never changed");
+            Assert.That(Vector4.Distance(blue, new Color(0.18f, 0.32f, 0.62f)), Is.LessThan(0.002f), "still the model's own blue");
         }
 
         [UnityTest]

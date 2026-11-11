@@ -13,11 +13,13 @@ getting the rules right.
 1. Download [`Eldoria-Windows.zip`](Eldoria-Windows.zip) from this repo.
 2. Unzip it anywhere and run `Eldoria/Eldoria.exe` (Windows 64-bit).
 3. Pick **Play** on the main menu. You can turn on the turn timer there too (it's off by default, 10 minutes per turn).
-4. **Build your army:** up to 6 units, at least 1 Commander, and no duplicate Commander or Specialist units. Then
+4. **Choose your faction:** the United States of Columbia, the United Kingdom of Aelfland or the Draksa Reich. Your
+   faction decides which units and commanders you can take.
+5. **Build your army:** up to 6 units, at least 1 Commander, and no duplicate Commander or Specialist units. Then
    press **Confirm army**.
 
 You play against the AI on the **Urban Demo** map: an 80 × 60 m city block with a central plaza, laid out with 180°
-symmetry so both sides start out even. The AI builds its own random army under the same rules. You go first. Wipe out
+symmetry so both sides start out even. The AI picks a random faction and builds its own random army under the same rules. You go first. Wipe out
 the enemy to win.
 
 ## Controls
@@ -78,7 +80,7 @@ At a glance:
 | Powered Armor Squad | Specialist |
 | Sniper | Specialist |
 
-Every unit can be taken in an army list. Commander and Specialist units are limited to one of each per army.
+For now every faction can take every unit. Commander and Specialist units are limited to one of each per army.
 
 Weapons: Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, plus the Frag Grenade ability.
 

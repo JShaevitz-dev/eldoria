@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Eldoria.Rules;
 using Eldoria.Units;
 using UnityEngine;
@@ -23,27 +24,36 @@ namespace Eldoria.Gameplay
         /// <summary>The army builder, while it's open (null on the main menu itself).</summary>
         public ArmyBuilderScreen Builder { get; private set; }
 
-        /// <summary>The player's last confirmed army: the builder starts from it when reopened.</summary>
+        /// <summary>The player's last confirmed army and its faction: the builder starts from it when that faction is chosen again.</summary>
         private static List<UnitTemplate> lastArmy;
+        private static Faction lastFaction;
 
         /// <summary>Forgets the last confirmed army: the builder starts from the demo army again.</summary>
-        public static void ForgetLastArmy() => lastArmy = null;
+        public static void ForgetLastArmy()
+        {
+            lastArmy = null;
+            lastFaction = null;
+        }
 
         /// <summary>Play: opens the army builder.</summary>
-        public void OpenArmyBuilder() => Builder = new ArmyBuilderScreen(UnitCatalog.Load(), lastArmy);
+        public void OpenArmyBuilder() => Builder = new ArmyBuilderScreen(UnitCatalog.Load(), lastFaction, lastArmy);
 
         /// <summary>
-        /// Starts a battle with this army, if it's valid: the AI builds its own random valid army, and both go to the
-        /// demo map. Returns why the army isn't valid (empty if the battle started).
+        /// Starts a battle with this faction and army, if it's valid: the AI picks a random faction and builds a random valid
+        /// army from it, and both go to the demo map. Returns why the army isn't valid (empty if the battle started).
         /// </summary>
-        public static List<string> StartBattle(IReadOnlyList<UnitTemplate> army)
+        public static List<string> StartBattle(Faction faction, IReadOnlyList<UnitTemplate> army)
         {
-            var problems = ArmyRules.Problems(army);
+            var problems = faction == null ? new List<string> { "Choose a faction first." } : ArmyRules.Problems(army, faction);
             if (problems.Count > 0) return problems;
             var catalog = UnitCatalog.Load();
-            var aiArmy = ArmyRules.RandomArmy(catalog != null ? catalog.Available : army, Core.GameRandom.Shared);
+            var rng = Core.GameRandom.Shared;
+            var factions = catalog != null ? catalog.Factions.ToList() : new List<Faction>();
+            var aiFaction = factions.Count > 0 ? factions[rng.Next(factions.Count)] : faction;
+            var aiArmy = ArmyRules.RandomArmy(catalog != null ? catalog.UnitsFor(aiFaction) : army, rng);
             lastArmy = new List<UnitTemplate>(army);
-            ArmySelection.Set(army, aiArmy);
+            lastFaction = faction;
+            ArmySelection.Set(army, aiArmy, faction, aiFaction);
             SceneManager.LoadScene(GameScene);
             return problems;
         }
@@ -78,7 +88,7 @@ namespace Eldoria.Gameplay
             {
                 var result = Builder.Draw();
                 if (result == ArmyBuilderScreen.Result.Back) Builder = null;
-                else if (result == ArmyBuilderScreen.Result.Confirmed) StartBattle(Builder.Army);
+                else if (result == ArmyBuilderScreen.Result.Confirmed) StartBattle(Builder.Faction, Builder.Army);
                 return;
             }
 

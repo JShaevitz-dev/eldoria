@@ -7,35 +7,73 @@ using UnityEngine;
 namespace Eldoria.Gameplay
 {
     /// <summary>
-    /// The army builder, shown when the player presses Play: pick up to 6 units from the catalog, then Confirm. The list is
-    /// checked against the army rules (<see cref="ArmyRules"/>); a valid army goes to the battlefield, an invalid one says why.
+    /// The army builder, shown when the player presses Play. First the player picks a faction, which decides the units
+    /// they can take; then they pick up to 6 of those units and Confirm. The list is checked against the army rules
+    /// (<see cref="ArmyRules"/>); a valid army goes to the battlefield, an invalid one says why.
     /// </summary>
     public class ArmyBuilderScreen
     {
         public enum Result { None, Back, Confirmed }
 
+        private readonly UnitCatalog catalog;
         private readonly List<UnitTemplate> army = new List<UnitTemplate>();
-        private readonly IReadOnlyList<UnitTemplate> available;
+        private List<UnitTemplate> available = new List<UnitTemplate>();
+        private readonly List<Faction> factions;
+        private readonly Faction lastFaction;
+        private readonly List<UnitTemplate> lastArmy;
         private List<string> problems = new List<string>();
         private Vector2 scroll;
         private GUIStyle title, heading, body, small, good, bad, button, bigButton;
 
+        /// <summary>The chosen faction (null while the player is still choosing one).</summary>
+        public Faction Faction { get; private set; }
+        public IReadOnlyList<Faction> Factions => factions;
         public IReadOnlyList<UnitTemplate> Army => army;
+        /// <summary>The units the chosen faction can take (none until a faction is chosen).</summary>
         public IReadOnlyList<UnitTemplate> Available => available;
         /// <summary>Why the last Confirm was refused (empty if it wasn't).</summary>
         public IReadOnlyList<string> Problems => problems;
 
-        public ArmyBuilderScreen(UnitCatalog catalog, IEnumerable<UnitTemplate> startingArmy = null)
+        /// <param name="previousFaction">The faction of the player's last confirmed army, if any.</param>
+        /// <param name="previousArmy">That army: the list starts from it if the same faction is chosen again.</param>
+        public ArmyBuilderScreen(UnitCatalog catalog, Faction previousFaction = null, IEnumerable<UnitTemplate> previousArmy = null)
         {
-            available = catalog != null ? catalog.Available.ToList() : new List<UnitTemplate>();
-            var start = startingArmy ?? (catalog != null ? catalog.defaultArmy : null);
-            if (start != null) army.AddRange(start.Where(u => u != null).Take(ArmyRules.MaxUnits));
+            this.catalog = catalog;
+            factions = catalog != null ? catalog.Factions.ToList() : new List<Faction>();
+            lastFaction = previousFaction;
+            lastArmy = previousArmy?.Where(u => u != null).ToList();
+        }
+
+        /// <summary>
+        /// Chooses the faction: its units become the ones available, and the list starts from the player's last army
+        /// for this faction, or the demo army (keeping only units the faction has).
+        /// </summary>
+        public void ChooseFaction(Faction faction)
+        {
+            Faction = faction;
+            available = catalog != null ? catalog.UnitsFor(faction).ToList() : new List<UnitTemplate>();
+            army.Clear();
+            var start = faction == lastFaction && lastArmy != null ? lastArmy : catalog != null ? catalog.defaultArmy : null;
+            if (start != null)
+                foreach (var u in start)
+                    if (ArmyRules.WhyCannotAdd(army, u, faction) == null) army.Add(u);
+            problems.Clear();
+        }
+
+        /// <summary>Back to choosing a faction (the list is rebuilt when one is chosen).</summary>
+        public void ChangeFaction()
+        {
+            Faction = null;
+            available = new List<UnitTemplate>();
+            army.Clear();
+            problems.Clear();
         }
 
         /// <summary>Adds a unit to the next empty slot. Returns null if added; otherwise why not.</summary>
         public string Add(UnitTemplate unit)
         {
-            string why = ArmyRules.WhyCannotAdd(army, unit);
+            if (Faction == null) return "Choose a faction first";
+            string why = ArmyRules.WhyCannotAdd(army, unit, Faction);
             if (why == null) army.Add(unit);
             problems.Clear();
             return why;
@@ -63,7 +101,7 @@ namespace Eldoria.Gameplay
         /// <summary>Checks the list. True if it's a valid army; otherwise <see cref="Problems"/> says why.</summary>
         public bool Confirm()
         {
-            problems = ArmyRules.Problems(army);
+            problems = Faction == null ? new List<string> { "Choose a faction first." } : ArmyRules.Problems(army, Faction);
             return problems.Count == 0;
         }
 
@@ -72,12 +110,21 @@ namespace Eldoria.Gameplay
         public Result Draw()
         {
             InitStyles();
+            if (Faction == null) return DrawFactionChoice();
             var result = Result.None;
             float w = Mathf.Min(1100f, Screen.width - 40f), h = Mathf.Min(720f, Screen.height - 40f);
             var area = new Rect((Screen.width - w) / 2f, (Screen.height - h) / 2f, w, h);
             GUILayout.BeginArea(area);
 
             GUILayout.Label("BUILD YOUR ARMY", title);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("", GUILayout.Width(22f), GUILayout.Height(22f));
+            Swatch(GUILayoutUtility.GetLastRect(), Faction.color);
+            GUILayout.Label(Faction.displayName, heading);
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Change faction", button, GUILayout.Width(160f), GUILayout.Height(30f))) ChangeFaction();
+            GUILayout.EndHorizontal();
+            if (Faction == null) { GUILayout.EndArea(); return Result.None; }
             GUILayout.Label($"Up to {ArmyRules.MaxUnits} units · at least 1 Commander · no duplicate Commander or Specialist units", small);
             GUILayout.Space(10f);
 
@@ -145,6 +192,43 @@ namespace Eldoria.Gameplay
             return result;
         }
 
+        /// <summary>The first step: choose a faction.</summary>
+        private Result DrawFactionChoice()
+        {
+            var result = Result.None;
+            float w = Mathf.Min(700f, Screen.width - 40f), h = Mathf.Min(560f, Screen.height - 40f);
+            GUILayout.BeginArea(new Rect((Screen.width - w) / 2f, (Screen.height - h) / 2f, w, h));
+            GUILayout.Label("CHOOSE YOUR FACTION", title);
+            GUILayout.Label("Your faction decides which units and commanders you can take.", small);
+            GUILayout.Space(16f);
+            foreach (var faction in factions)
+            {
+                int count = catalog != null ? catalog.UnitsFor(faction).Count() : 0;
+                if (GUILayout.Button($"{faction.displayName}\n<size=14>{count} units available</size>", bigButton, GUILayout.Height(78f)))
+                    ChooseFaction(faction);
+                var b = GUILayoutUtility.GetLastRect();
+                Swatch(new Rect(b.x + 18f, b.y + 18f, b.height - 36f, b.height - 36f), faction.color);
+                GUILayout.Space(8f);
+            }
+            if (factions.Count == 0) GUILayout.Label("No factions found.", bad);
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Back", bigButton, GUILayout.Height(50f))) result = Result.Back;
+            GUILayout.EndArea();
+            return result;
+        }
+
+        /// <summary>A square of the faction's colour (only drawn on Repaint, so it never disturbs the layout).</summary>
+        private static void Swatch(Rect rect, Color color)
+        {
+            if (Event.current.type != EventType.Repaint) return;
+            var old = GUI.color;
+            GUI.color = new Color(0f, 0f, 0f, 0.6f);
+            GUI.DrawTexture(new Rect(rect.x - 2f, rect.y - 2f, rect.width + 4f, rect.height + 4f), Texture2D.whiteTexture);
+            GUI.color = color;
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = old;
+        }
+
         private void InitStyles()
         {
             if (title != null) return;
@@ -159,7 +243,7 @@ namespace Eldoria.Gameplay
             bad = new GUIStyle(body) { fontStyle = FontStyle.Bold };
             bad.normal.textColor = new Color(1f, 0.4f, 0.35f);
             button = new GUIStyle(GUI.skin.button) { fontSize = 15 };
-            bigButton = new GUIStyle(GUI.skin.button) { fontSize = 22, fontStyle = FontStyle.Bold };
+            bigButton = new GUIStyle(GUI.skin.button) { fontSize = 22, fontStyle = FontStyle.Bold, richText = true };
         }
     }
 }

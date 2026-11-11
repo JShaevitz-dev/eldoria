@@ -624,6 +624,34 @@ namespace Eldoria.EditorTools
             }
         }
 
+        /// <summary>The factions (Data/Factions), in the order the army builder shows them: file name → display name.</summary>
+        public static readonly (string file, string name, Color color)[] FactionNames =
+        {
+            ("UnitedStatesOfColumbia", "United States of Columbia", new Color(0.16f, 0.30f, 0.15f)),   // dark green
+            ("UnitedKingdomOfAelfland", "United Kingdom of Aelfland", new Color(0.50f, 0.74f, 0.36f)), // light green
+            ("DraksaReich", "The Draksa Reich", new Color(0.46f, 0.47f, 0.49f)),                       // gray
+        };
+
+        /// <summary>
+        /// Creates the factions. For now every faction has access to every unit (<paramref name="allUnits"/>); when
+        /// factions get their own units, give each one its own list here.
+        /// </summary>
+        public static List<Faction> EnsureFactions(List<UnitTemplate> allUnits)
+        {
+            EnsureFolder(DataDir, "Factions");
+            var factions = new List<Faction>();
+            foreach (var (file, name, color) in FactionNames)
+            {
+                var faction = GetOrCreate<Faction>($"{DataDir}/Factions/{file}.asset", f => f.displayName = name);
+                faction.displayName = name;
+                faction.color = color;
+                faction.units = new List<UnitTemplate>(allUnits);
+                EditorUtility.SetDirty(faction);
+                factions.Add(faction);
+            }
+            return factions;
+        }
+
         /// <summary>
         /// The unit catalog for army lists (Resources/UnitCatalog): every unit in Data/Units, Commanders first, then
         /// Infantry, Heavy Support and Specialists; the demo army as the army builder's starting list; and the
@@ -644,8 +672,9 @@ namespace Eldoria.EditorTools
                 Unit("InfantrySquad"), Unit("FieldCommander"), Unit("InfantrySquad"), Unit("BattlefieldPriest"), Unit("InfantrySquad"),
             }.Where(u => u != null).ToList();
 
-            catalog.playerArmor = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
-            catalog.enemyArmor = GetOrCreateMaterial("Enemy_Armor", new Color(0.62f, 0.16f, 0.14f));
+            catalog.factions = EnsureFactions(catalog.units);
+
+            catalog.primaryColorMaterial = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
             catalog.leaderMarker = GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f));
             EditorUtility.SetDirty(catalog);
             return catalog;

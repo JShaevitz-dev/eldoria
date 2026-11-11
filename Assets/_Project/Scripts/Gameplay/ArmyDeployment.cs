@@ -10,7 +10,7 @@ namespace Eldoria.Gameplay
     /// <summary>
     /// Puts the chosen armies (<see cref="ArmySelection"/>) on the battlefield, replacing the armies placed in the scene.
     /// Each army deploys in its deployment zone, one unit per slot in list order, left to right as its side looks
-    /// across the map; the AI's slots are the player's turned 180°.
+    /// across the map; the AI's slots are the player's turned 180°. Units take their faction's colour (see PrimaryColor).
     /// </summary>
     public static class ArmyDeployment
     {
@@ -23,16 +23,20 @@ namespace Eldoria.Gameplay
 
         public static Vector3 SlotFor(Side side, int index) => side == Side.Player ? PlayerSlots[index] : -PlayerSlots[index];
 
+        /// <summary>The AI's colour when it has no faction (e.g. tests): the old enemy red. The player keeps the model's own blue.</summary>
+        public static readonly Color NoFactionAIColor = new Color(0.62f, 0.16f, 0.14f);
+
         /// <summary>Deploys the selected armies, if any were chosen. Returns true if it did.</summary>
         public static bool DeploySelected()
         {
             if (!ArmySelection.HasArmies) return false;
-            Deploy(ArmySelection.PlayerArmy, ArmySelection.AIArmy);
+            Deploy(ArmySelection.PlayerArmy, ArmySelection.AIArmy, ArmySelection.PlayerFaction, ArmySelection.AIFaction);
             return true;
         }
 
         /// <summary>Removes every unit on the battlefield and deploys these two armies.</summary>
-        public static List<Unit> Deploy(IReadOnlyList<UnitTemplate> player, IReadOnlyList<UnitTemplate> ai)
+        public static List<Unit> Deploy(IReadOnlyList<UnitTemplate> player, IReadOnlyList<UnitTemplate> ai,
+            Faction playerFaction = null, Faction aiFaction = null)
         {
             // Out with the armies placed in the scene (deactivated at once so nothing finds them this frame).
             foreach (var old in Object.FindObjectsByType<Unit>(FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -45,18 +49,18 @@ namespace Eldoria.Gameplay
 
             var root = new GameObject("Armies").transform;
             var deployed = new List<Unit>();
-            deployed.AddRange(DeployArmy(player, Side.Player, root));
-            deployed.AddRange(DeployArmy(ai, Side.AI, root));
+            deployed.AddRange(DeployArmy(player, Side.Player, root, playerFaction));
+            deployed.AddRange(DeployArmy(ai, Side.AI, root, aiFaction));
             return deployed;   // nearby keywords (cover, auras) are worked out when the first turn starts
         }
 
-        private static IEnumerable<Unit> DeployArmy(IReadOnlyList<UnitTemplate> army, Side side, Transform root)
+        private static IEnumerable<Unit> DeployArmy(IReadOnlyList<UnitTemplate> army, Side side, Transform root, Faction faction)
         {
             var units = army.Where(u => u != null).Take(ArmyRules.MaxUnits).ToList();
             var names = UnitNames(units, side);
             var facing = Quaternion.Euler(0f, side == Side.Player ? 0f : 180f, 0f);
             for (int i = 0; i < units.Count; i++)
-                yield return Spawn(units[i], side, SlotFor(side, i), facing, names[i], root);
+                yield return Spawn(units[i], side, SlotFor(side, i), facing, names[i], root, faction);
         }
 
         /// <summary>
@@ -78,21 +82,15 @@ namespace Eldoria.Gameplay
             return names;
         }
 
-        /// <summary>Spawns one unit: on the ground, in the side's colours, with a marker over its leader.</summary>
-        public static Unit Spawn(UnitTemplate template, Side side, Vector3 position, Quaternion facing, string name, Transform parent)
+        /// <summary>Spawns one unit: on the ground, in its faction's colour, with a marker over its leader.</summary>
+        public static Unit Spawn(UnitTemplate template, Side side, Vector3 position, Quaternion facing, string name, Transform parent,
+            Faction faction = null)
         {
             var unit = UnitFactory.Spawn(template, side, position, facing, parent, name);
             var catalog = UnitCatalog.Load();
 
-            if (side == Side.AI && catalog != null && catalog.playerArmor != null && catalog.enemyArmor != null)
-                foreach (var r in unit.GetComponentsInChildren<Renderer>(true))
-                {
-                    var mats = r.sharedMaterials;
-                    bool changed = false;
-                    for (int m = 0; m < mats.Length; m++)
-                        if (mats[m] == catalog.playerArmor) { mats[m] = catalog.enemyArmor; changed = true; }
-                    if (changed) r.sharedMaterials = mats;
-                }
+            if (catalog != null && (faction != null || side == Side.AI))
+                PrimaryColor.Apply(unit.gameObject, catalog.primaryColorMaterial, faction != null ? faction.color : NoFactionAIColor);
 
             // Stand on the ground (or whatever structure is underfoot).
             foreach (var soldier in unit.Soldiers)

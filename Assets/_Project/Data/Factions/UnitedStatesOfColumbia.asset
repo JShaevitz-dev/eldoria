@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1cf6d52e50818449bc806fe7a34c182, type: 3}
+  m_Name: UnitedStatesOfColumbia
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Faction
+  displayName: United States of Columbia
+  color: {r: 0.16, g: 0.3, b: 0.15, a: 1}
+  units:
+  - {fileID: 11400000, guid: e0db57d542db0444a995c947b3a426e7, type: 2}
+  - {fileID: 11400000, guid: ad6fdfc6580514f4492b6ae9829ce807, type: 2}
+  - {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
+  - {fileID: 11400000, guid: 577cbbbfc25ab474c8d38c1b3d7cec94, type: 2}
+  - {fileID: 11400000, guid: 105c0405e7362d544854c9e2bac55fac, type: 2}
+  - {fileID: 11400000, guid: 7021b6f56f5fc0e4eba1ecfa5a679f54, type: 2}
+  - {fileID: 11400000, guid: 94c83b715546d254a8997174ed762c46, type: 2}

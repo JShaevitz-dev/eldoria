@@ -13,19 +13,25 @@ namespace Eldoria.Gameplay
     {
         public static IReadOnlyList<UnitTemplate> PlayerArmy { get; private set; }
         public static IReadOnlyList<UnitTemplate> AIArmy { get; private set; }
+        public static Faction PlayerFaction { get; private set; }
+        public static Faction AIFaction { get; private set; }
 
         public static bool HasArmies => PlayerArmy != null && PlayerArmy.Count > 0 && AIArmy != null && AIArmy.Count > 0;
 
-        public static void Set(IEnumerable<UnitTemplate> player, IEnumerable<UnitTemplate> ai)
+        public static void Set(IEnumerable<UnitTemplate> player, IEnumerable<UnitTemplate> ai, Faction playerFaction = null, Faction aiFaction = null)
         {
             PlayerArmy = player.Where(u => u != null).ToList();
             AIArmy = ai.Where(u => u != null).ToList();
+            PlayerFaction = playerFaction;
+            AIFaction = aiFaction;
         }
 
         public static void Clear()
         {
             PlayerArmy = null;
             AIArmy = null;
+            PlayerFaction = null;
+            AIFaction = null;
         }
     }
 }

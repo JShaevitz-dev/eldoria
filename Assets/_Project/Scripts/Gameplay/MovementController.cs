@@ -902,6 +902,8 @@ namespace Eldoria.Gameplay
             }
 
             GUILayout.Label($"{(squad != null ? squad.DisplayName : "No unit selected")}  —  Turn {Turns.Current}", title);
+            if (ArmySelection.PlayerFaction != null && ArmySelection.AIFaction != null)
+                GUILayout.Label($"{ArmySelection.PlayerFaction.displayName}  vs  {ArmySelection.AIFaction.displayName}", wrap);
             if (timerRunning)
             {
                 var timerStyle = new GUIStyle(title);

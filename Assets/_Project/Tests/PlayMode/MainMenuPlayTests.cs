@@ -28,7 +28,7 @@ namespace Eldoria.Tests
         public void ForgetArmies() => ArmySelection.Clear();
 
         [UnityTest]
-        public IEnumerator PlayOpensTheArmyBuilderStartingWithTheDemoArmy()
+        public IEnumerator PlayOpensTheArmyBuilderOnTheFactionChoice()
         {
             var menu = Object.FindFirstObjectByType<MainMenu>();
             Assert.That(menu, Is.Not.Null);
@@ -37,7 +37,16 @@ namespace Eldoria.Tests
             menu.OpenArmyBuilder();
             yield return null;
             Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("MainMenu"), "still on the menu, building");
-            Assert.That(menu.Builder.Available.Count, Is.EqualTo(7), "every unit in the game");
+            Assert.That(menu.Builder.Faction, Is.Null, "a faction is chosen first");
+            Assert.That(menu.Builder.Factions.Select(f => f.displayName), Is.EqualTo(new[]
+                { "United States of Columbia", "United Kingdom of Aelfland", "The Draksa Reich" }));
+            Assert.That(menu.Builder.Available, Is.Empty, "no units until a faction is chosen");
+            Assert.That(menu.Builder.Add(UnitCatalog.Load().Available.First()), Does.Contain("faction"));
+            Assert.That(menu.Builder.Confirm(), Is.False);
+
+            menu.Builder.ChooseFaction(menu.Builder.Factions[1]);
+            Assert.That(menu.Builder.Faction.displayName, Is.EqualTo("United Kingdom of Aelfland"));
+            Assert.That(menu.Builder.Available.Count, Is.EqualTo(7), "for now every faction has every unit");
             Assert.That(menu.Builder.Army.Select(u => u.displayName), Is.EqualTo(new[]
                 { "Infantry Squad", "Field Commander", "Infantry Squad", "Battlefield Priest", "Infantry Squad" }));
         }
@@ -48,12 +57,13 @@ namespace Eldoria.Tests
             var menu = Object.FindFirstObjectByType<MainMenu>();
             menu.OpenArmyBuilder();
             var builder = menu.Builder;
+            builder.ChooseFaction(builder.Factions[0]);
             builder.Clear();
             Assert.That(builder.Add(builder.Available.First(u => u.role == UnitRole.Infantry)), Is.Null);
 
             Assert.That(builder.Confirm(), Is.False);
             Assert.That(builder.Problems.Single(), Does.Contain("Commander"));
-            Assert.That(MainMenu.StartBattle(builder.Army), Is.Not.Empty);
+            Assert.That(MainMenu.StartBattle(builder.Faction, builder.Army), Is.Not.Empty);
             yield return null;
             yield return null;
             Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("MainMenu"));
@@ -66,6 +76,7 @@ namespace Eldoria.Tests
             var menu = Object.FindFirstObjectByType<MainMenu>();
             menu.OpenArmyBuilder();
             var builder = menu.Builder;
+            builder.ChooseFaction(builder.Factions[2]);
             builder.Clear();
             UnitTemplate Unit(string name) => builder.Available.First(u => u.displayName == name);
             foreach (var name in new[] { "Field Commander", "Sniper", "Machine Gun Team", "Machine Gun Team" })
@@ -74,7 +85,7 @@ namespace Eldoria.Tests
             Assert.That(builder.Confirm(), Is.True);
             var army = builder.Army.ToList();
 
-            Assert.That(MainMenu.StartBattle(army), Is.Empty);
+            Assert.That(MainMenu.StartBattle(builder.Faction, army), Is.Empty);
             yield return null;
             yield return null;
 
@@ -82,7 +93,9 @@ namespace Eldoria.Tests
             var controller = Object.FindFirstObjectByType<MovementController>();
             Assert.That(controller.PlayerUnits.Select(u => u.DisplayName), Is.EqualTo(new[]
                 { "Field Commander", "Sniper", "Machine Gun Team 1", "Machine Gun Team 2" }));
-            Assert.That(ArmyRules.IsValid(ArmySelection.AIArmy), Is.True, "the AI's army follows the same rules");
+            Assert.That(ArmySelection.PlayerFaction.displayName, Is.EqualTo("The Draksa Reich"));
+            Assert.That(ArmySelection.AIFaction, Is.Not.Null, "the AI picks a faction too");
+            Assert.That(ArmyRules.IsValid(ArmySelection.AIArmy, ArmySelection.AIFaction), Is.True, "the AI's army follows the same rules");
             var aiUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).Where(u => u.Side == Side.AI).ToList();
             Assert.That(aiUnits.Count, Is.EqualTo(ArmySelection.AIArmy.Count));
             Assert.That(Turns.Current, Is.EqualTo(1), "a fresh battle on turn 1");
@@ -94,7 +107,8 @@ namespace Eldoria.Tests
         {
             var menu = Object.FindFirstObjectByType<MainMenu>();
             menu.OpenArmyBuilder();
-            MainMenu.StartBattle(menu.Builder.Army.ToList());
+            menu.Builder.ChooseFaction(menu.Builder.Factions[0]);
+            MainMenu.StartBattle(menu.Builder.Faction, menu.Builder.Army.ToList());
             yield return null;
             MainMenu.BackToMenu();
             yield return null;

@@ -20,12 +20,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 105c0405e7362d544854c9e2bac55fac, type: 2}
   - {fileID: 11400000, guid: 7021b6f56f5fc0e4eba1ecfa5a679f54, type: 2}
   - {fileID: 11400000, guid: 94c83b715546d254a8997174ed762c46, type: 2}
+  factions:
+  - {fileID: 11400000, guid: a25f9c45eb876ab448ce0ea3e849f8de, type: 2}
+  - {fileID: 11400000, guid: 51a1f21656e7b464f8c740a77686f326, type: 2}
+  - {fileID: 11400000, guid: 0cff4a0f33e3015458c87b929a747a74, type: 2}
   defaultArmy:
   - {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
   - {fileID: 11400000, guid: ad6fdfc6580514f4492b6ae9829ce807, type: 2}
   - {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
   - {fileID: 11400000, guid: e0db57d542db0444a995c947b3a426e7, type: 2}
   - {fileID: 11400000, guid: 32cbca5e84e18dc46a3487615daa894d, type: 2}
-  playerArmor: {fileID: 2100000, guid: e0d8028b1591613478974b18cc60760a, type: 2}
-  enemyArmor: {fileID: 2100000, guid: c644ac051fdee22428af382c50d1c7ae, type: 2}
+  primaryColorMaterial: {fileID: 2100000, guid: e0d8028b1591613478974b18cc60760a, type: 2}
   leaderMarker: {fileID: 2100000, guid: 4727a367c15b3324caf89d459f73536e, type: 2}

@@ -54,17 +54,30 @@ Every unit has a **role**. It's shown in the HUD when the unit is selected.
 | **Heavy Support** | Machine Gun Team |
 | **Specialist** | Powered Armor Squad, Sniper, Flamethrower Team (and any unit not given another role) |
 
+### Factions — *implemented*
+
+Every army belongs to a **faction**. The faction a player chooses at the start of building their list decides **which units and commanders** they can take.
+
+| Faction | Colour | Units |
+|---|---|---|
+| **United States of Columbia** | dark green | every unit (for now) |
+| **United Kingdom of Aelfland** | light green | every unit (for now) |
+| **The Draksa Reich** | gray | every unit (for now) |
+
+**Faction colours:** a unit's **primary colour** (its soldiers' bodies and caps) is its faction's colour. Every faction uses the same models and materials: the primary-colour parts are tinted per unit when it deploys, so a new faction only needs a colour, not new textures. Other parts keep their own colours (skin, weapons, gold trim, the officer's cape, the priest's white robe, powered armor plates). Both sides can choose the same faction; the soldier labels (blue for yours, red for the enemy's) still tell them apart. The army builder shows each faction's colour.
+
 ### Army lists — *implemented*
 
-Before a battle, each side builds an **army list**:
+Before a battle, each side chooses a **faction**, then builds an **army list** from that faction's units:
 
+- Every unit must be one the army's **faction** has access to.
 - An army has **6 slots**: it can have **1 to 6 units** (empty slots are allowed).
 - It must contain **at least 1 Commander** unit.
 - It **can't have duplicates of a Commander or Specialist** unit (e.g. only one Sniper, only one Field Commander; the Field Commander and the Battlefield Priest together is fine). **Infantry** and **Heavy Support** units can be taken more than once.
 
-**Army builder:** pressing **Play** opens the army builder. It lists every unit (role, size, what it's made of) with an **Add** button, greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the demo army (3 Infantry Squads, the Field Commander and the Battlefield Priest), or your last confirmed army. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
+**Army builder:** pressing **Play** opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take (role, size, what it's made of) with an **Add** button, greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the demo army (3 Infantry Squads, the Field Commander and the Battlefield Priest, keeping only units the faction has), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
 
-**The AI's army:** the AI builds its own **random valid army** each battle under the same rules, always filling all 6 slots: 1 or 2 Commanders, then random units.
+**The AI's army:** the AI picks a **random faction** and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 or 2 Commanders, then random units.
 
 **Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). A unit taken more than once is numbered ("Infantry Squad 1", "Infantry Squad 2"). Restarting a battle replays the same armies.
 
