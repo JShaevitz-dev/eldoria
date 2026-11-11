@@ -112,6 +112,53 @@ namespace Eldoria.Tests
             Assert.That(ArmyRules.Composition(Sniper), Is.EqualTo("Sniper"));
         }
 
+        // ---- Unit stats and descriptions in the army builder ----
+
+        [Test]
+        public void EveryUnitHasADescriptionOfHowItPlays()
+        {
+            foreach (var unit in UnitCatalog.Load().Available)
+            {
+                Assert.That(unit.description, Is.Not.Null.And.Not.Empty, unit.displayName);
+                Assert.That(unit.description.Length, Is.InRange(200, 600), $"{unit.displayName}: a brief paragraph");
+            }
+        }
+
+        [Test]
+        public void TheBuilderListsEachSoldierTypesStats()
+        {
+            Assert.That(UnitInfo.SoldierLines(Infantry), Is.EqualTo(new[]
+            {
+                "Sergeant — Health 5 · Armor 1 · Accuracy 75% · Move 10 m (sprint 20 m) · Assault Rifle, Pistol",
+                "9× Trooper — Health 5 · Armor 1 · Accuracy 75% · Move 10 m (sprint 20 m) · Assault Rifle",
+            }));
+            Assert.That(UnitInfo.SoldierLines(PA).Last(), Does.StartWith("4× Trooper in Powered Armor — Health 10 · Armor 2 · Accuracy 75% · Move 6 m (sprint 12 m)"));
+            Assert.That(UnitInfo.SoldierLines(Sniper).Single(), Does.Contain("Accuracy 100% · Move 15 m (sprint 30 m) · Sniper Rifle"));
+        }
+
+        [Test]
+        public void TheBuilderListsEachWeaponOnce()
+        {
+            Assert.That(UnitInfo.WeaponLines(Infantry), Is.EqualTo(new[]
+            {
+                "Assault Rifle — Damage 4 · Penetration 1 · Range 20 m",
+                "Pistol — Damage 2 · Penetration 0 · Range 10 m · Pistol",
+            }));
+            Assert.That(UnitInfo.WeaponLines(Sniper).Single(), Is.EqualTo("Sniper Rifle — Damage 5 · Penetration 1 · +50% accuracy · Range 50 m · Deployed"));
+            Assert.That(UnitInfo.WeaponLines(U("FlamethrowerTeam")).First(), Does.StartWith("Flamethrower — Damage 10 · Penetration X · Range 10 m · Incendiary"));
+            Assert.That(UnitInfo.WeaponLines(MG).Select(l => l.Split(' ')[0]), Is.EqualTo(new[] { "Pistol", "SMG", "Machine" }));
+        }
+
+        [Test]
+        public void TheBuilderListsAbilitiesAndKeywords()
+        {
+            Assert.That(UnitInfo.AbilityLines(Infantry).Single(), Is.EqualTo("Frag Grenade (active, once per battle)"));
+            Assert.That(UnitInfo.AbilityLines(Priest), Has.Some.EqualTo("Divine Healing (active, spell)"));
+            Assert.That(UnitInfo.AbilityLines(Commander).Single(), Does.Contain("(passive)"));
+            Assert.That(UnitInfo.SharedKeywords(Commander), Does.Contain("Officer").And.Contain("Solo"));
+            Assert.That(UnitInfo.SharedKeywords(Sniper), Does.Contain("Sniper Precision"));
+        }
+
         [Test]
         public void TheArmyBuilderAddsRemovesAndChecks()
         {

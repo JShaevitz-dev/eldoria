@@ -14,6 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Infantry Squad
   role: 0
+  description: 'The backbone of an army: ten riflemen led by a Sergeant. Their Assault
+    Rifles reach 20 m, and with ten soldiers the squad can soak up casualties and
+    still hold ground or push forward. Once per battle the squad can lob a Frag Grenade
+    over walls to hit enemies sheltering in cover. Infantry can be taken more than
+    once, so most armies field several squads to form their battle line.'
   leader: {fileID: 11400000, guid: ac6683a9268f31c40b052e2a957f5dc8, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: b99f2bc187e76ea46b7b16cbd27a9256, type: 2}

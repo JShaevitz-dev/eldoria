@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Battlefield Priest
   role: 1
+  description: A fragile support caster (5 health, no armor, 50% accuracy) with two
+    spells. Divine Healing restores 5 health to a friendly soldier within 25 m; Divine
+    Sanctuary gives a whole friendly unit +1 Armor Level until your next turn, blunting
+    the fire on a squad that's about to be shot. Spells can't be cast after sprinting,
+    so move the Priest with care. A Commander, so the Priest can fill your required
+    Commander slot.
   leader: {fileID: 11400000, guid: 5062a9432123ec045bc3022ba187bd2f, type: 2}
   members: []
   deploymentSpacing: 2

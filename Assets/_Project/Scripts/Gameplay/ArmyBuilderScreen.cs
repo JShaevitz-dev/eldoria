@@ -23,7 +23,7 @@ namespace Eldoria.Gameplay
         private readonly List<UnitTemplate> lastArmy;
         private List<string> problems = new List<string>();
         private Vector2 scroll;
-        private GUIStyle title, heading, body, small, good, bad, button, bigButton;
+        private GUIStyle title, heading, body, small, good, bad, warn, stat, paragraph, button, bigButton;
 
         /// <summary>The chosen faction (null while the player is still choosing one).</summary>
         public Faction Faction { get; private set; }
@@ -112,7 +112,7 @@ namespace Eldoria.Gameplay
             InitStyles();
             if (Faction == null) return DrawFactionChoice();
             var result = Result.None;
-            float w = Mathf.Min(1100f, Screen.width - 40f), h = Mathf.Min(720f, Screen.height - 40f);
+            float w = Mathf.Min(1280f, Screen.width - 40f), h = Mathf.Min(820f, Screen.height - 40f);
             var area = new Rect((Screen.width - w) / 2f, (Screen.height - h) / 2f, w, h);
             GUILayout.BeginArea(area);
 
@@ -131,25 +131,10 @@ namespace Eldoria.Gameplay
             GUILayout.BeginHorizontal();
 
             // --- Available units ---
-            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(w * 0.56f));
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(w * 0.62f));
             GUILayout.Label("Available units", heading);
             scroll = GUILayout.BeginScrollView(scroll);
-            foreach (var unit in available)
-            {
-                GUILayout.BeginHorizontal(GUI.skin.box);
-                GUILayout.BeginVertical();
-                GUILayout.Label(unit.displayName, heading);
-                string unique = ArmyRules.IsUnique(unit.role) ? " · one per army" : "";
-                GUILayout.Label($"{unit.role.DisplayName()}{unique} · {unit.Size} soldier{(unit.Size == 1 ? "" : "s")}", body);
-                if (unit.Size > 1) GUILayout.Label(ArmyRules.Composition(unit), small);
-                GUILayout.EndVertical();
-                string why = ArmyRules.WhyCannotAdd(army, unit);
-                GUI.enabled = why == null;
-                if (GUILayout.Button(why == null ? "Add" : "—", button, GUILayout.Width(80f), GUILayout.Height(40f))) Add(unit);
-                GUI.enabled = true;
-                GUILayout.EndHorizontal();
-                if (why != null) GUILayout.Label(why, small);
-            }
+            foreach (var unit in available) DrawUnitEntry(unit);
             GUILayout.EndScrollView();
             GUILayout.EndVertical();
 
@@ -190,6 +175,43 @@ namespace Eldoria.Gameplay
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
             return result;
+        }
+
+        /// <summary>
+        /// One unit in the list: name, role and size with its Add button, then its stats (soldiers, weapons, abilities,
+        /// keywords) and a paragraph on how it plays and what it does in an army.
+        /// </summary>
+        private void DrawUnitEntry(UnitTemplate unit)
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical();
+            GUILayout.Label(unit.displayName, heading);
+            string unique = ArmyRules.IsUnique(unit.role) ? " · one per army" : "";
+            GUILayout.Label($"{unit.role.DisplayName()}{unique} · {unit.Size} soldier{(unit.Size == 1 ? "" : "s")}", body);
+            GUILayout.EndVertical();
+            string why = ArmyRules.WhyCannotAdd(army, unit, Faction);
+            GUI.enabled = why == null;
+            if (GUILayout.Button(why == null ? "Add" : "—", button, GUILayout.Width(80f), GUILayout.Height(40f))) Add(unit);
+            GUI.enabled = true;
+            GUILayout.EndHorizontal();
+            if (why != null) GUILayout.Label(why, warn);
+
+            GUILayout.Space(4f);
+            foreach (var line in UnitInfo.SoldierLines(unit)) GUILayout.Label(line, stat);
+            foreach (var line in UnitInfo.WeaponLines(unit)) GUILayout.Label("<b>Weapon:</b> " + line, stat);
+            foreach (var line in UnitInfo.AbilityLines(unit)) GUILayout.Label("<b>Ability:</b> " + line, stat);
+            string keywords = UnitInfo.SharedKeywords(unit);
+            if (keywords.Length > 0) GUILayout.Label("<b>Keywords:</b> " + keywords, stat);
+
+            if (!string.IsNullOrEmpty(unit.description))
+            {
+                GUILayout.Space(4f);
+                GUILayout.Label(unit.description, paragraph);
+            }
+            GUILayout.EndVertical();
+            GUILayout.Space(4f);
         }
 
         /// <summary>The first step: choose a faction.</summary>
@@ -240,6 +262,12 @@ namespace Eldoria.Gameplay
             small.normal.textColor = new Color(0.75f, 0.77f, 0.82f);
             good = new GUIStyle(body);
             good.normal.textColor = new Color(0.45f, 0.9f, 0.5f);
+            stat = new GUIStyle(GUI.skin.label) { fontSize = 12, wordWrap = true, richText = true };
+            stat.normal.textColor = new Color(0.82f, 0.84f, 0.88f);
+            paragraph = new GUIStyle(GUI.skin.label) { fontSize = 14, wordWrap = true, fontStyle = FontStyle.Italic };
+            paragraph.normal.textColor = new Color(0.93f, 0.9f, 0.82f);
+            warn = new GUIStyle(GUI.skin.label) { fontSize = 13, wordWrap = true };
+            warn.normal.textColor = new Color(1f, 0.7f, 0.35f);
             bad = new GUIStyle(body) { fontStyle = FontStyle.Bold };
             bad.normal.textColor = new Color(1f, 0.4f, 0.35f);
             button = new GUIStyle(GUI.skin.button) { fontSize = 15 };

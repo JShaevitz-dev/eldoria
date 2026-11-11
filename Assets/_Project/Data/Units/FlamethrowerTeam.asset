@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Flamethrower Team
   role: 3
+  description: 'Two troopers with Flamethrowers for clearing buildings and cover
+    at close quarters. A flame hit does 10 damage that ignores armor, but only against
+    Biological targets and only out to 10 m, so the team has to get close. When a
+    trooper dies there''s a 10% chance their tank explodes, hurting everyone within
+    5 m: keep them away from your own squads. In close range they fall back on pistols.
+    A Specialist: one per army.'
   leader: {fileID: 11400000, guid: e020523723fb5ed459293b6eb077632f, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: e020523723fb5ed459293b6eb077632f, type: 2}

@@ -14,6 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Field Commander
   role: 1
+  description: 'A lone officer who makes everyone nearby shoot straighter. Lead from
+    the front gives friendly soldiers within 15 m +15% accuracy (the Commander doesn''t
+    get it), so keep the Commander just behind your main firing line. With 10 health
+    but only a pistol, the Commander isn''t a fighter, and as a Solo unit is a prime
+    target for enemy snipers. A Commander: every army needs at least one.'
   leader: {fileID: 11400000, guid: 261f39bca7f2c59489776612e04bcf27, type: 2}
   members: []
   deploymentSpacing: 2

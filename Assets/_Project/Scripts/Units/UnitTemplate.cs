@@ -52,6 +52,9 @@ namespace Eldoria.Units
         [Tooltip("The unit's role: Infantry, Commander, Heavy Support or Specialist.")]
         public UnitRole role = UnitRole.Specialist;
 
+        [Tooltip("How the unit plays and what it does in an army (shown in the army builder).")]
+        [TextArea(3, 8)] public string description;
+
         [Tooltip("The soldier who leads the unit when deployed (e.g. a Sergeant).")]
         public SoldierTemplate leader;
 

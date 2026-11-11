@@ -14,6 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Powered Armor Squad
   role: 3
+  description: 'Five soldiers in powered armor with Assault Rifles. Health 10 and
+    Armor Level 2 halve rifle damage and shrug off pistols and grenades entirely,
+    so the squad can walk through fire that would shred an Infantry Squad. The trade-off
+    is speed: only 6 m a move (12 m sprinting), so start advancing early or put them
+    where the fight will come to them. A Specialist: one per army.'
   leader: {fileID: 11400000, guid: 36cc24234701e7b4194a200d42e97f98, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: 72d995af189231c4a853f6a91a177a9b, type: 2}

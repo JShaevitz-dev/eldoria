@@ -610,6 +610,37 @@ namespace Eldoria.EditorTools
             ["MachineGunTeam"] = UnitRole.HeavySupport,
         };
 
+        /// <summary>How each unit plays and what it does in an army, shown in the army builder (by file name).</summary>
+        public static readonly Dictionary<string, string> UnitDescriptions = new Dictionary<string, string>
+        {
+            ["InfantrySquad"] =
+                "The backbone of an army: ten riflemen led by a Sergeant. Their Assault Rifles reach 20 m, and with ten soldiers the squad can soak up casualties and still hold ground or push forward. Once per battle the squad can lob a Frag Grenade over walls to hit enemies sheltering in cover. Infantry can be taken more than once, so most armies field several squads to form their battle line.",
+            ["FieldCommander"] =
+                "A lone officer who makes everyone nearby shoot straighter. Lead from the front gives friendly soldiers within 15 m +15% accuracy (the Commander doesn't get it), so keep the Commander just behind your main firing line. With 10 health but only a pistol, the Commander isn't a fighter, and as a Solo unit is a prime target for enemy snipers. A Commander: every army needs at least one.",
+            ["BattlefieldPriest"] =
+                "A fragile support caster (5 health, no armor, 50% accuracy) with two spells. Divine Healing restores 5 health to a friendly soldier within 25 m; Divine Sanctuary gives a whole friendly unit +1 Armor Level until your next turn, blunting the fire on a squad that's about to be shot. Spells can't be cast after sprinting, so move the Priest with care. A Commander, so the Priest can fill your required Commander slot.",
+            ["MachineGunTeam"] =
+                "A heavy fire base. The Machine Gunner hits hard (6 damage, penetration 1, 20 m) but can't fire after moving, so set the team up covering a firing lane and let it hold there. Three SMG troopers add close-range firepower out to 10 m and protect the gun; the Sergeant carries only a pistol. With five soldiers and no grenade, it's best covering ground rather than leading an assault. Heavy Support can be taken more than once.",
+            ["PoweredArmorSquad"] =
+                "Five soldiers in powered armor with Assault Rifles. Health 10 and Armor Level 2 halve rifle damage and shrug off pistols and grenades entirely, so the squad can walk through fire that would shred an Infantry Squad. The trade-off is speed: only 6 m a move (12 m sprinting), so start advancing early or put them where the fight will come to them. A Specialist: one per army.",
+            ["FlamethrowerTeam"] =
+                "Two troopers with Flamethrowers for clearing buildings and cover at close quarters. A flame hit does 10 damage that ignores armor, but only against Biological targets and only out to 10 m, so the team has to get close. When a trooper dies there's a 10% chance their tank explodes, hurting everyone within 5 m: keep them away from your own squads. In close range they fall back on pistols. A Specialist: one per army.",
+            ["Sniper"] =
+                "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing sergeants and officers. The Sniper Rifle can't fire after moving, and with 5 health and no armor the Sniper must stay out of sight; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo unit: one per army.",
+        };
+
+        /// <summary>Sets the description on every unit template in Data/Units that has one written.</summary>
+        public static void ApplyUnitDescriptions()
+        {
+            foreach (var pair in UnitDescriptions)
+            {
+                var unit = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{DataDir}/Units/{pair.Key}.asset");
+                if (unit == null) continue;
+                unit.description = pair.Value;
+                EditorUtility.SetDirty(unit);
+            }
+        }
+
         /// <summary>Sets the role on every unit template in Data/Units.</summary>
         public static void ApplyUnitRoles()
         {
@@ -696,6 +727,7 @@ namespace Eldoria.EditorTools
             EnsureSniperRifle(keywords);
             EnsureSniper(keywords);
             ApplyUnitRoles();
+            ApplyUnitDescriptions();
             EnsureUnitCatalog();
             var pistolWeapon = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
             if (pistolWeapon != null)

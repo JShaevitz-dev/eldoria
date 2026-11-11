@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Sniper
   role: 3
+  description: 'A lone marksman who picks off key enemies from up to 50 m. At 150%
+    accuracy every shot hits, with a 50% chance to crit, and you choose exactly which
+    enemy soldier to shoot: ideal for removing sergeants and officers. The Sniper
+    Rifle can''t fire after moving, and with 5 health and no armor the Sniper must
+    stay out of sight; moving 15 m, they can reposition quickly between shots. A
+    Specialist and a Solo unit: one per army.'
   leader: {fileID: 11400000, guid: 8b12ea7df2388134bbad059b3901fa95, type: 2}
   members: []
   deploymentSpacing: 2
