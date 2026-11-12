@@ -41,13 +41,15 @@ namespace Eldoria.Gameplay
         public static bool DeploySelected()
         {
             if (!ArmySelection.HasArmies) return false;
-            Deploy(ArmySelection.PlayerArmy, ArmySelection.AIArmy, ArmySelection.PlayerFaction, ArmySelection.AIFaction, ArmySelection.PlayerLoadouts);
+            Deploy(ArmySelection.PlayerArmy, ArmySelection.AIArmy, ArmySelection.PlayerFaction, ArmySelection.AIFaction,
+                ArmySelection.PlayerLoadouts, ArmySelection.AILoadouts);
             return true;
         }
 
         /// <summary>Removes every unit on the battlefield and deploys these two armies.</summary>
         public static List<Unit> Deploy(IReadOnlyList<UnitTemplate> player, IReadOnlyList<UnitTemplate> ai,
-            Faction playerFaction = null, Faction aiFaction = null, IReadOnlyList<UnitLoadout> playerLoadouts = null)
+            Faction playerFaction = null, Faction aiFaction = null, IReadOnlyList<UnitLoadout> playerLoadouts = null,
+            IReadOnlyList<UnitLoadout> aiLoadouts = null)
         {
             // Out with the armies placed in the scene (deactivated at once so nothing finds them this frame).
             foreach (var old in Object.FindObjectsByType<Unit>(FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -61,7 +63,7 @@ namespace Eldoria.Gameplay
             var root = new GameObject("Armies").transform;
             var deployed = new List<Unit>();
             deployed.AddRange(DeployArmy(player, Side.Player, root, playerFaction, playerLoadouts));
-            deployed.AddRange(DeployArmy(ai, Side.AI, root, aiFaction, null));
+            deployed.AddRange(DeployArmy(ai, Side.AI, root, aiFaction, aiLoadouts));
             return deployed;   // nearby keywords (cover, auras) are worked out when the first turn starts
         }
 
@@ -72,17 +74,24 @@ namespace Eldoria.Gameplay
             var names = UnitNames(units, side);
             var facing = Quaternion.Euler(0f, side == Side.Player ? 0f : 180f, 0f);
             for (int i = 0; i < units.Count; i++)
-                yield return Spawn(units[i], side, SlotFor(side, i), facing, names[i], root, faction,
+            {
+                var unit = Spawn(units[i], side, SlotFor(side, i), facing, names[i], root, faction,
                     loadouts != null && i < loadouts.Count ? loadouts[i] : null);
+                unit.NetId = NetIdOf(side, i);
+                yield return unit;
+            }
         }
+
+        /// <summary>A unit's id in a battle, the same in both games of a multiplayer battle: the side, and its slot in the list.</summary>
+        public static int NetIdOf(Side side, int slot) => (side == Side.Player ? 0 : 100) + slot;
 
         /// <summary>
         /// Names for the units of an army: a unit taken more than once is numbered ("Infantry Squad 1", "Infantry Squad 2");
-        /// the AI's units are marked "(Enemy)".
+        /// the other side's units (from this game's player's point of view) are marked "(Enemy)".
         /// </summary>
         public static List<string> UnitNames(IReadOnlyList<UnitTemplate> units, Side side)
         {
-            string suffix = side == Side.AI ? " (Enemy)" : "";
+            string suffix = side != ArmySelection.LocalSide ? " (Enemy)" : "";
             var counts = units.GroupBy(u => u).ToDictionary(g => g.Key, g => g.Count());
             var seen = new Dictionary<UnitTemplate, int>();
             var names = new List<string>();

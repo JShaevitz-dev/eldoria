@@ -12,7 +12,7 @@ getting the rules right.
 
 1. Download [`Eldoria-Windows.zip`](Eldoria-Windows.zip) from this repo.
 2. Unzip it anywhere and run `Eldoria/Eldoria.exe` (Windows 64-bit).
-3. Pick **Play** on the main menu. You can turn on the turn timer there too (it's off by default, 10 minutes per turn).
+3. Pick **Play** on the main menu (or **Multiplayer**, see below). You can turn on the turn timer there too (it's off by default, 10 minutes per turn).
 4. **Choose a battlefield:** the Boxed in or the Open Season.
 5. **Choose your faction:** the United States of Liberteria, the United Kingdom of Aelfland or the Draksa Reich. Your
    faction decides which units and commanders you can take.
@@ -29,6 +29,25 @@ You play against the AI on one of two maps:
 
 The AI picks a random faction and builds its own random army under the same rules. You go first. Wipe out the enemy to
 win.
+
+### Multiplayer
+
+Two players can play each other over a network. On the main menu, pick **Multiplayer**:
+
+1. One player presses **Host**. The game shows their IP address and the port (**7777**).
+2. The other player presses **Join**, types in the host's IP address, and presses **Connect**.
+3. The host chooses the battlefield. Then both players choose a faction and build an army, and the battle starts once
+   both have confirmed. Who deploys at the south edge and moves first is decided at random.
+
+Things to check:
+
+- **Firewall:** the first time you host, Windows asks whether to let Eldoria through the firewall. Allow it, at least on
+  private networks.
+- **Same network (LAN):** use the address the host's game shows (usually `192.168.x.x` or `10.x.x.x`).
+- **Over the internet:** the host's router must forward **TCP port 7777** to the host's computer, and the other player
+  joins the host's *public* IP address. A virtual LAN tool, such as a VPN shared by both players, also works and avoids
+  port forwarding.
+- Both players need the same version of the game.
 
 ## Controls
 
@@ -143,6 +162,17 @@ Unity.exe -batchmode -quit -projectPath . -executeMethod Eldoria.EditorTools.Gam
 
 The game is written to `Builds/Eldoria/`. Run `Eldoria.exe -smokeTest` to have it play a few AI turns on its own and
 report whether everything loaded.
+
+To test multiplayer, run two copies on one computer, starting the host first. They connect over `127.0.0.1`, play three
+turns against each other, and check that both games agree on the battle after every order:
+
+```bash
+Eldoria.exe -batchmode -nographics -mpSmoke host -logFile host.log
+```
+
+```bash
+Eldoria.exe -batchmode -nographics -mpSmoke join -logFile join.log
+```
 
 ## Status
 

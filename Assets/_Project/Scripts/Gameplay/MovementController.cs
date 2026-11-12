@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Eldoria.CameraControl;
 using Eldoria.Core;
+using Eldoria.Network;
 using Eldoria.Rules;
 using Eldoria.Terrain;
 using Eldoria.Units;
@@ -138,6 +140,26 @@ namespace Eldoria.Gameplay
         public IReadOnlyList<Unit> PlayerUnits => playerUnits;
         public bool HasActed(Unit unit) => actedThisTurn.Contains(unit);
 
+        // ---- Multiplayer: the other side is another player, whose orders arrive over the network and are replayed here.
+        private MultiplayerSession session;
+        /// <summary>This battle is against another player over the network.</summary>
+        public bool IsMultiplayer => session != null;
+        private bool remoteTurn;
+        /// <summary>It's the other player's turn: their orders are being replayed, and this player can only watch.</summary>
+        public bool IsRemoteTurn => remoteTurn;
+        /// <summary>Replaying an order from the other player (don't send it back; no prompts meant for the player).</summary>
+        private bool applyingRemote;
+        private bool quietFlash;
+        private readonly List<Unit> remoteUnits = new List<Unit>();
+        private readonly Dictionary<int, Unit> unitsById = new Dictionary<int, Unit>();
+        private TacticalCameraController cameraRig;
+        /// <summary>The units that can be given orders now: this player's, or on the other player's turn theirs (replayed).</summary>
+        private List<Unit> TurnUnits => remoteTurn ? remoteUnits : playerUnits;
+        /// <summary>This player tried to give an order on the other player's turn.</summary>
+        private bool NotYourTurn => remoteTurn && !applyingRemote;
+        /// <summary>The side this game's player commands.</summary>
+        public Side LocalSide => playerSide;
+
         private void Awake()
         {
             // The armies chosen in the army builder replace the ones placed in the scene (before anything looks for units).
@@ -147,9 +169,26 @@ namespace Eldoria.Gameplay
         private void Start()
         {
             if (cam == null) cam = Camera.main;
+            cameraRig = cam != null ? cam.GetComponentInParent<TacticalCameraController>() : null;
+            // Multiplayer: this game's player commands the side the host rolled for them.
+            session = MultiplayerSession.Active != null && MultiplayerSession.Active.BattleStarted ? MultiplayerSession.Active : null;
+            if (session != null) playerSide = session.LocalSide;
             playerUnits.Clear();
+            remoteUnits.Clear();
+            unitsById.Clear();
             foreach (var u in FindObjectsByType<Unit>(FindObjectsSortMode.None))
+            {
                 if (u.Side == playerSide) playerUnits.Add(u);
+                else remoteUnits.Add(u);
+                if (u.NetId >= 0) unitsById[u.NetId] = u;
+            }
+            remoteUnits.Sort((a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
+            // The north player looks at the battlefield from their own edge (the view turned half way round).
+            if (playerSide == Side.AI && cameraRig != null)
+            {
+                var p = cameraRig.transform.position;
+                cameraRig.SetView(new Vector3(-p.x, p.y, -p.z), cameraRig.Yaw + 180f);
+            }
             if (playerUnits.Count == 0)
             {
                 Debug.LogError("[Eldoria] MovementController needs at least one player unit.");
@@ -208,6 +247,7 @@ namespace Eldoria.Gameplay
         /// <summary>Starts the battle again from the beginning (reloads the map).</summary>
         public void Restart()
         {
+            if (IsMultiplayer) return;   // both players would have to agree: go back to the menu instead
             var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
             UnityEngine.SceneManagement.SceneManager.LoadScene(scene.buildIndex >= 0 ? scene.buildIndex : 0);
         }
@@ -215,9 +255,12 @@ namespace Eldoria.Gameplay
         private void DrawBattleOverBanner()
         {
             var outcome = Victory.Outcome;
-            var colour = outcome == BattleOutcome.PlayerWins ? new Color(1f, 0.85f, 0.3f)
-                : outcome == BattleOutcome.AIWins ? new Color(1f, 0.35f, 0.3f) : new Color(0.85f, 0.85f, 0.85f);
-            string title = outcome == BattleOutcome.PlayerWins ? "VICTORY" : outcome == BattleOutcome.AIWins ? "DEFEAT" : "DRAW";
+            // Victory and defeat are this player's: the side that won (south = Side.Player) against the side they command.
+            Side? winner = outcome == BattleOutcome.PlayerWins ? Side.Player : outcome == BattleOutcome.AIWins ? Side.AI : (Side?)null;
+            bool won = winner == playerSide, lost = winner != null && winner != playerSide;
+            var colour = won ? new Color(1f, 0.85f, 0.3f) : lost ? new Color(1f, 0.35f, 0.3f) : new Color(0.85f, 0.85f, 0.85f);
+            string title = won ? "VICTORY" : lost ? "DEFEAT" : "DRAW";
+            var shownOutcome = won ? BattleOutcome.PlayerWins : lost ? BattleOutcome.AIWins : outcome;
 
             var box = new Rect(Screen.width / 2f - 260f, Screen.height / 2f - 110f, 520f, 220f);
             GUI.Box(box, GUIContent.none);
@@ -226,9 +269,27 @@ namespace Eldoria.Gameplay
             big.normal.textColor = colour;
             var small = new GUIStyle(GUI.skin.label) { fontSize = 18, alignment = TextAnchor.MiddleCenter, wordWrap = true };
             GUI.Label(new Rect(box.x, box.y + 20f, box.width, 70f), title, big);
-            GUI.Label(new Rect(box.x + 20f, box.y + 95f, box.width - 40f, 50f), Victory.Describe(outcome), small);
+            GUI.Label(new Rect(box.x + 20f, box.y + 95f, box.width - 40f, 50f), Victory.Describe(shownOutcome), small);
+            if (IsMultiplayer)
+            {
+                if (GUI.Button(new Rect(box.x + box.width / 2f - 90f, box.y + 155f, 180f, 40f), "Main menu")) MainMenu.BackToMenu();
+                return;
+            }
             if (GUI.Button(new Rect(box.x + box.width / 2f - 190f, box.y + 155f, 180f, 40f), "Restart (R)")) Restart();
             if (GUI.Button(new Rect(box.x + box.width / 2f + 10f, box.y + 155f, 180f, 40f), "Main menu")) MainMenu.BackToMenu();
+        }
+
+        /// <summary>Multiplayer: the other player left or the connection dropped before the battle was decided.</summary>
+        private void DrawDisconnectedBanner()
+        {
+            var box = new Rect(Screen.width / 2f - 260f, Screen.height / 2f - 100f, 520f, 200f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Box(box, GUIContent.none);
+            var big = new GUIStyle(GUI.skin.label) { fontSize = 32, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+            var small = new GUIStyle(GUI.skin.label) { fontSize = 16, alignment = TextAnchor.MiddleCenter, wordWrap = true };
+            GUI.Label(new Rect(box.x, box.y + 15f, box.width, 50f), "OPPONENT DISCONNECTED", big);
+            GUI.Label(new Rect(box.x + 20f, box.y + 70f, box.width - 40f, 60f), session.Error ?? "The connection to the other player was lost.", small);
+            if (GUI.Button(new Rect(box.x + box.width / 2f - 90f, box.y + 140f, 180f, 40f), "Main menu")) MainMenu.BackToMenu();
         }
 
         /// <summary>
@@ -237,8 +298,8 @@ namespace Eldoria.Gameplay
         /// </summary>
         public bool SelectUnit(Unit unit)
         {
-            if (Victory.IsOver || aiTurn) return false;
-            if (unit == null || unit == squad || !playerUnits.Contains(unit) || unit.IsDestroyed) return false;
+            if (Victory.IsOver || aiTurn || NotYourTurn) return false;
+            if (unit == null || unit == squad || !TurnUnits.Contains(unit) || unit.IsDestroyed) return false;
             if (actedThisTurn.Contains(unit))
             {
                 Flash($"{unit.DisplayName} has already acted this turn.");
@@ -257,16 +318,20 @@ namespace Eldoria.Gameplay
             abilityMode = null;
             StartActivation();
             Flash($"Commanding {unit.DisplayName}.");
+            if (applyingRemote && cameraRig != null && unit.Leader != null) cameraRig.FocusOn(unit.Leader.Position);
+            Broadcast(OrderKinds.Select, unit);
             return true;
         }
 
         /// <summary>Selects the next of the player's units that hasn't acted yet this turn.</summary>
         public bool SelectNextUnit()
         {
-            int start = playerUnits.IndexOf(squad); // -1 when none is selected: start from the first unit
-            for (int i = 1; i <= playerUnits.Count; i++)
+            var units = TurnUnits;
+            if (NotYourTurn || units.Count == 0) return false;
+            int start = units.IndexOf(squad); // -1 when none is selected: start from the first unit
+            for (int i = 1; i <= units.Count; i++)
             {
-                var u = playerUnits[(start + i + playerUnits.Count) % playerUnits.Count];
+                var u = units[(start + i + units.Count) % units.Count];
                 if (u != squad && !actedThisTurn.Contains(u) && !u.IsDestroyed) return SelectUnit(u);
             }
             Flash("No other unit can act this turn.");
@@ -279,13 +344,14 @@ namespace Eldoria.Gameplay
         /// </summary>
         public bool CancelSelection()
         {
-            if (aiTurn || activation == null || actionTaken) return false;
+            if (aiTurn || NotYourTurn || activation == null || actionTaken) return false;
             if (activation.Phase != MovePhase.MoveLeader || activation.LeaderMove != MoveKind.None) return false;
             string name = squad.DisplayName;
             shootMode = false;
             abilityMode = null;
             Deselect();
             Flash($"{name} deselected. Click one of your units (or press Tab) to command it.");
+            Broadcast(OrderKinds.Cancel);
             return true;
         }
 
@@ -301,7 +367,7 @@ namespace Eldoria.Gameplay
         /// </summary>
         public void EndTurn(bool instant = false)
         {
-            if (Victory.IsOver || aiTurn) return;
+            if (Victory.IsOver || aiTurn || NotYourTurn) return;
             if (activation != null && activation.Phase == MovePhase.MoveFollowers)
             {
                 Flash("Finish this unit's move first.");
@@ -310,6 +376,14 @@ namespace Eldoria.Gameplay
             shootMode = false;
             abilityMode = null;
             Deselect();
+            if (IsMultiplayer)
+            {
+                // South (Side.Player) has finished: north takes its part of the turn. North has finished: next turn.
+                if (Turns.ActiveSide == Side.Player) StartSideTurn(Side.AI);
+                else NextTurn();
+                Broadcast(OrderKinds.EndTurn);
+                return;
+            }
             aiTurn = true;
             recentLog.Clear();
             var enemySide = playerSide == Side.Player ? Side.AI : Side.Player;
@@ -325,13 +399,31 @@ namespace Eldoria.Gameplay
         {
             if (Victory.IsOver) return;
             Turns.StartNextTurn(); // removes keywords that wear off now, e.g. "Moved"
-            ResetTurnTimer();      // the player's turn starts now
+            BeginSidePart(Side.Player);
+        }
+
+        /// <summary>Multiplayer: <paramref name="side"/> takes its part of the current turn.</summary>
+        private void StartSideTurn(Side side)
+        {
+            Turns.StartSideTurn(side);
+            BeginSidePart(side);
+        }
+
+        /// <summary>A side's part of the turn begins: this player's (timer starts, pick a unit) or the other player's (watch).</summary>
+        private void BeginSidePart(Side side)
+        {
+            remoteTurn = IsMultiplayer && side != playerSide;
+            if (remoteTurn) timerRunning = false;
+            else ResetTurnTimer();      // the player's turn starts now
             actionTaken = false;
             shootMode = false;
             abilityMode = null;
             actedThisTurn.Clear();
             Deselect();
-            Flash($"Turn {Turns.Current}: click one of your units (or press Tab) to command it.");
+            if (remoteTurn) recentLog.Clear();
+            ForceFlash(remoteTurn ? $"Turn {Turns.Current}: your opponent's turn." : IsMultiplayer
+                ? $"Turn {Turns.Current}: your turn! Click one of your units (or press Tab) to command it."
+                : $"Turn {Turns.Current}: click one of your units (or press Tab) to command it.");
         }
 
         /// <summary>No unit is being commanded (the state at the start of every turn).</summary>
@@ -381,7 +473,7 @@ namespace Eldoria.Gameplay
         /// <summary>Debug: kills the current squad leader to test succession. Only before or after the squad moves.</summary>
         public bool DebugKillLeader()
         {
-            if (NoActiveUnit()) return false;
+            if (IsMultiplayer || NoActiveUnit()) return false;
             if (activation.Phase == MovePhase.MoveFollowers)
             {
                 Flash("Finish or undo the move before killing the leader.");
@@ -402,7 +494,7 @@ namespace Eldoria.Gameplay
 
         public bool OrderLeaderMove(Vector3 destination)
         {
-            if (NoActiveUnit()) return false;
+            if (NotYourTurn || NoActiveUnit()) return false;
             if (!activation.TryMoveLeader(destination, out var check))
             {
                 Flash(check.Reason);
@@ -412,15 +504,17 @@ namespace Eldoria.Gameplay
             selected = NextOutOfCohesion();
             string who = activation.Leader.name;
             Flash(check.Kind == MoveKind.Sprint ? $"{who} sprints {check.Distance:0.0} m." : $"{who} moves {check.Distance:0.0} m.");
+            Broadcast(OrderKinds.LeaderMove, point: destination);
             return true;
         }
 
         public bool OrderHold()
         {
-            if (NoActiveUnit()) return false;
+            if (NotYourTurn || NoActiveUnit()) return false;
             if (!activation.HoldLeader()) return false;
             selected = NextOutOfCohesion();
             Flash($"{activation.Leader.name} holds position.");
+            Broadcast(OrderKinds.Hold);
             return true;
         }
 
@@ -433,30 +527,33 @@ namespace Eldoria.Gameplay
 
         public bool OrderSelectedMove(Vector3 destination)
         {
-            if (activation == null || selected == null || selected == activation.Leader) return false;
+            if (NotYourTurn || activation == null || selected == null || selected == activation.Leader) return false;
             if (!activation.TryMoveFollower(selected, destination, out var check))
             {
                 Flash(check.Reason);
                 return false;
             }
+            var mover = selected;
             WalkTo(selected, check.Path, false);
             selected = NextOutOfCohesion();
+            Broadcast(OrderKinds.FollowerMove, soldier: mover, point: destination);
             return true;
         }
 
         public void OrderGather()
         {
-            if (activation == null || activation.Phase != MovePhase.MoveFollowers) return;
+            if (NotYourTurn || activation == null || activation.Phase != MovePhase.MoveFollowers) return;
             var moved = activation.GatherIntoCohesion();
             foreach (var m in moved) WalkTo(m, activation.PathOf(m), false);
             int left = activation.OutOfCohesion().Count;
             Flash(left == 0 ? $"Gathered {moved.Count} soldier(s)." : $"Gathered {moved.Count}; {left} could not find room.");
             selected = NextOutOfCohesion();
+            Broadcast(OrderKinds.Gather);
         }
 
         public bool OrderEndMove()
         {
-            if (activation == null) return false;
+            if (NotYourTurn || activation == null) return false;
             if (!activation.Complete())
             {
                 if (activation.Phase == MovePhase.MoveFollowers)
@@ -465,12 +562,13 @@ namespace Eldoria.Gameplay
             }
             selected = null;
             Flash("Move complete.");
+            Broadcast(OrderKinds.EndMove);
             return true;
         }
 
         public void OrderReset()
         {
-            if (activation == null || activation.Phase == MovePhase.Complete) return;
+            if (NotYourTurn || activation == null || activation.Phase == MovePhase.Complete) return;
             StopAllWalking();
             activation.Reset();
             foreach (var m in squad.LivingSoldiers)
@@ -480,6 +578,7 @@ namespace Eldoria.Gameplay
             }
             selected = activation.Leader;
             Flash("Move undone.");
+            Broadcast(OrderKinds.Reset);
         }
 
         private Soldier NextOutOfCohesion()
@@ -497,10 +596,23 @@ namespace Eldoria.Gameplay
             var mouse = Mouse.current;
             var kb = Keyboard.current;
 
+            // Multiplayer: replay the other player's orders as they arrive.
+            if (IsMultiplayer) PumpRemoteOrders();
+
             if (Victory.IsOver)
             {
                 // The battle is decided: the only order left is to play again.
                 if (kb != null && kb.rKey.wasPressedThisFrame) Restart();
+                UpdateTimedVisuals();
+                return;
+            }
+
+            if (IsMultiplayer && session.Lost) { timerRunning = false; return; }
+
+            if (remoteTurn)
+            {
+                // The other player's turn: watch their orders play out.
+                UpdateTimedVisuals();
                 return;
             }
 
@@ -529,7 +641,7 @@ namespace Eldoria.Gameplay
             if (activation == null)
             {
                 // No unit selected (start of a turn): pick one with Tab or by clicking it.
-                if (Time.time > tracersUntil) foreach (var t in tracers) t.Hide();
+                UpdateTimedVisuals();
                 if (kb != null && kb.tabKey.wasPressedThisFrame) SelectNextUnit();
                 if (kb != null && kb.nKey.wasPressedThisFrame) EndTurn();
                 if (mouse != null && mouse.leftButton.wasPressedThisFrame && !PointerOverHud(mouse))
@@ -874,6 +986,12 @@ namespace Eldoria.Gameplay
 
         private void Flash(string text)
         {
+            if (quietFlash) return;   // replaying the other player's moves: their prompts aren't for this player
+            ForceFlash(text);
+        }
+
+        private void ForceFlash(string text)
+        {
             message = text;
             messageUntil = Time.time + 4f;
         }
@@ -894,6 +1012,7 @@ namespace Eldoria.Gameplay
             GUILayout.EndArea();
 
             if (Victory.IsOver) DrawBattleOverBanner();
+            else if (IsMultiplayer && session.Lost) DrawDisconnectedBanner();
         }
 
         private void DrawHud()
@@ -912,9 +1031,27 @@ namespace Eldoria.Gameplay
                 return;
             }
 
-            GUILayout.Label($"{(squad != null ? squad.DisplayName : "No unit selected")}  —  Turn {Turns.Current}", title);
-            if (ArmySelection.PlayerFaction != null && ArmySelection.AIFaction != null)
-                GUILayout.Label($"{ArmySelection.PlayerFaction.displayName}  vs  {ArmySelection.AIFaction.displayName}", wrap);
+            if (IsMultiplayer && session.Desyncs > 0)
+            {
+                var warn = new GUIStyle(wrap) { fontStyle = FontStyle.Bold };
+                warn.normal.textColor = new Color(1f, 0.4f, 0.3f);
+                GUILayout.Label($"Warning: this game and your opponent's disagree about the battle ({session.Desyncs} order(s)).", warn);
+            }
+
+            if (remoteTurn)
+            {
+                GUILayout.Label($"OPPONENT'S TURN  —  Turn {Turns.Current}", title);
+                DrawFactions(wrap);
+                GUILayout.Label(squad != null ? $"They're commanding {squad.DisplayName}." : "Waiting for your opponent's orders…", wrap);
+                if (!string.IsNullOrEmpty(message) && Time.time < messageUntil) GUILayout.Label(message, wrap);
+                var smallLog = new GUIStyle(wrap) { fontSize = 11 };
+                foreach (var line in recentLog.Skip(Mathf.Max(0, recentLog.Count - 12)))
+                    GUILayout.Label(line, smallLog);
+                return;
+            }
+
+            GUILayout.Label($"{(squad != null ? squad.DisplayName : "No unit selected")}  —  Turn {Turns.Current}{(IsMultiplayer ? "  (your turn)" : "")}", title);
+            DrawFactions(wrap);
             if (timerRunning)
             {
                 var timerStyle = new GUIStyle(title);
@@ -967,7 +1104,7 @@ namespace Eldoria.Gameplay
                     GUILayout.EndHorizontal();
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button("Deselect (Esc)")) CancelSelection();
-                    if (GUILayout.Button("Kill leader (K, debug)")) DebugKillLeader();
+                    if (!IsMultiplayer && GUILayout.Button("Kill leader (K, debug)")) DebugKillLeader();
                     GUILayout.EndHorizontal();
                     break;
 
@@ -997,7 +1134,7 @@ namespace Eldoria.Gameplay
                         GUI.enabled = true;
                     }
                     if (GUILayout.Button("End turn (N)")) EndTurn();
-                    if (GUILayout.Button("Kill leader (K, debug)")) DebugKillLeader();
+                    if (!IsMultiplayer && GUILayout.Button("Kill leader (K, debug)")) DebugKillLeader();
                     GUILayout.EndHorizontal();
                     break;
             }
@@ -1035,6 +1172,15 @@ namespace Eldoria.Gameplay
                 foreach (var line in recentLog.Skip(Mathf.Max(0, recentLog.Count - 8)))
                     GUILayout.Label(line, small);
             }
+        }
+
+        /// <summary>The two factions: in multiplayer, this player's first.</summary>
+        private void DrawFactions(GUIStyle wrap)
+        {
+            if (ArmySelection.PlayerFaction == null || ArmySelection.AIFaction == null) return;
+            var mine = playerSide == Side.Player ? ArmySelection.PlayerFaction : ArmySelection.AIFaction;
+            var theirs = playerSide == Side.Player ? ArmySelection.AIFaction : ArmySelection.PlayerFaction;
+            GUILayout.Label($"{mine.displayName}  vs  {theirs.displayName}", wrap);
         }
 
         /// <summary>
@@ -1117,7 +1263,10 @@ namespace Eldoria.Gameplay
                 CombatAudio.PlayError();
                 return refused;
             }
+            if (NotYourTurn) return new AbilityResult { Reason = "It's your opponent's turn" };
             if (ability.targets == AbilityTarget.Unit && targetUnit == null && targetSoldier != null) targetUnit = targetSoldier.Unit;
+            // Soldiers still walking are put at their spots first, so both multiplayer games measure from the same places.
+            StopAllWalking();
             var result = ActiveAbilities.Use(user, ability, targetSoldier, targetUnit, point);
             if (!result.Used)
             {
@@ -1141,6 +1290,8 @@ namespace Eldoria.Gameplay
                 Flash($"{ability.displayName}: {hit} hurt, {down} down, {result.Shielded.Count} shielded by terrain. {squad.DisplayName}'s turn is over.");
             }
             else Flash($"{user.name} uses {ability.displayName}. {squad.DisplayName}'s turn is over.");
+            if (applyingRemote) recentLog.Insert(0, $"{squad.DisplayName}: {user.name} uses {ability.displayName}.");
+            Broadcast(OrderKinds.Ability, soldier: user, targetUnit: targetUnit, targetSoldier: targetSoldier, ability: ability.name, point: point);
             return result;
         }
 
@@ -1186,8 +1337,10 @@ namespace Eldoria.Gameplay
         /// <param name="chosenTarget">The enemy soldier clicked: soldiers with Sniper Precision target them.</param>
         public ShootingResult OrderShoot(Unit enemy, Soldier chosenTarget = null)
         {
-            if (enemy == null || enemy == squad || actionTaken || activation == null || activation.Phase == MovePhase.MoveFollowers)
+            if (NotYourTurn || enemy == null || enemy == squad || actionTaken || activation == null || activation.Phase == MovePhase.MoveFollowers)
                 return null;
+            // Soldiers still walking are put at their spots first, so both multiplayer games measure from the same places.
+            StopAllWalking();
             // Nobody can target any of them (out of range or out of sight): refuse, so the action isn't wasted.
             if (UnitShooting.SoldiersAbleToShoot(squad, enemy, chosenTarget) == 0)
             {
@@ -1210,7 +1363,134 @@ namespace Eldoria.Gameplay
             Flash(lastShooting.HasLineOfSight || lastShooting.ShotsTaken > 0
                 ? $"Shot at {enemy.DisplayName}: {lastShooting.Hits}/{lastShooting.ShotsTaken} hits, {lastShooting.Crits} crits, {lastShooting.TotalDamage} damage, {lastShooting.Kills} down."
                 : $"Can't see {enemy.DisplayName}.");
+            if (applyingRemote)
+                recentLog.Insert(0, $"{squad.DisplayName} shoots at {enemy.DisplayName}: {lastShooting.Hits}/{lastShooting.ShotsTaken} hits, {lastShooting.TotalDamage} damage, {lastShooting.Kills} down.");
+            Broadcast(OrderKinds.Shoot, targetUnit: enemy, targetSoldier: chosenTarget);
             return lastShooting;
+        }
+
+        // ------------------------------------------------------------------ Multiplayer orders
+
+        /// <summary>Sends an order this player just gave (with the state after it) to the other player's game.</summary>
+        private void Broadcast(string kind, Unit unit = null, Soldier soldier = null, Unit targetUnit = null, Soldier targetSoldier = null,
+            string ability = null, Vector3? point = null)
+        {
+            if (!IsMultiplayer || applyingRemote) return;
+            var order = new OrderMsg
+            {
+                kind = kind,
+                unit = unit != null ? unit.NetId : -1,
+                soldier = IndexInUnit(soldier),
+                targetUnit = targetUnit != null ? targetUnit.NetId : -1,
+                targetSoldier = IndexInUnit(targetSoldier),
+                ability = ability ?? "",
+            };
+            if (point.HasValue) order.Point = point.Value;
+            order.checksum = StateChecksum();
+            session.SendOrder(order);
+        }
+
+        private static int IndexInUnit(Soldier soldier)
+        {
+            if (soldier == null || soldier.Unit == null) return -1;
+            var all = soldier.Unit.Soldiers;
+            for (int i = 0; i < all.Count; i++) if (all[i] == soldier) return i;
+            return -1;
+        }
+
+        private static Soldier SoldierAt(Unit unit, int index) =>
+            unit != null && index >= 0 && index < unit.Soldiers.Count ? unit.Soldiers[index] : null;
+
+        private Unit UnitById(int id) => id >= 0 && unitsById.TryGetValue(id, out var u) ? u : null;
+
+        private void PumpRemoteOrders()
+        {
+            while (session != null && session.TryNextOrder(out var order)) ApplyRemote(order);
+        }
+
+        /// <summary>
+        /// Replays an order the other player gave, through the same orders, rules and dice as theirs; then checks this
+        /// game's state matches what theirs was after it.
+        /// </summary>
+        public void ApplyRemote(OrderMsg order)
+        {
+            if (order == null) return;
+            applyingRemote = true;
+            quietFlash = order.kind != OrderKinds.Shoot && order.kind != OrderKinds.Ability;
+            bool ok = true;
+            try
+            {
+                var target = UnitById(order.targetUnit);
+                switch (order.kind)
+                {
+                    case OrderKinds.Select: ok = SelectUnit(UnitById(order.unit)); break;
+                    case OrderKinds.Cancel: ok = CancelSelection(); break;
+                    case OrderKinds.LeaderMove: ok = OrderLeaderMove(order.Point); break;
+                    case OrderKinds.Hold: ok = OrderHold(); break;
+                    case OrderKinds.FollowerMove:
+                        selected = SoldierAt(squad, order.soldier);
+                        ok = OrderSelectedMove(order.Point);
+                        break;
+                    case OrderKinds.Gather: OrderGather(); break;
+                    case OrderKinds.EndMove: ok = OrderEndMove(); break;
+                    case OrderKinds.Reset: OrderReset(); break;
+                    case OrderKinds.Shoot: ok = OrderShoot(target, SoldierAt(target, order.targetSoldier)) != null; break;
+                    case OrderKinds.Ability:
+                        var user = SoldierAt(squad, order.soldier);
+                        var ability = ActiveAbilities.UnitAbilities(squad).Where(p => p.user == user && p.ability.name == order.ability)
+                            .Select(p => p.ability).FirstOrDefault();
+                        ok = ability != null && UseAbility(ability, user, SoldierAt(target, order.targetSoldier), target,
+                            order.hasPoint ? order.Point : (Vector3?)null).Used;
+                        break;
+                    case OrderKinds.EndTurn:
+                        var before = (Turns.Current, Turns.ActiveSide);
+                        EndTurn();
+                        ok = (Turns.Current, Turns.ActiveSide) != before || Victory.IsOver;
+                        break;
+                    default: ok = false; break;
+                }
+            }
+            finally
+            {
+                applyingRemote = false;
+                quietFlash = false;
+            }
+            long mine = StateChecksum();
+            if (!ok || mine != order.checksum) session.ReportDesync(order, mine);
+        }
+
+        /// <summary>
+        /// A fingerprint of the battle (turn, every soldier's health and where they stand or are headed), compared
+        /// between the two games after every multiplayer order.
+        /// </summary>
+        public long StateChecksum()
+        {
+            ulong h = 14695981039346656037UL;
+            Mix(ref h, Turns.Current);
+            Mix(ref h, (int)Turns.ActiveSide);
+            foreach (var kv in unitsById.OrderBy(kv => kv.Key))
+            {
+                Mix(ref h, kv.Key);
+                foreach (var s in kv.Value.Soldiers)
+                {
+                    if (s == null) { Mix(ref h, -7); continue; }
+                    Mix(ref h, s.IsAlive ? 1 : 0);
+                    Mix(ref h, s.Health);
+                    var p = walkTargets.TryGetValue(s, out var t) ? t : s.transform.position;
+                    Mix(ref h, Mathf.RoundToInt(p.x * 100f));
+                    Mix(ref h, Mathf.RoundToInt(p.z * 100f));
+                }
+            }
+            return unchecked((long)h);
+        }
+
+        private static void Mix(ref ulong h, int value)
+        {
+            unchecked
+            {
+                h ^= (uint)value;
+                h *= 1099511628211UL;
+            }
         }
 
         private void ShowTracers(ShootingResult r)

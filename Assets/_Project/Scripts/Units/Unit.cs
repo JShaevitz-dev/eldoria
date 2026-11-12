@@ -61,6 +61,9 @@ namespace Eldoria.Units
         public string DisplayName => displayName;
         public UnitTemplate Template => template;
 
+        /// <summary>The unit's id in this battle (the same in both games of a multiplayer battle); -1 if it has none.</summary>
+        public int NetId { get; set; } = -1;
+
         [SerializeField] private Faction faction;
         /// <summary>The army's faction (null for units placed in a scene without one). It changes the stats and names of the unit's weapons.</summary>
         public Faction Faction => faction;

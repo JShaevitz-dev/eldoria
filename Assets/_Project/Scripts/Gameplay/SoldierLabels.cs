@@ -90,7 +90,7 @@ namespace Eldoria.Gameplay
                 string shownName = roomy ? s.name : ShortName(s.name);
                 string plain = roomy ? plainFull : ShortLabelFor(s);
 
-                bool player = s.Unit != null && s.Unit.Side == Side.Player;
+                bool player = s.Unit != null && s.Unit.Side == ArmySelection.LocalSide;   // yours are blue, the enemy's red
                 string nameColour = player ? "#9cc7ff" : "#ff9c92";
                 string healthColour = s.Health < s.MaxHealth ? "#ff4a3d" : "#ffffff";
                 string text = $"<color={nameColour}>{shownName}</color>{(roomy ? "  " : " ")}<color={healthColour}>{s.Health}/{s.MaxHealth}</color>";

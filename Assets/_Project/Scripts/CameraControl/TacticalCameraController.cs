@@ -43,6 +43,18 @@ namespace Eldoria.CameraControl
         private Vector3? focus;
         [SerializeField] private float focusSpeed = 4f;
 
+        /// <summary>Which way the camera faces (degrees around the vertical).</summary>
+        public float Yaw => yaw;
+
+        /// <summary>Puts the camera at <paramref name="position"/>, facing <paramref name="yawDegrees"/> (no glide).</summary>
+        public void SetView(Vector3 position, float yawDegrees)
+        {
+            focus = null;
+            transform.position = new Vector3(position.x, transform.position.y, position.z);
+            yaw = targetYaw = yawDegrees;
+            ApplyCameraTransform();
+        }
+
         /// <summary>Glide the camera over to look at <paramref name="point"/>.</summary>
         public void FocusOn(Vector3 point) => focus = new Vector3(point.x, 0f, point.z);
 

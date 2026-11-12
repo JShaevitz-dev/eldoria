@@ -428,11 +428,29 @@ Test room terrain:
 - It counts down only during the player's turn (it pauses while the AI plays) and starts again from the full length at the start of each of their turns. The HUD shows the time left (red in the last minute).
 - **When time runs out, the player's turn ends** as if they'd pressed End turn. A unit half-way through its move gathers its stragglers into cohesion and finishes the move; if it can't, its move is undone.
 
+## Multiplayer — *implemented*
+
+Two players can fight each other over the network instead of against the AI.
+
+- **Connecting:** on the main menu, **Multiplayer**, then:
+  - **Host:** the game waits for the other player and shows this computer's IP address(es) and the port (**7777**). Tell the other player the address.
+  - **Join:** type the host's IP address and press **Connect**.
+- **Setting up:** the **host chooses the battlefield**. Then **both players choose a faction and build an army** under the usual army list rules (each player sees only their own builder). When both have confirmed, the battle starts.
+- **Sides:** who deploys at the **south** edge and **moves first** is **decided at random** when the battle starts. The other player deploys at the north edge, and their view of the battlefield is turned around so their own army is at the bottom of the screen.
+- **Turns:** the same as against the AI: the south player activates all their units and ends their turn, then the north player does, then the next turn starts. The rules (including "until the start of the next turn") are unchanged.
+- **The other player's turn:** you watch their orders play out (the camera follows the unit they're commanding, and the log shows their volleys and abilities). You can't give orders until it's your turn.
+- **Each player's own turn timer** (the main menu option) applies to their own turns.
+- **Winning:** as usual. Each player sees **Victory** or **Defeat** from their own point of view. There's no Restart in multiplayer: **Main menu** leaves the game.
+- **Leaving:** if either player leaves or the connection drops, the other player is told (**Opponent disconnected**) and returns to the main menu.
+- Debug orders (kill the squad leader) aren't available in multiplayer.
+
+How it works (for development): both games run the battle themselves. The host rolls the dice seed and who goes south, and both games use that seed. Each order the active player gives (select a unit, move, gather, end move, shoot, use an ability, end turn) is sent to the other game, which gives the same order through the same rules and dice. After every order the sending game includes a fingerprint of the battle (turn, every soldier's health and position), and the other game checks its own matches. If they ever disagree, the HUD shows a warning.
+
 ## Winning — *implemented*
 
 - **A side with no soldiers left loses**, and the other side wins. If both sides lose their last soldiers at the same moment (e.g. one grenade), it's a **draw**.
 - It's checked whenever soldiers are removed from the battlefield: at the end of a volley or blast, or when a soldier dies outside combat.
-- When the battle is decided, a **Victory / Defeat / Draw** banner appears, no more orders can be given, and **Restart (R)** starts the battle again.
+- When the battle is decided, a **Victory / Defeat / Draw** banner appears, no more orders can be given, and **Restart (R)** starts the battle again (single player only).
 
 ## Maps
 
