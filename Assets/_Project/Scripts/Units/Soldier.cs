@@ -227,7 +227,14 @@ namespace Eldoria.Units
         /// <summary>Weapons this soldier is carrying.</summary>
         public IReadOnlyList<Weapon> Weapons { get { EnsureInitialized(); return weapons; } }
 
-        public Vector3 Position => transform.position;
+        /// <summary>
+        /// Where the rules have this soldier: the end of their move while the walk animation is still playing, so every
+        /// game (both multiplayer games included) measures from the same spot however far the animation has got.
+        /// </summary>
+        public Vector3 Position => WalkingTo ?? transform.position;
+
+        /// <summary>Where this soldier's walk animation ends, while it plays (set by the movement controller).</summary>
+        public Vector3? WalkingTo { get; set; }
 
         private void Awake() => EnsureInitialized();
 

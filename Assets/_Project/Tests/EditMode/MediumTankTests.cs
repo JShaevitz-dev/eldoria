@@ -149,6 +149,39 @@ namespace Eldoria.Tests
                 Is.EqualTo("Medium Tank — Health 20 · Armor 4 · Accuracy 75% · Move 30 m (can't sprint) · 100mm Cannon"));
             Assert.That(UnitInfo.WeaponLines(Unit()).Single(),
                 Is.EqualTo("100mm Cannon — Damage 10 · Shots 1 · Penetration 4 · Range 50 m · Manual Load"));
+            Assert.That(UnitInfo.AbilityLines(Unit()).Single(), Is.EqualTo("Frag Grenade (active)"), "no once per battle");
+        }
+
+        // ---- Frag Grenade: the infantry's grenade, but with no once-per-battle limit ----
+
+        private static Ability TankGrenade() => AssetDatabase.LoadAssetAtPath<Ability>($"{Data}/Abilities/TankFragGrenade.asset");
+
+        [Test]
+        public void TheTankHasAFragGrenadeWithNoLimitPerBattle()
+        {
+            var infantry = AssetDatabase.LoadAssetAtPath<Ability>($"{Data}/Abilities/FragGrenade.asset");
+            var g = TankGrenade();
+            Assert.That(Tank().abilities, Is.EqualTo(new[] { g }));
+            Assert.That(g.displayName, Is.EqualTo("Frag Grenade"));
+            Assert.That((g.kind, g.targets, g.range, g.areaRadius, g.areaWeapon, g.usesPerTurn),
+                Is.EqualTo((infantry.kind, infantry.targets, infantry.range, infantry.areaRadius, infantry.areaWeapon, infantry.usesPerTurn)), "the same grenade");
+            Assert.That(g.usesPerBattle, Is.EqualTo(0), "no limit per battle");
+            Assert.That(infantry.usesPerBattle, Is.EqualTo(1), "the infantry's is still once per battle");
+        }
+
+        [Test]
+        public void TheTankCanThrowAGrenadeEveryTurn()
+        {
+            var tank = Spawn(Unit(), Side.Player, Vector3.zero);
+            var g = TankGrenade();
+            for (int turn = 0; turn < 4; turn++)
+            {
+                Assert.That(ActiveAbilities.Use(tank.Leader, g, targetPoint: new Vector3(0f, 0f, 8f)).Used, Is.True, $"turn {turn + 1}");
+                Assert.That(ActiveAbilities.Use(tank.Leader, g, targetPoint: new Vector3(0f, 0f, 8f)).Used, Is.False, "once a turn");
+                Turns.StartNextTurn();
+            }
+            Assert.That(tank.UsesLeftThisBattle(g), Is.EqualTo(int.MaxValue));
+            Assert.That(Eldoria.Gameplay.MovementController.AbilityButtonLabel(tank.Leader, g), Is.EqualTo("Frag Grenade — 10 m"));
         }
     }
 }

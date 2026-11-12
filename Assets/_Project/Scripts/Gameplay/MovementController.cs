@@ -361,12 +361,47 @@ namespace Eldoria.Gameplay
 
         // ------------------------------------------------------------------ Orders (public so AI/tests can drive them)
 
+        private bool confirmingEndTurn;
+
+        /// <summary>The player pressed End turn while some of their units can still move: they're asked to confirm.</summary>
+        public bool ConfirmingEndTurn => confirmingEndTurn;
+
+        /// <summary>
+        /// This player's units that haven't moved yet this turn: not destroyed, not done, and not the selected unit
+        /// once it has finished its move.
+        /// </summary>
+        public List<Unit> UnitsThatCanStillMove() =>
+            TurnUnits.Where(u => u != null && !u.IsDestroyed && !actedThisTurn.Contains(u)
+                                 && !(u == squad && activation != null && activation.Phase == MovePhase.Complete)).ToList();
+
+        /// <summary>
+        /// The End turn button (and N): if any of the player's units can still move, asks them to confirm first;
+        /// otherwise ends the turn. (<see cref="EndTurn"/> itself never asks: the turn timer, the AI and the other
+        /// player's replayed orders use it.)
+        /// </summary>
+        public void RequestEndTurn()
+        {
+            if (Victory.IsOver || aiTurn || NotYourTurn) return;
+            if ((activation == null || activation.Phase != MovePhase.MoveFollowers) && UnitsThatCanStillMove().Count > 0)
+            {
+                shootMode = false;
+                abilityMode = null;
+                confirmingEndTurn = true;
+                return;
+            }
+            EndTurn();
+        }
+
+        /// <summary>The player chose to keep playing instead of ending their turn.</summary>
+        public void CancelEndTurn() => confirmingEndTurn = false;
+
         /// <summary>
         /// The player ends their turn: the AI takes its turn (watchable, unit by unit, unless <paramref name="instant"/>),
         /// then the next turn starts. Not while a unit is half-way through its move.
         /// </summary>
         public void EndTurn(bool instant = false)
         {
+            confirmingEndTurn = false;
             if (Victory.IsOver || aiTurn || NotYourTurn) return;
             if (activation != null && activation.Phase == MovePhase.MoveFollowers)
             {
@@ -636,6 +671,15 @@ namespace Eldoria.Gameplay
                 }
             }
 
+            if (confirmingEndTurn)
+            {
+                // Asked whether to end the turn: N or Enter ends it, Esc goes back; nothing else until then.
+                if (kb != null && (kb.nKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame)) EndTurn();
+                else if (kb != null && kb.escapeKey.wasPressedThisFrame) CancelEndTurn();
+                UpdateTimedVisuals();
+                return;
+            }
+
             UpdateHover(mouse);
 
             if (activation == null)
@@ -643,7 +687,7 @@ namespace Eldoria.Gameplay
                 // No unit selected (start of a turn): pick one with Tab or by clicking it.
                 UpdateTimedVisuals();
                 if (kb != null && kb.tabKey.wasPressedThisFrame) SelectNextUnit();
-                if (kb != null && kb.nKey.wasPressedThisFrame) EndTurn();
+                if (kb != null && kb.nKey.wasPressedThisFrame) RequestEndTurn();
                 if (mouse != null && mouse.leftButton.wasPressedThisFrame && !PointerOverHud(mouse))
                 {
                     if (hoverSoldier != null && playerUnits.Contains(hoverSoldier.Unit)) SelectUnit(hoverSoldier.Unit);
@@ -658,7 +702,7 @@ namespace Eldoria.Gameplay
                 if (kb.gKey.wasPressedThisFrame) OrderGather();
                 if (kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame) OrderEndMove();
                 if (kb.backspaceKey.wasPressedThisFrame) OrderReset();
-                if (kb.nKey.wasPressedThisFrame && activation.Phase == MovePhase.Complete) EndTurn();
+                if (kb.nKey.wasPressedThisFrame && activation.Phase == MovePhase.Complete) RequestEndTurn();
                 if (kb.escapeKey.wasPressedThisFrame && activation.Phase == MovePhase.MoveFollowers) selected = null;
                 if (kb.kKey.wasPressedThisFrame) DebugKillLeader();
                 if (kb.fKey.wasPressedThisFrame) ToggleShootMode();
@@ -880,6 +924,7 @@ namespace Eldoria.Gameplay
             if (path == null || path.Points.Count == 0) return;
             if (walking.TryGetValue(m, out var running) && running != null) StopCoroutine(running);
             walkTargets[m] = path.Points[path.Points.Count - 1];
+            m.WalkingTo = walkTargets[m];
             walking[m] = StartCoroutine(WalkRoutine(m, path.Points, fast ? sprintSpeed : walkSpeed));
         }
 
@@ -902,9 +947,11 @@ namespace Eldoria.Gameplay
                     t.position = Vector3.MoveTowards(t.position, target, speed * Time.deltaTime);
                     yield return null;
                 }
+                t.position = target;   // exactly on the spot, not "close enough"
             }
             walking.Remove(m);
             walkTargets.Remove(m);
+            m.WalkingTo = null;
         }
 
         /// <summary>Stops every walk animation, placing each soldier at the spot their move ends (where the rules have them).</summary>
@@ -914,7 +961,11 @@ namespace Eldoria.Gameplay
                 if (c != null) StopCoroutine(c);
             walking.Clear();
             foreach (var kv in walkTargets)
-                if (kv.Key != null) kv.Key.transform.position = kv.Value;
+                if (kv.Key != null)
+                {
+                    kv.Key.transform.position = kv.Value;
+                    kv.Key.WalkingTo = null;
+                }
             walkTargets.Clear();
         }
 
@@ -1005,7 +1056,9 @@ namespace Eldoria.Gameplay
             GUI.Box(hudRect, GUIContent.none);
             GUILayout.BeginArea(new Rect(hudRect.x + 10, hudRect.y + 8, hudRect.width - 20, maxHeight - 16));
             GUILayout.BeginVertical();
+            GUI.enabled = !confirmingEndTurn;
             DrawHud();
+            GUI.enabled = true;
             GUILayout.EndVertical();
             if (Event.current.type == EventType.Repaint)
                 hudRect.height = Mathf.Min(GUILayoutUtility.GetLastRect().height + 16f, maxHeight);
@@ -1013,6 +1066,25 @@ namespace Eldoria.Gameplay
 
             if (Victory.IsOver) DrawBattleOverBanner();
             else if (IsMultiplayer && session.Lost) DrawDisconnectedBanner();
+            else if (confirmingEndTurn) DrawEndTurnQuestion();
+        }
+
+        /// <summary>End turn while units can still move: are you sure?</summary>
+        private void DrawEndTurnQuestion()
+        {
+            var waiting = UnitsThatCanStillMove();
+            if (waiting.Count == 0) { confirmingEndTurn = false; return; }
+            var box = new Rect(Screen.width / 2f - 260f, Screen.height / 2f - 100f, 520f, 200f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Box(box, GUIContent.none);
+            var big = new GUIStyle(GUI.skin.label) { fontSize = 24, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+            var small = new GUIStyle(GUI.skin.label) { fontSize = 15, alignment = TextAnchor.MiddleCenter, wordWrap = true };
+            GUI.Label(new Rect(box.x, box.y + 12f, box.width, 40f), "End your turn?", big);
+            string names = string.Join(", ", waiting.Select(u => u.DisplayName));
+            GUI.Label(new Rect(box.x + 20f, box.y + 55f, box.width - 40f, 75f),
+                (waiting.Count == 1 ? "1 unit hasn't moved yet: " : $"{waiting.Count} units haven't moved yet: ") + names + ".", small);
+            if (GUI.Button(new Rect(box.x + box.width / 2f - 190f, box.y + 140f, 180f, 40f), "End turn (N)")) EndTurn();
+            if (GUI.Button(new Rect(box.x + box.width / 2f + 10f, box.y + 140f, 180f, 40f), "Keep playing (Esc)")) CancelEndTurn();
         }
 
         private void DrawHud()
@@ -1076,7 +1148,7 @@ namespace Eldoria.Gameplay
             if (activation == null)
             {
                 GUILayout.Label("Click one of your units, or press Tab, to command it.", wrap);
-                if (GUILayout.Button("End turn (N)")) EndTurn();
+                if (GUILayout.Button("End turn (N)")) RequestEndTurn();
                 if (!string.IsNullOrEmpty(message) && Time.time < messageUntil) GUILayout.Label(message, wrap);
                 if (recentLog.Count > 0)
                 {
@@ -1133,7 +1205,7 @@ namespace Eldoria.Gameplay
                         if (GUILayout.Button(HasTargets ? "Shoot (F)" : "Shoot — no valid targets")) ToggleShootMode();
                         GUI.enabled = true;
                     }
-                    if (GUILayout.Button("End turn (N)")) EndTurn();
+                    if (GUILayout.Button("End turn (N)")) RequestEndTurn();
                     if (!IsMultiplayer && GUILayout.Button("Kill leader (K, debug)")) DebugKillLeader();
                     GUILayout.EndHorizontal();
                     break;
@@ -1476,7 +1548,7 @@ namespace Eldoria.Gameplay
                     if (s == null) { Mix(ref h, -7); continue; }
                     Mix(ref h, s.IsAlive ? 1 : 0);
                     Mix(ref h, s.Health);
-                    var p = walkTargets.TryGetValue(s, out var t) ? t : s.transform.position;
+                    var p = s.Position;
                     Mix(ref h, Mathf.RoundToInt(p.x * 100f));
                     Mix(ref h, Mathf.RoundToInt(p.z * 100f));
                 }

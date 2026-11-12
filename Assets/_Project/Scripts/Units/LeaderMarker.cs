@@ -40,7 +40,7 @@ namespace Eldoria.Units
             if (!show) return;
 
             float bob = Mathf.Sin(Time.time * 2.5f) * 0.05f;
-            marker.position = leader.Position + Vector3.up * (leader.Height + heightAboveHead + bob);
+            marker.position = leader.transform.position + Vector3.up * (leader.Height + heightAboveHead + bob);
             marker.rotation = Quaternion.Euler(0f, Time.time * 90f, 45f);
         }
     }

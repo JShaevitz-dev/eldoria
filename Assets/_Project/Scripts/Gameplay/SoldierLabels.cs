@@ -74,7 +74,7 @@ namespace Eldoria.Gameplay
 
             foreach (var s in soldiers.Where(s => s != null && s.IsAlive && s.gameObject.activeInHierarchy))
             {
-                Vector3 world = s.Position + Vector3.up * (s.Height + HeightAboveHead);
+                Vector3 world = s.transform.position + Vector3.up * (s.Height + HeightAboveHead);
                 Vector3 screen = cam.WorldToScreenPoint(world);
                 if (screen.z <= 0f || screen.x < -50f || screen.x > Screen.width + 50f || screen.y < -20f || screen.y > Screen.height + 20f)
                     continue;

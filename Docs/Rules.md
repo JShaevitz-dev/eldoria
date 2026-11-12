@@ -107,7 +107,7 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 
 1 **Sergeant** (leader) + 9 **Troopers**. All soldiers are **Biological**.
 
-- **Active ability — Frag Grenade** (every Sergeant and Trooper has it): pick a **spot on the ground within 10 m of the unit leader** (no line of sight needed: it's lobbed over walls). **Every soldier within 2.5 m** of the spot — friend or foe — takes an area attack of **5 damage, penetration 0** (no hit roll; armor and armor keywords count, e.g. vs Armor Level 1 it does 2, rounded down). The explosion **can't go through object or structure terrain** (see Explosions). **Each unit can throw it once per battle**, and throwing it is the unit's action.
+- **Active ability — Frag Grenade** (every Sergeant and Trooper has it; the Medium Tank has one too, with no once-per-battle limit): pick a **spot on the ground within 10 m of the unit leader** (no line of sight needed: it's lobbed over walls). **Every soldier within 2.5 m** of the spot — friend or foe — takes an area attack of **5 damage, penetration 0** (no hit roll; armor and armor keywords count, e.g. vs Armor Level 1 it does 2, rounded down). The explosion **can't go through object or structure terrain** (see Explosions). **Each unit can throw it once per battle**, and throwing it is the unit's action.
 
 | Soldier | Health | Armor Level | Accuracy | Movement | Weapons (primary first) |
 |---|---|---|---|---|---|
@@ -213,11 +213,13 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 
 ### Medium Tank
 
-1 **Medium Tank**, a unit of one, armed with a **100mm Cannon**. Role: **Heavy Support** (more than one can be taken). Every faction can take it.
+1 **Medium Tank**, a unit of one, armed with a **100mm Cannon** and with **Frag Grenade**. Role: **Heavy Support** (more than one can be taken). Every faction can take it.
 
 | Soldier | Health | Armor Level | Accuracy | Movement | Keywords | Weapons |
 |---|---|---|---|---|---|---|
 | Medium Tank | 20 | 4 | 75% | 30 m (**can't sprint**) | Mechanical, Tank, Unstable | 100mm Cannon |
+
+- **Active ability — Frag Grenade:** the same grenade as the infantry's (a spot within 10 m of the tank, 5 damage, penetration 0, to everyone within 2.5 m; throwing it is the unit's action), but with **no once-per-battle limit**: the tank can throw one **every turn**.
 
 - **Mechanical** (soldier keyword, Trait): soldiers with it **can't sprint** (see Movement) and **can't be in close range** (see Close range). The tank also isn't Biological, so Toxic and Incendiary weapons (the Flamethrower) have no effect on it, it can't be healed by Divine Healing, and it doesn't put enemies in close range either.
 - **Tank** (soldier keyword, Trait): a trait for other rules to check.
@@ -415,6 +417,7 @@ Test room terrain:
 ## Turns and the AI opponent — *implemented*
 
 - **Turn order:** each turn, the **player** activates their units, then presses **End turn**; then the **AI** activates all of its units; then the next turn starts.
+- **End turn asks first** if any of the player's units **haven't moved yet** this turn (not destroyed, and not the selected unit once it has finished its move): a box lists them, with **End turn (N or Enter)** and **Keep playing (Esc)**. If every unit has moved, the turn ends straight away. Running out of time on the turn timer doesn't ask.
 - **"Until the start of the next turn" means the caster's own next turn.** Something the player gains on their turn (Divine Sanctuary, Moved...) lasts through the AI's turn and wears off when the player's next turn starts; something the AI gains on its turn lasts through the player's turn and wears off when the AI's next turn starts. For a keyword trigger, it's the next turn of the soldier whose keyword fired.
 - The AI's turn is **watchable**, unit by unit: the camera pans to each unit, it moves, then takes its action. **Skip (Space)** resolves the rest at once. The player can't give orders during it.
 - **How the AI plays** (it uses the same rules as the player):
@@ -444,7 +447,7 @@ Two players can fight each other over the network instead of against the AI.
 - **Leaving:** if either player leaves or the connection drops, the other player is told (**Opponent disconnected**) and returns to the main menu.
 - Debug orders (kill the squad leader) aren't available in multiplayer.
 
-How it works (for development): both games run the battle themselves. The host rolls the dice seed and who goes south, and both games use that seed. Each order the active player gives (select a unit, move, gather, end move, shoot, use an ability, end turn) is sent to the other game, which gives the same order through the same rules and dice. After every order the sending game includes a fingerprint of the battle (turn, every soldier's health and position), and the other game checks its own matches. If they ever disagree, the HUD shows a warning.
+How it works (for development): both games run the battle themselves. The host rolls the dice seed and who goes south, and both games use that seed. Each order the active player gives (select a unit, move, gather, end move, shoot, use an ability, end turn) is sent to the other game, which gives the same order through the same rules and dice. After every order the sending game includes a fingerprint of the battle (turn, every soldier's health and position), and the other game checks its own matches. If they ever disagree, the HUD shows a warning. While a walk animation is playing, the rules (and the fingerprint) use where the soldier's move ends, not how far the animation has got, and every animation ends exactly on that spot, so both games measure from the same place however fast each one draws.
 
 ## Winning — *implemented*
 

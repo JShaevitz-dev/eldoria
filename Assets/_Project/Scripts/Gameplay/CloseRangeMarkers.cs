@@ -56,7 +56,7 @@ namespace Eldoria.Gameplay
             foreach (var kv in markers)
             {
                 if (kv.Key == null || kv.Value == null || !kv.Value.gameObject.activeSelf) continue;
-                kv.Value.position = kv.Key.Position + Vector3.up * (kv.Key.Height + HeightAboveHead + bob);
+                kv.Value.position = kv.Key.transform.position + Vector3.up * (kv.Key.Height + HeightAboveHead + bob);
                 kv.Value.rotation = Quaternion.Euler(45f, Time.time * 120f, 45f);
             }
         }
@@ -74,7 +74,7 @@ namespace Eldoria.Gameplay
                 if (marker != null)
                 {
                     marker.gameObject.SetActive(inCloseRange);
-                    if (inCloseRange) marker.position = s.Position + Vector3.up * (s.Height + HeightAboveHead);
+                    if (inCloseRange) marker.position = s.transform.position + Vector3.up * (s.Height + HeightAboveHead);
                 }
             }
         }

@@ -159,6 +159,36 @@ namespace Eldoria.Tests
         }
 
         [UnityTest]
+        public IEnumerator AWalkingSoldierIsWhereTheirMoveEnds()
+        {
+            // The rules (and the multiplayer fingerprint) use the end of the move, however far the animation has got,
+            // and the animation ends exactly there.
+            yield return StartBattle(Side.Player);
+            var c = Controller;
+            var unit = c.PlayerUnits.First(u => u.Template.displayName == "Infantry Squad");
+            Assert.That(c.SelectUnit(unit), Is.True);
+            var leader = unit.Leader;
+            var start = leader.transform.position;
+            Assert.That(c.OrderLeaderMove(start + Vector3.forward * 4f), Is.True);
+            long checksum = c.StateChecksum();
+            var end = leader.Position;
+            Assert.That(Vector3.Distance(end, start), Is.GreaterThan(3f), "the rules have the leader at the end of the move");
+            Assert.That(leader.WalkingTo, Is.EqualTo(end));
+            yield return null;
+            Assert.That(c.AnyoneWalking, Is.True);
+            Assert.That(Vector3.Distance(leader.transform.position, end), Is.GreaterThan(0.5f), "still walking");
+            Assert.That(leader.Position, Is.EqualTo(end));
+            Assert.That(c.StateChecksum(), Is.EqualTo(checksum));
+
+            float until = Time.realtimeSinceStartup + 10f;
+            while (c.AnyoneWalking && Time.realtimeSinceStartup < until) yield return null;
+            Assert.That(c.AnyoneWalking, Is.False);
+            Assert.That(leader.WalkingTo, Is.Null);
+            Assert.That(leader.transform.position == end, Is.True, $"exactly on the spot ({leader.transform.position.x:R}, {leader.transform.position.z:R})");
+            Assert.That(c.StateChecksum(), Is.EqualTo(checksum), "the same before and after the animation");
+        }
+
+        [UnityTest]
         public IEnumerator AnOrderThatGivesADifferentResultIsNoticed()
         {
             yield return StartBattle(Side.AI);
